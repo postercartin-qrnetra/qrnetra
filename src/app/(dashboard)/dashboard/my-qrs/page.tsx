@@ -1,10 +1,5 @@
-import { StubPage } from "@/components/stub-page";
+import { redirect } from "next/navigation";
 
-export default function MyQrsPage() {
-  return (
-    <StubPage
-      title="My QRs"
-      description="List and manage vehicle, child, and pet profiles — Supabase `qrs` table integration next."
-    />
-  );
+export default function MyQrsRedirectPage() {
+  redirect("/dashboard/tags");
 }

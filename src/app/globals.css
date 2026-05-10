@@ -1,26 +1,82 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --qn-black: #111111;
+  --qn-accent: #ffd400;
+  --qn-bg: #fafafa;
+  --qn-bg-soft: #f4f4f5;
+  --qn-muted: #71717a;
+  --qn-border: #e4e4e7;
+  --background: #fafafa;
+  --foreground: #111111;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-qn-black: var(--qn-black);
+  --color-qn-accent: var(--qn-accent);
+  --color-qn-bg: var(--qn-bg);
+  --color-qn-muted: var(--qn-muted);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@keyframes qn-marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes qn-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes qn-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-qn-marquee {
+  animation: qn-marquee 45s linear infinite;
+}
+
+.animate-qn-float {
+  animation: qn-float 5s ease-in-out infinite;
+}
+
+.animate-qn-float-delayed {
+  animation: qn-float 5s ease-in-out infinite;
+  animation-delay: 1.2s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-qn-marquee {
+    animation: none;
+  }
+  .animate-qn-float,
+  .animate-qn-float-delayed {
+    animation: none;
   }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
 }

@@ -12,10 +12,20 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
 
-  const qrId =
-    typeof body === "object" && body !== null && "qr_id" in body
-      ? (body as { qr_id?: string }).qr_id
-      : undefined;
+  const b =
+    typeof body === "object" && body !== null
+      ? (body as {
+          qr_id?: string;
+          device_type?: string;
+        })
+      : {};
+
+  const qrId = b.qr_id;
+  const deviceTypeRaw = b.device_type;
+  const device_type =
+    typeof deviceTypeRaw === "string"
+      ? deviceTypeRaw.slice(0, 64) || null
+      : null;
 
   if (!qrId || typeof qrId !== "string") {
     return NextResponse.json({ error: "qr_id is required" }, { status: 400 });
@@ -28,18 +38,24 @@ export async function POST(req: NextRequest) {
   }
 
   const forwarded = req.headers.get("x-forwarded-for");
-  const rawIp = forwarded?.split(",")[0]?.trim() ?? req.headers.get("x-real-ip") ?? "unknown";
+  const rawIp =
+    forwarded?.split(",")[0]?.trim() ?? req.headers.get("x-real-ip") ?? "unknown";
   const ip_hash = createHash("sha256").update(rawIp).digest("hex").slice(0, 48);
   const user_agent = req.headers.get("user-agent")?.slice(0, 512) ?? "";
 
   try {
     const supabase = createPublicServerClient();
-    const { error } = await supabase.from("scan_events").insert({
+    const insertPayload: Record<string, unknown> = {
       qr_id: qrId,
       ip_hash,
       user_agent,
       geo_hint: null,
-    });
+    };
+    if (device_type !== null) {
+      insertPayload.device_type = device_type;
+    }
+
+    const { error } = await supabase.from("scan_events").insert(insertPayload);
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 400 });
