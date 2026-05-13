@@ -5,6 +5,9 @@ export const dynamic = "force-dynamic";
 
 export default async function DashboardHomePage() {
   const supabase = await createClient();
+  if (!supabase) {
+    return null;
+  }
   const {
     data: { user },
   } = await supabase.auth.getUser();

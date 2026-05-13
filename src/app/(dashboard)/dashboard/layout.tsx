@@ -4,20 +4,32 @@ import { DashboardShell } from "@/components/dashboard-shell";
 
 export const dynamic = "force-dynamic";
 
+function MissingEnvNotice() {
+  return (
+    <div className="min-h-screen bg-[#fafafa] px-4 py-16">
+      <div className="mx-auto max-w-xl rounded-2xl border border-amber-200 bg-amber-50 p-6 text-sm leading-relaxed text-amber-900">
+        <p className="font-semibold">Supabase is not configured.</p>
+        <p className="mt-2">
+          Set <code className="rounded bg-white/60 px-1 py-0.5">NEXT_PUBLIC_SUPABASE_URL</code>{" "}
+          and <code className="rounded bg-white/60 px-1 py-0.5">NEXT_PUBLIC_SUPABASE_ANON_KEY</code>{" "}
+          in your environment (locally in <code>.env.local</code>, in production
+          via the Vercel project settings) and redeploy.
+        </p>
+      </div>
+    </div>
+  );
+}
+
 export default async function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
-    return (
-      <div className="p-8 text-sm text-red-600">
-        Missing NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_ANON_KEY. Configure `.env.local`.
-      </div>
-    );
+  const supabase = await createClient();
+  if (!supabase) {
+    return <MissingEnvNotice />;
   }
 
-  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();

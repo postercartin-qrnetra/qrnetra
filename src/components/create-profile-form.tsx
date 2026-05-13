@@ -91,8 +91,22 @@ function Hidden({ name, value }: { name: string; value: string }) {
   return <input type="hidden" name={name} value={value} />;
 }
 
+function readDraft(type: QrKind): Record<string, string> {
+  if (typeof window === "undefined") return {};
+  try {
+    const raw = window.localStorage.getItem(draftKey(type));
+    if (!raw) return {};
+    const parsed = JSON.parse(raw) as Record<string, string>;
+    return parsed && typeof parsed === "object" ? parsed : {};
+  } catch {
+    return {};
+  }
+}
+
 export function CreateProfileForm({ type }: { type: QrKind }) {
   const [step, setStep] = useState<1 | 2>(1);
+  // Start empty so the SSR markup matches the client's first render. We hydrate
+  // the localStorage draft after mount to avoid a hydration mismatch.
   const [values, setValues] = useState<Record<string, string>>({});
   const [state, formAction, pending] = useActionState(
     createQrProfileAction,
@@ -101,18 +115,11 @@ export function CreateProfileForm({ type }: { type: QrKind }) {
 
   useEffect(() => {
     clearOnboardingDraftMarker();
-  }, []);
-
-  useEffect(() => {
-    try {
-      const raw = localStorage.getItem(draftKey(type));
-      if (raw) {
-        const parsed = JSON.parse(raw) as Record<string, string>;
-        setValues((v) => ({ ...parsed, ...v }));
-      }
-    } catch {
-      /* ignore */
-    }
+    // Sync with the localStorage external store after mount. Safe to update
+    // state inside this effect — it's a one-shot read, not a render-driven
+    // cascade.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setValues((curr) => ({ ...readDraft(type), ...curr }));
   }, [type]);
 
   useEffect(() => {

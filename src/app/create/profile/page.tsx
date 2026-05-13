@@ -17,6 +17,20 @@ export default async function CreateProfilePage({ searchParams }: Props) {
   }
 
   const supabase = await createClient();
+  if (!supabase) {
+    return (
+      <div className="mx-auto max-w-xl px-4 py-16 text-sm leading-relaxed text-amber-900">
+        <p className="font-semibold">Supabase is not configured.</p>
+        <p className="mt-2">
+          The deployment is missing{" "}
+          <code className="rounded bg-amber-50 px-1 py-0.5">NEXT_PUBLIC_SUPABASE_URL</code>{" "}
+          or{" "}
+          <code className="rounded bg-amber-50 px-1 py-0.5">NEXT_PUBLIC_SUPABASE_ANON_KEY</code>.
+          Set them in your Vercel project settings and redeploy.
+        </p>
+      </div>
+    );
+  }
   const {
     data: { user },
   } = await supabase.auth.getUser();

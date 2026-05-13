@@ -10,6 +10,9 @@ type Props = { searchParams: Promise<{ new?: string }> };
 export default async function DashboardTagsPage({ searchParams }: Props) {
   const { new: newSlug } = await searchParams;
   const supabase = await createClient();
+  if (!supabase) {
+    return null;
+  }
   const {
     data: { user },
   } = await supabase.auth.getUser();

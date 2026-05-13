@@ -29,6 +29,12 @@ export async function createQrProfileAction(
   }
 
   const supabase = await createClient();
+  if (!supabase) {
+    return {
+      error:
+        "Server is missing Supabase environment variables. Contact support.",
+    };
+  }
   const {
     data: { user },
   } = await supabase.auth.getUser();

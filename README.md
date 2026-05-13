@@ -1,36 +1,101 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# QRNetra
 
-## Getting Started
+Privacy-first QR safety tags for vehicles, kids, pets, and fleets. Built on Next.js 16 (App Router), Tailwind v4, and Supabase.
 
-First, run the development server:
+## Local development
 
 ```bash
+npm install
+cp .env.example .env.local   # then fill in the values
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3000.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+If you want a fully offline stack, start Supabase locally with `npx supabase start` (Docker required) and point `.env.local` at `http://127.0.0.1:54321`.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Deploying to Vercel
 
-## Learn More
+The single most common cause of "Internal Server Error" on a fresh Vercel deploy is **missing environment variables**. `.env.local` is gitignored on purpose, so the values you use locally do **not** travel to Vercel.
 
-To learn more about Next.js, take a look at the following resources:
+### 1. Set environment variables in Vercel
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+In **Project → Settings → Environment Variables**, add the following for all three environments (Production, Preview, Development):
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+| Name | Value | Notes |
+| --- | --- | --- |
+| `NEXT_PUBLIC_SUPABASE_URL` | `https://<project-ref>.supabase.co` | From Supabase dashboard → Settings → API |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | `eyJ...` (anon, **not** service role) | From Supabase dashboard → Settings → API |
+| `NEXT_PUBLIC_SITE_URL` | `https://your-domain.com` | Optional. If unset, falls back to `NEXT_PUBLIC_VERCEL_URL` |
+| `SUPABASE_SERVICE_ROLE_KEY` | `eyJ...` (server only) | Only required if you add admin scripts or webhooks |
 
-## Deploy on Vercel
+> Do **not** copy your local `127.0.0.1:54321` URL into Vercel.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### 2. Configure Supabase Auth redirects
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+In **Supabase → Authentication → URL Configuration → Redirect URLs**, add:
+
+```
+http://localhost:3000/auth/callback
+https://your-domain.com/auth/callback
+```
+
+Replace the production URL with your real Vercel domain. If you use Google OAuth, also enable the Google provider in **Authentication → Providers**.
+
+### 3. Run database migrations
+
+```bash
+npx supabase link --project-ref <project-ref>
+npx supabase db push
+```
+
+This applies the two migrations in [supabase/migrations/](supabase/migrations/): the core schema and the MVP additions (`profile_extra`, `device_type`, `business` kind).
+
+### 4. Deploy
+
+```bash
+git push          # Vercel auto-deploys
+```
+
+Or trigger a deploy from the Vercel dashboard. The build runs `next build` (no lint step) and should complete in ~5s on Vercel's infrastructure.
+
+## Production safety features
+
+- **`src/proxy.ts`** — Next.js 16 proxy (formerly middleware) refreshes Supabase sessions on every protected request. Skips `/_next/*`, static assets, `/api/*`, `/auth/callback`, and `/s/[slug]` so public scan pages work without auth cookies.
+- **Env-safe Supabase clients** — `createClient()` and `createPublicServerClient()` return `null` (not throw) when env vars are missing, so a misconfigured deploy renders a friendly banner instead of a bare "Internal Server Error".
+- **Global error boundaries** — `src/app/error.tsx`, `src/app/global-error.tsx`, and `src/app/not-found.tsx` catch unhandled runtime errors and surface a friendly UI plus an error digest for log correlation.
+
+## Project structure
+
+```
+src/
+  app/
+    (marketing)/         # public landing + policy pages
+    (auth)/login/        # sign-in / sign-up
+    (dashboard)/         # auth-gated owner dashboard
+    (shop)/              # storefront (stub)
+    create/              # 2-step QR onboarding flow
+    s/[slug]/            # public scan page (anonymous)
+    api/scan/            # scan event ingest
+    auth/callback/       # Supabase OAuth code exchange
+    error.tsx            # in-tree error boundary
+    global-error.tsx     # root-layout error boundary
+    not-found.tsx        # 404 page
+  components/            # client + server components
+  lib/
+    supabase/            # browser, server, proxy, public-server clients
+    onboarding/          # localStorage helpers + safe-next redirect guard
+    qr/                  # slug generation, kind enum, public payload type
+  proxy.ts               # Next.js 16 proxy (was middleware)
+supabase/
+  migrations/            # SQL migrations
+```
+
+## Scripts
+
+```bash
+npm run dev       # next dev (Turbopack)
+npm run build     # next build
+npm start         # next start (production mode)
+npm run lint      # eslint
+```

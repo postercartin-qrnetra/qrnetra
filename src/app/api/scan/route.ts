@@ -45,6 +45,12 @@ export async function POST(req: NextRequest) {
 
   try {
     const supabase = createPublicServerClient();
+    if (!supabase) {
+      return NextResponse.json(
+        { error: "Supabase env vars not configured" },
+        { status: 503 },
+      );
+    }
     const insertPayload: Record<string, unknown> = {
       qr_id: qrId,
       ip_hash,

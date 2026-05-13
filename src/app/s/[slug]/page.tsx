@@ -34,23 +34,34 @@ function ActionLink({
 export default async function PublicScanPage({ params }: Props) {
   const { slug } = await params;
 
+  const supabase = createPublicServerClient();
+  if (!supabase) {
+    notFound();
+  }
+
+  // Fetch + validate without calling notFound() inside the try block — calling
+  // notFound() throws a NEXT_HTTP_ERROR_FALLBACK error which would otherwise be
+  // re-caught by our own catch and produce noisy logs. We collect the result,
+  // bail out via notFound() exactly once after the try/catch resolves.
   let data: PublicQrScanPayload | null = null;
+  let rpcFailed = false;
   try {
-    const supabase = createPublicServerClient();
     const { data: rpcData, error } = await supabase.rpc(
       "get_qr_for_public_scan",
       { p_slug: slug },
     );
     if (error) {
-      console.error(error.message);
-      notFound();
+      console.error("public scan RPC error:", error.message);
+      rpcFailed = true;
+    } else {
+      data = rpcData as PublicQrScanPayload | null;
     }
-    data = rpcData as PublicQrScanPayload | null;
-  } catch {
-    notFound();
+  } catch (e) {
+    console.error("public scan RPC threw:", e);
+    rpcFailed = true;
   }
 
-  if (!data?.id) {
+  if (rpcFailed || !data?.id) {
     notFound();
   }
 
