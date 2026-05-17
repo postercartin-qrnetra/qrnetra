@@ -1,7 +1,7 @@
 "use client";
 
-import Link from "next/link";
-import { persistOnboardingPath } from "@/lib/onboarding/client-storage";
+import { isQrKind } from "@/lib/qr/types";
+import { ProfileTypeContinueButton } from "./profile-type-continue-button";
 
 type Props = {
   profilePath: string;
@@ -9,21 +9,29 @@ type Props = {
   children: React.ReactNode;
 };
 
+/**
+ * @deprecated Prefer ProfileTypeContinueButton with an explicit QrKind.
+ * Kept for any legacy links that pass `/create/profile?type=…`.
+ */
 export function ContinueToLoginLink({
   profilePath,
   className,
   children,
 }: Props) {
-  const next = encodeURIComponent(profilePath);
-  const href = `/login?next=${next}`;
+  const match = profilePath.match(/[?&]type=([^&]+)/);
+  const rawType = match?.[1] ?? "";
+
+  if (!isQrKind(rawType)) {
+    return (
+      <a href="/create/type" className={className}>
+        {children}
+      </a>
+    );
+  }
 
   return (
-    <Link
-      href={href}
-      className={className}
-      onClick={() => persistOnboardingPath(profilePath)}
-    >
+    <ProfileTypeContinueButton type={rawType} className={className}>
       {children}
-    </Link>
+    </ProfileTypeContinueButton>
   );
 }

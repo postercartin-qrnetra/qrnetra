@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { CreateProfileForm } from "@/components/create-profile-form";
+import { CreateProfilePlaceholder } from "@/components/onboarding/create-profile-placeholder";
 import { isQrKind } from "@/lib/qr/types";
 import type { Metadata } from "next";
 
@@ -23,14 +23,19 @@ export default async function CreateProfilePage({ searchParams }: Props) {
         <p className="font-semibold">Supabase is not configured.</p>
         <p className="mt-2">
           The deployment is missing{" "}
-          <code className="rounded bg-amber-50 px-1 py-0.5">NEXT_PUBLIC_SUPABASE_URL</code>{" "}
+          <code className="rounded bg-amber-50 px-1 py-0.5">
+            NEXT_PUBLIC_SUPABASE_URL
+          </code>{" "}
           or{" "}
-          <code className="rounded bg-amber-50 px-1 py-0.5">NEXT_PUBLIC_SUPABASE_ANON_KEY</code>.
-          Set them in your Vercel project settings and redeploy.
+          <code className="rounded bg-amber-50 px-1 py-0.5">
+            NEXT_PUBLIC_SUPABASE_ANON_KEY
+          </code>
+          . Set them in your Vercel project settings and redeploy.
         </p>
       </div>
     );
   }
+
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -41,5 +46,7 @@ export default async function CreateProfilePage({ searchParams }: Props) {
     );
   }
 
-  return <CreateProfileForm type={type} />;
+  return (
+    <CreateProfilePlaceholder type={type} userEmail={user.email ?? null} />
+  );
 }

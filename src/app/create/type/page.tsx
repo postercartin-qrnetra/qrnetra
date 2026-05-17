@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { ContinueToLoginLink } from "@/components/onboarding/continue-to-login-link";
+import { ProfileTypeContinueButton } from "@/components/onboarding/profile-type-continue-button";
 
 export const metadata: Metadata = {
   title: "Choose profile type",
@@ -80,12 +80,12 @@ export default function CreateTypePage() {
             <p className="mt-2 flex-1 text-sm leading-relaxed text-zinc-600">
               {o.desc}
             </p>
-            <ContinueToLoginLink
-              profilePath={`/create/profile?type=${o.type}`}
-              className="mt-6 inline-flex h-11 items-center justify-center rounded-full bg-[#ffd400] text-sm font-semibold text-[#111111] transition-transform hover:scale-[1.02]"
+            <ProfileTypeContinueButton
+              type={o.type}
+              className="mt-6 inline-flex h-11 w-full items-center justify-center rounded-full bg-[#ffd400] text-sm font-semibold text-[#111111] transition-transform hover:scale-[1.02] disabled:opacity-70"
             >
               Continue
-            </ContinueToLoginLink>
+            </ProfileTypeContinueButton>
           </div>
         ))}
       </div>

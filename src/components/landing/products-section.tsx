@@ -1,9 +1,21 @@
+"use client";
+
 import Link from "next/link";
+import { ProfileTypeContinueButton } from "@/components/onboarding/profile-type-continue-button";
+import type { QrKind } from "@/lib/qr/types";
 import { Section } from "./section";
 
-const PRODUCTS = [
+const PRODUCTS: {
+  name: string;
+  type: QrKind;
+  price: string;
+  features: string[];
+  badge: string;
+  gradient: string;
+}[] = [
   {
     name: "Vehicle QR Sticker",
+    type: "vehicle",
     price: "From ₹299",
     features: ["Weatherproof vinyl", "Masked contact", "Wrong parking ready"],
     badge: "Bestseller",
@@ -11,6 +23,7 @@ const PRODUCTS = [
   },
   {
     name: "Child Safety Wristband",
+    type: "child",
     price: "From ₹399",
     features: ["Soft silicone", "Medical fields", "School-safe ID"],
     badge: "Parent pick",
@@ -18,6 +31,7 @@ const PRODUCTS = [
   },
   {
     name: "Pet QR Tag",
+    type: "pet",
     price: "From ₹249",
     features: ["Collar mount", "Lost mode ready", "Vet contacts"],
     badge: "Popular",
@@ -25,6 +39,7 @@ const PRODUCTS = [
   },
   {
     name: "Business / Fleet QR",
+    type: "business",
     price: "Custom",
     features: ["Bulk pricing", "Admin roles", "Branded tags"],
     badge: "B2B",
@@ -85,12 +100,12 @@ export function ProductsSection() {
                 ))}
               </ul>
               <p className="mt-4 text-sm font-bold text-[#111111]">{p.price}</p>
-              <Link
-                href="/shop"
-                className="mt-4 inline-flex h-10 items-center justify-center rounded-full bg-[#111111] text-sm font-semibold text-white transition-colors hover:bg-zinc-800"
+              <ProfileTypeContinueButton
+                type={p.type}
+                className="mt-4 inline-flex h-10 w-full items-center justify-center rounded-full bg-[#111111] text-sm font-semibold text-white transition-colors hover:bg-zinc-800 disabled:opacity-70"
               >
                 Get started
-              </Link>
+              </ProfileTypeContinueButton>
             </div>
           </article>
         ))}

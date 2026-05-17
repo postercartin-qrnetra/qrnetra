@@ -1,5 +1,8 @@
 import { Suspense } from "react";
+import { redirect } from "next/navigation";
 import { AuthLoginForm } from "@/components/auth-login-form";
+import { createClient } from "@/lib/supabase/server";
+import { safeNextPath } from "@/lib/onboarding/safe-next";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -56,7 +59,22 @@ function LeftPanel() {
   );
 }
 
-export default function LoginPage() {
+type Props = { searchParams: Promise<{ next?: string }> };
+
+export default async function LoginPage({ searchParams }: Props) {
+  const { next: nextRaw } = await searchParams;
+  const supabase = await createClient();
+
+  if (supabase) {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (user) {
+      redirect(safeNextPath(nextRaw ?? null));
+    }
+  }
+
   return (
     <div className="min-h-screen bg-[#fafafa] lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)]">
       <LeftPanel />
