@@ -1,6 +1,9 @@
+export type QrPublicStatus = "active" | "paused" | "disabled" | "expired";
+
 export type PublicQrScanPayload = {
   id: string;
   slug: string;
+  status?: QrPublicStatus | string | null;
   kind: string;
   title: string | null;
   message: string | null;

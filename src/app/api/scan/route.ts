@@ -14,17 +14,13 @@ export async function POST(req: NextRequest) {
 
   const b =
     typeof body === "object" && body !== null
-      ? (body as {
-          qr_id?: string;
-          device_type?: string;
-        })
+      ? (body as { qr_id?: string; device_type?: string })
       : {};
 
   const qrId = b.qr_id;
-  const deviceTypeRaw = b.device_type;
-  const device_type =
-    typeof deviceTypeRaw === "string"
-      ? deviceTypeRaw.slice(0, 64) || null
+  const device =
+    typeof b.device_type === "string"
+      ? b.device_type.slice(0, 64) || null
       : null;
 
   if (!qrId || typeof qrId !== "string") {
@@ -41,7 +37,6 @@ export async function POST(req: NextRequest) {
   const rawIp =
     forwarded?.split(",")[0]?.trim() ?? req.headers.get("x-real-ip") ?? "unknown";
   const ip_hash = createHash("sha256").update(rawIp).digest("hex").slice(0, 48);
-  const user_agent = req.headers.get("user-agent")?.slice(0, 512) ?? "";
 
   try {
     const supabase = createPublicServerClient();
@@ -51,20 +46,24 @@ export async function POST(req: NextRequest) {
         { status: 503 },
       );
     }
-    const insertPayload: Record<string, unknown> = {
-      qr_id: qrId,
-      ip_hash,
-      user_agent,
-      geo_hint: null,
-    };
-    if (device_type !== null) {
-      insertPayload.device_type = device_type;
-    }
 
-    const { error } = await supabase.from("scan_events").insert(insertPayload);
+    const { error } = await supabase.rpc("record_qr_scan", {
+      p_qr_id: qrId,
+      p_device: device,
+      p_ip_hash: ip_hash,
+    });
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 400 });
+      // Fallback for projects not yet migrated
+      const { error: legacyErr } = await supabase.from("scan_events").insert({
+        qr_id: qrId,
+        ip_hash,
+        user_agent: req.headers.get("user-agent")?.slice(0, 512) ?? "",
+        device_type: device,
+      });
+      if (legacyErr) {
+        return NextResponse.json({ error: legacyErr.message }, { status: 400 });
+      }
     }
   } catch (e) {
     const message = e instanceof Error ? e.message : "Server error";

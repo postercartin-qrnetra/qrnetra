@@ -8,6 +8,7 @@ type Props = {
   scanUrl: string;
   title: string;
   kind: string;
+  qrId?: string;
   vehicleReg?: string | null;
   whatsappNumber?: string | null;
 };
@@ -23,6 +24,7 @@ export function QrDeliveryCard({
   scanUrl,
   title,
   kind,
+  qrId,
   vehicleReg,
   whatsappNumber,
 }: Props) {
@@ -276,6 +278,9 @@ export function QrDeliveryCard({
         </h1>
         <p className="mt-2 text-sm text-zinc-600">
           Scan, download, or share — your data is live.
+        </p>
+        <p className="mt-3 inline-flex items-center gap-2 rounded-full bg-zinc-100 px-4 py-1.5 font-mono text-xs font-semibold text-zinc-700">
+          QR ID · {slug}
         </p>
       </div>
 

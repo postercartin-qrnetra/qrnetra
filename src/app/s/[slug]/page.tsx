@@ -76,6 +76,44 @@ export default async function PublicScanPage({ params }: Props) {
     notFound();
   }
 
+  const qrStatus = (data.status ?? "active").toLowerCase();
+
+  if (qrStatus === "disabled") {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center bg-zinc-50 px-6 py-16 text-center">
+        <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-zinc-400">
+          QRNetra
+        </p>
+        <h1 className="mt-4 text-2xl font-bold text-[#111111]">
+          This QR is inactive
+        </h1>
+        <p className="mt-3 max-w-sm text-sm leading-relaxed text-zinc-600">
+          The owner has disabled this emergency tag. If you need help, contact
+          local authorities or emergency services.
+        </p>
+        <p className="mt-8 font-mono text-xs text-zinc-400">{data.slug}</p>
+      </div>
+    );
+  }
+
+  if (qrStatus === "paused") {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center bg-zinc-50 px-6 py-16 text-center">
+        <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-zinc-400">
+          QRNetra
+        </p>
+        <h1 className="mt-4 text-2xl font-bold text-[#111111]">
+          Temporarily unavailable
+        </h1>
+        <p className="mt-3 max-w-sm text-sm leading-relaxed text-zinc-600">
+          This emergency QR is paused by the owner. Please try again later or
+          use another way to reach them.
+        </p>
+        <p className="mt-8 font-mono text-xs text-zinc-400">{data.slug}</p>
+      </div>
+    );
+  }
+
   const ch = data.channels ?? {};
   const waDigits = digitsForWhatsApp(data.whatsapp_phone ?? data.owner_phone);
   const waHref =

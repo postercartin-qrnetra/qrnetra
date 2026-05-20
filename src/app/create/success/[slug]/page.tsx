@@ -1,6 +1,7 @@
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getPublicSiteUrl } from "@/lib/site-url";
+import { buildPublicScanUrl } from "@/lib/qr/slug";
 import { QrDeliveryCard } from "@/components/qr-delivery-card";
 import type { Metadata } from "next";
 
@@ -29,6 +30,43 @@ export default async function CreateSuccessPage({ params }: Props) {
     redirect(`/login?next=/create/success/${encodeURIComponent(slug)}`);
   }
 
+  const { data: qrCode, error: codeErr } = await supabase
+    .from("qr_codes")
+    .select("id, slug, qr_url, status, profile_id")
+    .eq("slug", slug)
+    .single();
+
+  if (!codeErr && qrCode) {
+    const { data: profile } = await supabase
+      .from("qr_profiles")
+      .select("name, profile_type, data_json, phone, user_id")
+      .eq("id", qrCode.profile_id)
+      .single();
+
+    if (!profile || profile.user_id !== user.id) {
+      notFound();
+    }
+
+    const site = getPublicSiteUrl();
+    const scanUrl = qrCode.qr_url || buildPublicScanUrl(site, qrCode.slug);
+    const extra = (profile.data_json ?? {}) as Record<string, string>;
+    const whatsapp =
+      typeof extra.whatsapp === "string" ? extra.whatsapp : null;
+
+    return (
+      <QrDeliveryCard
+        qrId={qrCode.id}
+        slug={qrCode.slug}
+        scanUrl={scanUrl}
+        title={profile.name ?? "Emergency QR"}
+        kind={profile.profile_type ?? "vehicle"}
+        vehicleReg={extra.vehicle_number ?? extra.asset_id ?? null}
+        whatsappNumber={whatsapp ?? profile.phone}
+      />
+    );
+  }
+
+  // Legacy qrs fallback
   const { data: qr, error } = await supabase
     .from("qrs")
     .select(
@@ -43,10 +81,11 @@ export default async function CreateSuccessPage({ params }: Props) {
   }
 
   const site = getPublicSiteUrl();
-  const scanUrl = `${site}/s/${qr.public_slug}`;
+  const scanUrl = buildPublicScanUrl(site, qr.public_slug);
 
   return (
     <QrDeliveryCard
+      qrId={qr.id}
       slug={qr.public_slug}
       scanUrl={scanUrl}
       title={qr.title ?? qr.vehicle_registration ?? "Emergency QR"}

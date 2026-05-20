@@ -3,21 +3,24 @@ import { createClient } from "@/lib/supabase/server";
 import { QrPreview } from "@/components/qr-preview";
 import { QrTagActions } from "@/components/qr-tag-actions";
 import { getPublicSiteUrl } from "@/lib/site-url";
+import { buildPublicScanUrl } from "@/lib/qr/slug";
 
 export const dynamic = "force-dynamic";
 
 type Props = { searchParams: Promise<{ new?: string }> };
 
-type TagRow = {
-  id: string;
-  public_slug: string;
-  kind: string;
-  title: string | null;
-  created_at: string;
-  vehicle_registration: string | null;
-  status: string;
-  scan_events: { count: number }[];
+type QrProfileEmbed = {
+  name: string;
+  profile_type: string;
+  data_json: Record<string, string> | null;
 };
+
+function embedProfile(
+  raw: QrProfileEmbed | QrProfileEmbed[] | null,
+): QrProfileEmbed | null {
+  if (!raw) return null;
+  return Array.isArray(raw) ? raw[0] ?? null : raw;
+}
 
 export default async function DashboardTagsPage({ searchParams }: Props) {
   const { new: newSlug } = await searchParams;
@@ -33,21 +36,67 @@ export default async function DashboardTagsPage({ searchParams }: Props) {
     return null;
   }
 
-  const { data: tags, error } = await supabase
-    .from("qrs")
+  const { data: codes, error: codesError } = await supabase
+    .from("qr_codes")
     .select(
-      "id, public_slug, kind, title, created_at, vehicle_registration, status, scan_events(count)",
+      "id, slug, status, scans, created_at, qr_profiles!inner(name, profile_type, data_json, user_id)",
     )
-    .eq("owner_user_id", user.id)
-    .order("created_at", { ascending: false })
-    .returns<TagRow[]>();
+    .eq("qr_profiles.user_id", user.id)
+    .order("created_at", { ascending: false });
 
-  if (error) {
-    return (
-      <p className="text-sm text-red-600">
-        Could not load tags: {error.message}
-      </p>
-    );
+  let tags: Array<{
+    id: string;
+    slug: string;
+    kind: string;
+    title: string | null;
+    status: string;
+    scans: number;
+    vehicle_registration: string | null;
+  }> = [];
+
+  if (!codesError && codes?.length) {
+    tags = codes.map((c) => {
+      const p = embedProfile(
+        c.qr_profiles as QrProfileEmbed | QrProfileEmbed[] | null,
+      );
+      const extra = p?.data_json ?? {};
+      return {
+        id: c.id,
+        slug: c.slug,
+        kind: p?.profile_type ?? "vehicle",
+        title: p?.name ?? null,
+        status: c.status,
+        scans: c.scans ?? 0,
+        vehicle_registration:
+          extra.vehicle_number ?? extra.asset_id ?? null,
+      };
+    });
+  } else {
+    const { data: legacy, error } = await supabase
+      .from("qrs")
+      .select(
+        "id, public_slug, kind, title, created_at, vehicle_registration, status",
+      )
+      .eq("owner_user_id", user.id)
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      return (
+        <p className="text-sm text-red-600">
+          Could not load tags: {error.message}
+        </p>
+      );
+    }
+
+    tags = (legacy ?? []).map((t) => ({
+      id: t.id,
+      slug: t.public_slug,
+      kind: t.kind,
+      title: t.title,
+      status: t.status,
+      scans: 0,
+      vehicle_registration: t.vehicle_registration,
+    }));
   }
 
   const site = getPublicSiteUrl();
@@ -60,7 +109,8 @@ export default async function DashboardTagsPage({ searchParams }: Props) {
             My QR tags
           </h1>
           <p className="mt-1 text-sm text-zinc-600">
-            Share the public link or print the QR. Scans are logged automatically.
+            Dynamic emergency QRs — edit profile data anytime; the printed code
+            stays the same.
           </p>
         </div>
         <Link
@@ -71,7 +121,7 @@ export default async function DashboardTagsPage({ searchParams }: Props) {
         </Link>
       </div>
 
-      {!tags?.length ? (
+      {!tags.length ? (
         <div className="mt-10 rounded-2xl border border-dashed border-zinc-200 bg-white p-10 text-center">
           <p className="text-sm text-zinc-600">No tags yet.</p>
           <Link
@@ -84,10 +134,10 @@ export default async function DashboardTagsPage({ searchParams }: Props) {
       ) : (
         <ul className="mt-8 grid gap-6 lg:grid-cols-2">
           {tags.map((tag) => {
-            const url = `${site}/s/${tag.public_slug}`;
-            const isNew = newSlug === tag.public_slug;
-            const scanCount = tag.scan_events?.[0]?.count ?? 0;
-            const isDisabled = tag.status !== "active";
+            const url = buildPublicScanUrl(site, tag.slug);
+            const isNew = newSlug === tag.slug;
+            const isDisabled = tag.status === "disabled";
+            const isPaused = tag.status === "paused";
 
             return (
               <li
@@ -106,12 +156,17 @@ export default async function DashboardTagsPage({ searchParams }: Props) {
                   </p>
                 )}
                 <div className="flex flex-col gap-5 sm:flex-row sm:items-start">
-                  <QrPreview url={url} slug={tag.public_slug} />
+                  <QrPreview url={url} slug={tag.slug} />
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">
                       <span className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
                         {tag.kind}
                       </span>
+                      {isPaused && (
+                        <span className="rounded-full bg-amber-50 px-2 py-0.5 text-xs font-semibold text-amber-800">
+                          paused
+                        </span>
+                      )}
                       {isDisabled && (
                         <span className="rounded-full bg-zinc-100 px-2 py-0.5 text-xs font-semibold text-zinc-500">
                           disabled
@@ -128,15 +183,15 @@ export default async function DashboardTagsPage({ searchParams }: Props) {
                     )}
                     <div className="mt-2 flex items-center gap-3">
                       <p className="font-mono text-xs text-zinc-400">
-                        {tag.public_slug}
+                        {tag.slug}
                       </p>
                       <span className="text-zinc-200">·</span>
                       <p className="text-xs font-semibold text-zinc-500">
-                        {scanCount} scan{scanCount !== 1 ? "s" : ""}
+                        {tag.scans} scan{tag.scans !== 1 ? "s" : ""}
                       </p>
                     </div>
                     <Link
-                      href={`/s/${tag.public_slug}`}
+                      href={`/s/${tag.slug}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="mt-3 inline-flex text-sm font-semibold text-[#111111] underline-offset-4 hover:underline"
@@ -145,7 +200,7 @@ export default async function DashboardTagsPage({ searchParams }: Props) {
                     </Link>
                     <QrTagActions
                       qrId={tag.id}
-                      slug={tag.public_slug}
+                      slug={tag.slug}
                       status={tag.status}
                     />
                   </div>
