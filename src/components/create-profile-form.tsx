@@ -1,21 +1,61 @@
 "use client";
 
-import {
-  createQrProfileAction,
-  type CreateQrState,
-} from "@/app/actions/create-qr";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
+import { createQrAction } from "@/app/actions/create-qr";
 import { clearOnboardingDraftMarker } from "@/lib/onboarding/client-storage";
 import type { QrKind } from "@/lib/qr/types";
-import Link from "next/link";
-import { useActionState, useCallback, useEffect, useMemo, useState } from "react";
 
-const initialState: CreateQrState = { error: null };
+// ─── Types ──────────────────────────────────────────────────────────────────
+
+type Values = Record<string, string>;
+type AuthPhase = "idle" | "needs-auth" | "sent-otp" | "submitting";
+
+// ─── Constants ──────────────────────────────────────────────────────────────
+
+const TYPES: { id: QrKind; label: string; emoji: string }[] = [
+  { id: "vehicle", label: "Vehicle", emoji: "🚗" },
+  { id: "child", label: "Child", emoji: "👶" },
+  { id: "pet", label: "Pet", emoji: "🐾" },
+  { id: "business", label: "Business", emoji: "🏢" },
+];
 
 function draftKey(type: QrKind) {
-  return `qrnetra_profile_draft_v1_${type}`;
+  return `qrnetra_form_draft_${type}`;
 }
 
-function Field({
+function saveDraft(type: QrKind, values: Values) {
+  try {
+    localStorage.setItem(draftKey(type), JSON.stringify(values));
+  } catch {
+    /* ignore */
+  }
+}
+
+function loadDraft(type: QrKind): Values {
+  if (typeof window === "undefined") return {};
+  try {
+    const raw = localStorage.getItem(draftKey(type));
+    if (!raw) return {};
+    const parsed = JSON.parse(raw) as Values;
+    return typeof parsed === "object" && parsed !== null ? parsed : {};
+  } catch {
+    return {};
+  }
+}
+
+function clearDraft(type: QrKind) {
+  try {
+    localStorage.removeItem(draftKey(type));
+  } catch {
+    /* ignore */
+  }
+}
+
+// ─── Field primitives ────────────────────────────────────────────────────────
+
+function InputField({
   label,
   name,
   value,
@@ -24,6 +64,7 @@ function Field({
   placeholder,
   required,
   hint,
+  autoComplete,
 }: {
   label: string;
   name: string;
@@ -33,13 +74,15 @@ function Field({
   placeholder?: string;
   required?: boolean;
   hint?: string;
+  autoComplete?: string;
 }) {
   return (
-    <label className="block">
-      <span className="text-sm font-medium text-[#111111]">{label}</span>
-      {hint ? (
-        <span className="mt-0.5 block text-xs text-zinc-500">{hint}</span>
-      ) : null}
+    <div>
+      <label className="block text-sm font-medium text-[#111111]">
+        {label}
+        {required && <span className="ml-0.5 text-red-500">*</span>}
+      </label>
+      {hint && <p className="mt-0.5 text-xs text-zinc-500">{hint}</p>}
       <input
         name={name}
         type={type}
@@ -47,20 +90,21 @@ function Field({
         placeholder={placeholder}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        autoComplete="off"
-        className="mt-2 w-full rounded-xl border border-zinc-200 bg-white px-4 py-3.5 text-base text-[#111111] shadow-sm outline-none transition-shadow placeholder:text-zinc-400 focus:border-zinc-400 focus:ring-2 focus:ring-[#ffd400]/30"
+        autoComplete={autoComplete ?? "off"}
+        className="mt-2 w-full rounded-xl border border-zinc-200 bg-white px-4 py-3 text-base text-[#111111] shadow-sm outline-none transition placeholder:text-zinc-400 focus:border-zinc-400 focus:ring-2 focus:ring-[#ffd400]/30"
       />
-    </label>
+    </div>
   );
 }
 
-function TextArea({
+function TextAreaField({
   label,
   name,
   value,
   onChange,
   placeholder,
   hint,
+  rows = 2,
 }: {
   label: string;
   name: string;
@@ -68,436 +112,681 @@ function TextArea({
   onChange: (v: string) => void;
   placeholder?: string;
   hint?: string;
+  rows?: number;
 }) {
   return (
-    <label className="block">
-      <span className="text-sm font-medium text-[#111111]">{label}</span>
-      {hint ? (
-        <span className="mt-0.5 block text-xs text-zinc-500">{hint}</span>
-      ) : null}
+    <div>
+      <label className="block text-sm font-medium text-[#111111]">{label}</label>
+      {hint && <p className="mt-0.5 text-xs text-zinc-500">{hint}</p>}
       <textarea
         name={name}
-        rows={3}
+        rows={rows}
         placeholder={placeholder}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="mt-2 w-full resize-y rounded-xl border border-zinc-200 bg-white px-4 py-3.5 text-base text-[#111111] shadow-sm outline-none placeholder:text-zinc-400 focus:border-zinc-400 focus:ring-2 focus:ring-[#ffd400]/30"
+        className="mt-2 w-full resize-y rounded-xl border border-zinc-200 bg-white px-4 py-3 text-base text-[#111111] shadow-sm outline-none placeholder:text-zinc-400 focus:border-zinc-400 focus:ring-2 focus:ring-[#ffd400]/30"
       />
-    </label>
+    </div>
   );
 }
 
-function Hidden({ name, value }: { name: string; value: string }) {
-  return <input type="hidden" name={name} value={value} />;
-}
+// ─── Type-specific field sections ────────────────────────────────────────────
 
-function readDraft(type: QrKind): Record<string, string> {
-  if (typeof window === "undefined") return {};
-  try {
-    const raw = window.localStorage.getItem(draftKey(type));
-    if (!raw) return {};
-    const parsed = JSON.parse(raw) as Record<string, string>;
-    return parsed && typeof parsed === "object" ? parsed : {};
-  } catch {
-    return {};
-  }
-}
-
-export function CreateProfileForm({ type }: { type: QrKind }) {
-  const [step, setStep] = useState<1 | 2>(1);
-  // Start empty so the SSR markup matches the client's first render. We hydrate
-  // the localStorage draft after mount to avoid a hydration mismatch.
-  const [values, setValues] = useState<Record<string, string>>({});
-  const [state, formAction, pending] = useActionState(
-    createQrProfileAction,
-    initialState,
+function VehicleFields({
+  values,
+  set,
+  showOptional,
+}: {
+  values: Values;
+  set: (k: string) => (v: string) => void;
+  showOptional: boolean;
+}) {
+  return (
+    <>
+      <InputField
+        label="Your full name"
+        name="full_name"
+        value={values.full_name ?? ""}
+        onChange={set("full_name")}
+        required
+        placeholder="e.g. Rahul Sharma"
+      />
+      <InputField
+        label="Vehicle number"
+        name="vehicle_number"
+        value={values.vehicle_number ?? ""}
+        onChange={set("vehicle_number")}
+        placeholder="e.g. MH 01 AB 1234"
+        hint="Shown to finder — helps identify the vehicle"
+      />
+      <InputField
+        label="Contact number"
+        name="phone"
+        type="tel"
+        value={values.phone ?? ""}
+        onChange={set("phone")}
+        required
+        placeholder="10-digit mobile"
+        hint="Used for direct call when your QR is scanned"
+        autoComplete="tel"
+      />
+      {showOptional && (
+        <>
+          <InputField
+            label="WhatsApp number"
+            name="whatsapp"
+            type="tel"
+            value={values.whatsapp ?? ""}
+            onChange={set("whatsapp")}
+            placeholder="Leave blank if same as contact number"
+          />
+          <InputField
+            label="Alternate / emergency contact"
+            name="alternate_contact"
+            type="tel"
+            value={values.alternate_contact ?? ""}
+            onChange={set("alternate_contact")}
+            placeholder="Backup number shown on scan"
+          />
+          <TextAreaField
+            label="Emergency note"
+            name="emergency_note"
+            value={values.emergency_note ?? ""}
+            onChange={set("emergency_note")}
+            placeholder="e.g. Keys inside glove box, call if car blocks exit"
+            hint="Shown as a message on the scan page"
+          />
+        </>
+      )}
+    </>
   );
+}
 
+function ChildFields({
+  values,
+  set,
+  showOptional,
+}: {
+  values: Values;
+  set: (k: string) => (v: string) => void;
+  showOptional: boolean;
+}) {
+  return (
+    <>
+      <InputField
+        label="Child's name"
+        name="child_name"
+        value={values.child_name ?? ""}
+        onChange={set("child_name")}
+        required
+        placeholder="e.g. Arya"
+      />
+      <InputField
+        label="Parent / guardian contact"
+        name="parent_contact"
+        type="tel"
+        value={values.parent_contact ?? ""}
+        onChange={set("parent_contact")}
+        required
+        placeholder="10-digit mobile"
+        autoComplete="tel"
+      />
+      {showOptional && (
+        <>
+          <InputField
+            label="Parent / guardian name"
+            name="parent_name"
+            value={values.parent_name ?? ""}
+            onChange={set("parent_name")}
+            placeholder="e.g. Priya Sharma"
+          />
+          <InputField
+            label="Emergency contact (secondary)"
+            name="emergency_contact"
+            type="tel"
+            value={values.emergency_contact ?? ""}
+            onChange={set("emergency_contact")}
+            placeholder="Grandparent, uncle, etc."
+          />
+          <InputField
+            label="Blood group"
+            name="blood_group"
+            value={values.blood_group ?? ""}
+            onChange={set("blood_group")}
+            placeholder="e.g. O+"
+          />
+          <TextAreaField
+            label="Allergies"
+            name="allergies"
+            value={values.allergies ?? ""}
+            onChange={set("allergies")}
+            placeholder="e.g. Peanuts, penicillin"
+          />
+          <InputField
+            label="School name"
+            name="school_name"
+            value={values.school_name ?? ""}
+            onChange={set("school_name")}
+            placeholder="e.g. Delhi Public School, Noida"
+          />
+          <TextAreaField
+            label="Emergency instructions"
+            name="emergency_instructions"
+            value={values.emergency_instructions ?? ""}
+            onChange={set("emergency_instructions")}
+            placeholder="e.g. Keep calm, avoid loud noises — has anxiety disorder"
+          />
+          <TextAreaField
+            label="Message for finder"
+            name="emergency_note"
+            value={values.emergency_note ?? ""}
+            onChange={set("emergency_note")}
+            placeholder="e.g. Please call parent immediately"
+          />
+        </>
+      )}
+    </>
+  );
+}
+
+function PetFields({
+  values,
+  set,
+  showOptional,
+}: {
+  values: Values;
+  set: (k: string) => (v: string) => void;
+  showOptional: boolean;
+}) {
+  return (
+    <>
+      <InputField
+        label="Pet's name"
+        name="pet_name"
+        value={values.pet_name ?? ""}
+        onChange={set("pet_name")}
+        required
+        placeholder="e.g. Bruno"
+      />
+      <InputField
+        label="Owner contact"
+        name="owner_contact"
+        type="tel"
+        value={values.owner_contact ?? ""}
+        onChange={set("owner_contact")}
+        required
+        placeholder="10-digit mobile"
+        autoComplete="tel"
+      />
+      {showOptional && (
+        <>
+          <InputField
+            label="Breed"
+            name="breed"
+            value={values.breed ?? ""}
+            onChange={set("breed")}
+            placeholder="e.g. Labrador / Indie"
+          />
+          <InputField
+            label="Vet / clinic contact"
+            name="vet_contact"
+            type="tel"
+            value={values.vet_contact ?? ""}
+            onChange={set("vet_contact")}
+            placeholder="Vet phone number"
+          />
+          <InputField
+            label="WhatsApp (owner)"
+            name="whatsapp"
+            type="tel"
+            value={values.whatsapp ?? ""}
+            onChange={set("whatsapp")}
+            placeholder="Leave blank if same as owner contact"
+          />
+          <TextAreaField
+            label="Medical notes"
+            name="medical_notes"
+            value={values.medical_notes ?? ""}
+            onChange={set("medical_notes")}
+            placeholder="Medications, conditions — keep concise"
+          />
+          <TextAreaField
+            label="Reward / message for finder"
+            name="reward_note"
+            value={values.reward_note ?? ""}
+            onChange={set("reward_note")}
+            placeholder="e.g. Reward on safe return. Friendly, doesn't bite."
+          />
+        </>
+      )}
+    </>
+  );
+}
+
+function BusinessFields({
+  values,
+  set,
+  showOptional,
+}: {
+  values: Values;
+  set: (k: string) => (v: string) => void;
+  showOptional: boolean;
+}) {
+  return (
+    <>
+      <InputField
+        label="Company / organisation name"
+        name="company_name"
+        value={values.company_name ?? ""}
+        onChange={set("company_name")}
+        required
+        placeholder="e.g. Sharma Logistics Pvt Ltd"
+      />
+      <InputField
+        label="Admin contact"
+        name="admin_contact"
+        type="tel"
+        value={values.admin_contact ?? ""}
+        onChange={set("admin_contact")}
+        required
+        placeholder="Primary admin phone"
+        autoComplete="tel"
+      />
+      {showOptional && (
+        <>
+          <InputField
+            label="Asset / vehicle ID"
+            name="asset_id"
+            value={values.asset_id ?? ""}
+            onChange={set("asset_id")}
+            placeholder="e.g. TRK-007 or MH 12 AB 9999"
+            hint="Shown on scan page to help identify asset"
+          />
+          <InputField
+            label="Department"
+            name="department"
+            value={values.department ?? ""}
+            onChange={set("department")}
+            placeholder="e.g. Ops, Security, Logistics"
+          />
+          <InputField
+            label="Escalation / emergency contact"
+            name="escalation_contact"
+            type="tel"
+            value={values.escalation_contact ?? ""}
+            onChange={set("escalation_contact")}
+            placeholder="Secondary escalation number"
+          />
+          <InputField
+            label="Fleet size"
+            name="fleet_size"
+            value={values.fleet_size ?? ""}
+            onChange={set("fleet_size")}
+            placeholder="e.g. 25 vehicles"
+          />
+          <InputField
+            label="WhatsApp contact"
+            name="whatsapp"
+            type="tel"
+            value={values.whatsapp ?? ""}
+            onChange={set("whatsapp")}
+            placeholder="Optional"
+          />
+          <TextAreaField
+            label="Notes / message for finder"
+            name="emergency_note"
+            value={values.emergency_note ?? ""}
+            onChange={set("emergency_note")}
+            placeholder="e.g. Report damage or suspicious activity to admin"
+          />
+        </>
+      )}
+    </>
+  );
+}
+
+// ─── Main component ──────────────────────────────────────────────────────────
+
+export function CreateProfileForm({
+  initialType,
+  initialEmail,
+}: {
+  initialType?: QrKind;
+  initialEmail?: string | null;
+}) {
+  const router = useRouter();
+  const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const [type, setType] = useState<QrKind>(initialType ?? "vehicle");
+  const [values, setValues] = useState<Values>({});
+  const [showOptional, setShowOptional] = useState(false);
+
+  const [email, setEmail] = useState(initialEmail ?? "");
+  const [password, setPassword] = useState("");
+  const [authPhase, setAuthPhase] = useState<AuthPhase>("idle");
+  const [isLoggedIn, setIsLoggedIn] = useState(Boolean(initialEmail));
+
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // Load draft + check auth on mount
   useEffect(() => {
     clearOnboardingDraftMarker();
-    // Sync with the localStorage external store after mount. Safe to update
-    // state inside this effect — it's a one-shot read, not a render-driven
-    // cascade.
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setValues((curr) => ({ ...readDraft(type), ...curr }));
-  }, [type]);
+    setValues(loadDraft(type));
 
-  useEffect(() => {
-    const t = window.setTimeout(() => {
-      try {
-        localStorage.setItem(draftKey(type), JSON.stringify(values));
-      } catch {
-        /* ignore */
+    const supabase = createClient();
+    supabase.auth.getSession().then(({ data }) => {
+      if (data.session?.user?.email) {
+        setIsLoggedIn(true);
+        if (!initialEmail) setEmail(data.session.user.email);
       }
-    }, 450);
-    return () => window.clearTimeout(t);
-  }, [values, type]);
-
-  const set = useCallback((key: string) => {
-    return (val: string) => setValues((s) => ({ ...s, [key]: val }));
+    }).catch(() => undefined);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const labels = useMemo(() => {
-    switch (type) {
-      case "vehicle":
-        return "Vehicle emergency profile";
-      case "child":
-        return "Child safety profile";
-      case "pet":
-        return "Pet safety profile";
-      case "business":
-        return "Business / fleet profile";
-      default:
-        return "Emergency profile";
-    }
-  }, [type]);
+  // Save draft debounced
+  useEffect(() => {
+    if (saveTimer.current) clearTimeout(saveTimer.current);
+    saveTimer.current = setTimeout(() => saveDraft(type, values), 400);
+    return () => {
+      if (saveTimer.current) clearTimeout(saveTimer.current);
+    };
+  }, [type, values]);
 
-  function clearDraft() {
-    try {
-      localStorage.removeItem(draftKey(type));
-      setValues({});
-      setStep(1);
-    } catch {
-      /* ignore */
-    }
+  // Switch type — load the draft for the new type
+  function handleTypeChange(newType: QrKind) {
+    if (newType === type) return;
+    setType(newType);
+    setShowOptional(false);
+    setError(null);
+    setValues(loadDraft(newType));
   }
 
-  function validateStep1(): boolean {
+  const set = useCallback(
+    (key: string) =>
+      (val: string) =>
+        setValues((s) => ({ ...s, [key]: val })),
+    [],
+  );
+
+  function validateRequired(): string | null {
     if (type === "vehicle") {
-      return Boolean(
-        values.full_name?.trim() && values.phone?.trim(),
-      );
+      if (!values.full_name?.trim()) return "Full name is required.";
+      if (!values.phone?.trim()) return "Contact number is required.";
+    } else if (type === "child") {
+      if (!values.child_name?.trim()) return "Child's name is required.";
+      if (!values.parent_contact?.trim()) return "Parent contact is required.";
+    } else if (type === "pet") {
+      if (!values.pet_name?.trim()) return "Pet's name is required.";
+      if (!values.owner_contact?.trim()) return "Owner contact is required.";
+    } else if (type === "business") {
+      if (!values.company_name?.trim()) return "Company name is required.";
+      if (!values.admin_contact?.trim()) return "Admin contact is required.";
     }
-    if (type === "child") {
-      return Boolean(values.child_name?.trim() && values.parent_contact?.trim());
-    }
-    if (type === "pet") {
-      return Boolean(values.pet_name?.trim() && values.owner_contact?.trim());
-    }
-    if (type === "business") {
-      return Boolean(
-        values.company_name?.trim() && values.admin_contact?.trim(),
-      );
-    }
-    return false;
+    return null;
   }
 
-  const progressPct = step === 1 ? 42 : 100;
+  function buildFormData(): FormData {
+    const fd = new FormData();
+    fd.set("type", type);
+    for (const [k, v] of Object.entries(values)) {
+      if (v) fd.set(k, v);
+    }
+    return fd;
+  }
+
+  async function submitQrCreation() {
+    setLoading(true);
+    setError(null);
+    setAuthPhase("submitting");
+    try {
+      const fd = buildFormData();
+      const result = await createQrAction(fd);
+      if (result.error) {
+        setError(result.error);
+        setAuthPhase("idle");
+        return;
+      }
+      if (result.slug) {
+        clearDraft(type);
+        router.push(`/create/success/${result.slug}`);
+      }
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Something went wrong.");
+      setAuthPhase("idle");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleSubmit() {
+    const fieldErr = validateRequired();
+    if (fieldErr) {
+      setError(fieldErr);
+      return;
+    }
+    setError(null);
+
+    if (isLoggedIn) {
+      await submitQrCreation();
+      return;
+    }
+
+    if (!email.trim()) {
+      setError("Enter your email address to continue.");
+      setAuthPhase("needs-auth");
+      return;
+    }
+    if (!password) {
+      setError("Enter a password (min 6 characters).");
+      setAuthPhase("needs-auth");
+      return;
+    }
+    if (password.length < 6) {
+      setError("Password must be at least 6 characters.");
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+    const supabase = createClient();
+
+    // Try sign-in first, then sign-up
+    const { error: signInErr } = await supabase.auth.signInWithPassword({
+      email: email.trim(),
+      password,
+    });
+
+    if (!signInErr) {
+      setIsLoggedIn(true);
+      await submitQrCreation();
+      return;
+    }
+
+    if (
+      signInErr.message.toLowerCase().includes("invalid login credentials") ||
+      signInErr.message.toLowerCase().includes("email not confirmed")
+    ) {
+      // New user — sign up
+      const { data, error: signUpErr } = await supabase.auth.signUp({
+        email: email.trim(),
+        password,
+      });
+
+      if (signUpErr) {
+        setError(signUpErr.message);
+        setLoading(false);
+        return;
+      }
+
+      if (data.session) {
+        setIsLoggedIn(true);
+        await submitQrCreation();
+        return;
+      }
+
+      // Email confirmation required
+      setError(
+        "Check your inbox to confirm your email, then come back and click Generate again.",
+      );
+      setLoading(false);
+      return;
+    }
+
+    setError(signInErr.message);
+    setLoading(false);
+  }
+
+  const submitLabel = (() => {
+    if (authPhase === "submitting") return "Generating…";
+    if (loading) return "Please wait…";
+    return isLoggedIn ? "Generate Emergency QR →" : "Create Account & Generate QR →";
+  })();
 
   return (
-    <div className="mx-auto max-w-lg px-4 py-12 sm:py-16">
-      <div className="mb-6">
-        <div className="h-1.5 w-full overflow-hidden rounded-full bg-zinc-200">
-          <div
-            className="h-full rounded-full bg-[#ffd400] transition-[width] duration-500 ease-out"
-            style={{ width: `${progressPct}%` }}
-          />
-        </div>
-        <p className="mt-2 text-xs font-medium text-zinc-500">
-          Step {step} of 2 · {labels}
+    <div className="mx-auto max-w-lg px-4 py-10 sm:py-14">
+      {/* Header */}
+      <div className="mb-8">
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">
+          QRNetra · Emergency QR
+        </p>
+        <h1 className="mt-2 text-3xl font-bold tracking-tight text-[#111111]">
+          Create your safety QR
+        </h1>
+        <p className="mt-2 text-sm leading-relaxed text-zinc-600">
+          Takes 2 minutes. The QR links to an emergency contact page — your
+          private details stay with you.
         </p>
       </div>
 
-      <div className="mb-6 flex flex-wrap items-center gap-2 text-xs font-medium text-zinc-500">
-        <span className="rounded-full bg-zinc-200 px-2 py-0.5 text-zinc-700">
-          1
-        </span>
-        <span>Type</span>
-        <span className="text-zinc-300">→</span>
-        <span className="rounded-full bg-zinc-200 px-2 py-0.5 text-zinc-700">
-          2
-        </span>
-        <span>Account</span>
-        <span className="text-zinc-300">→</span>
-        <span className="rounded-full bg-[#ffd400] px-2 py-0.5 font-semibold text-[#111111]">
-          3
-        </span>
-        <span className="text-[#111111]">Profile</span>
+      {/* Type selector */}
+      <div className="mb-8">
+        <p className="mb-3 text-xs font-semibold uppercase tracking-[0.12em] text-zinc-500">
+          What are you protecting?
+        </p>
+        <div className="flex gap-2 flex-wrap">
+          {TYPES.map((t) => (
+            <button
+              key={t.id}
+              type="button"
+              onClick={() => handleTypeChange(t.id)}
+              className={`flex items-center gap-1.5 rounded-full border px-4 py-2 text-sm font-semibold transition-all ${
+                type === t.id
+                  ? "border-[#111111] bg-[#111111] text-white"
+                  : "border-zinc-200 bg-white text-zinc-700 hover:border-zinc-400"
+              }`}
+            >
+              <span className="text-base leading-none">{t.emoji}</span>
+              {t.label}
+            </button>
+          ))}
+        </div>
       </div>
 
-      <h1 className="text-3xl font-bold tracking-tight text-[#111111]">
-        {labels}
-      </h1>
-      <p className="mt-2 text-sm text-zinc-600">
-        Details autosave on this device. You can edit anytime in the dashboard.
-      </p>
-
-      <form action={formAction} className="mt-8 space-y-5">
-        <input type="hidden" name="type" value={type} />
-
-        {type === "vehicle" ? (
-          <>
-            {step === 2 ? (
-              <>
-                <Hidden name="full_name" value={values.full_name ?? ""} />
-                <Hidden name="phone" value={values.phone ?? ""} />
-                <Hidden name="whatsapp" value={values.whatsapp ?? ""} />
-              </>
-            ) : null}
-            {step === 1 ? (
-              <>
-                <Field
-                  label="Full name"
-                  name="full_name"
-                  value={values.full_name ?? ""}
-                  onChange={set("full_name")}
-                  required
-                  placeholder="e.g. Rahul Sharma"
-                />
-                <Field
-                  label="Phone number"
-                  name="phone"
-                  type="tel"
-                  value={values.phone ?? ""}
-                  onChange={set("phone")}
-                  required
-                  placeholder="10-digit mobile"
-                  hint="Primary — used for secure calls"
-                />
-                <Field
-                  label="WhatsApp number"
-                  name="whatsapp"
-                  type="tel"
-                  value={values.whatsapp ?? ""}
-                  onChange={set("whatsapp")}
-                  placeholder="Optional if same as phone"
-                />
-              </>
-            ) : (
-              <>
-                <Field
-                  label="Vehicle number"
-                  name="vehicle_number"
-                  value={values.vehicle_number ?? ""}
-                  onChange={set("vehicle_number")}
-                  placeholder="e.g. MH 01 AB 1234"
-                />
-                <Field
-                  label="Alternate contact"
-                  name="alternate_contact"
-                  type="tel"
-                  value={values.alternate_contact ?? ""}
-                  onChange={set("alternate_contact")}
-                  placeholder="Optional backup number"
-                />
-              </>
-            )}
-          </>
-        ) : null}
-
-        {type === "child" ? (
-          <>
-            {step === 2 ? (
-              <>
-                <Hidden name="child_name" value={values.child_name ?? ""} />
-                <Hidden name="parent_contact" value={values.parent_contact ?? ""} />
-              </>
-            ) : null}
-            {step === 1 ? (
-              <>
-                <Field
-                  label="Child name"
-                  name="child_name"
-                  value={values.child_name ?? ""}
-                  onChange={set("child_name")}
-                  required
-                />
-                <Field
-                  label="Parent contact"
-                  name="parent_contact"
-                  type="tel"
-                  value={values.parent_contact ?? ""}
-                  onChange={set("parent_contact")}
-                  required
-                  placeholder="Primary guardian"
-                />
-              </>
-            ) : (
-              <>
-                <Field
-                  label="Emergency contact"
-                  name="emergency_contact"
-                  type="tel"
-                  value={values.emergency_contact ?? ""}
-                  onChange={set("emergency_contact")}
-                  placeholder="Secondary number"
-                />
-                <Field
-                  label="Blood group"
-                  name="blood_group"
-                  value={values.blood_group ?? ""}
-                  onChange={set("blood_group")}
-                  placeholder="e.g. O+"
-                />
-                <TextArea
-                  label="Allergies"
-                  name="allergies"
-                  value={values.allergies ?? ""}
-                  onChange={set("allergies")}
-                  placeholder="Shown on scan page when relevant"
-                />
-              </>
-            )}
-          </>
-        ) : null}
-
-        {type === "pet" ? (
-          <>
-            {step === 2 ? (
-              <>
-                <Hidden name="pet_name" value={values.pet_name ?? ""} />
-                <Hidden name="breed" value={values.breed ?? ""} />
-                <Hidden name="owner_contact" value={values.owner_contact ?? ""} />
-              </>
-            ) : null}
-            {step === 1 ? (
-              <>
-                <Field
-                  label="Pet name"
-                  name="pet_name"
-                  value={values.pet_name ?? ""}
-                  onChange={set("pet_name")}
-                  required
-                />
-                <Field
-                  label="Breed"
-                  name="breed"
-                  value={values.breed ?? ""}
-                  onChange={set("breed")}
-                  placeholder="e.g. Indie"
-                />
-                <Field
-                  label="Owner contact"
-                  name="owner_contact"
-                  type="tel"
-                  value={values.owner_contact ?? ""}
-                  onChange={set("owner_contact")}
-                  required
-                />
-              </>
-            ) : (
-              <>
-                <Field
-                  label="Vet contact"
-                  name="vet_contact"
-                  type="tel"
-                  value={values.vet_contact ?? ""}
-                  onChange={set("vet_contact")}
-                  placeholder="Clinic phone"
-                />
-                <TextArea
-                  label="Medical notes"
-                  name="medical_notes"
-                  value={values.medical_notes ?? ""}
-                  onChange={set("medical_notes")}
-                  placeholder="Medications, conditions — keep concise"
-                />
-              </>
-            )}
-          </>
-        ) : null}
-
-        {type === "business" ? (
-          <>
-            {step === 2 ? (
-              <>
-                <Hidden name="company_name" value={values.company_name ?? ""} />
-                <Hidden name="admin_contact" value={values.admin_contact ?? ""} />
-              </>
-            ) : null}
-            {step === 1 ? (
-              <>
-                <Field
-                  label="Company name"
-                  name="company_name"
-                  value={values.company_name ?? ""}
-                  onChange={set("company_name")}
-                  required
-                />
-                <Field
-                  label="Admin contact"
-                  name="admin_contact"
-                  type="tel"
-                  value={values.admin_contact ?? ""}
-                  onChange={set("admin_contact")}
-                  required
-                />
-              </>
-            ) : (
-              <>
-                <Field
-                  label="Fleet size"
-                  name="fleet_size"
-                  value={values.fleet_size ?? ""}
-                  onChange={set("fleet_size")}
-                  placeholder="e.g. 25 vehicles"
-                />
-                <Field
-                  label="Emergency number"
-                  name="emergency_number"
-                  type="tel"
-                  value={values.emergency_number ?? ""}
-                  onChange={set("emergency_number")}
-                  placeholder="Ops / security hotline"
-                />
-              </>
-            )}
-          </>
-        ) : null}
-
-        {state.error ? (
-          <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
-            {state.error}
+      {/* Form card */}
+      <div className="rounded-3xl border border-zinc-200 bg-white shadow-[0_20px_60px_-12px_rgba(0,0,0,0.1)]">
+        {/* Required fields */}
+        <div className="px-6 pt-6 pb-5 space-y-5">
+          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-zinc-400">
+            {type === "vehicle" && "Vehicle details"}
+            {type === "child" && "Child details"}
+            {type === "pet" && "Pet details"}
+            {type === "business" && "Business details"}
           </p>
-        ) : null}
 
-        <div className="flex flex-col gap-3 pt-2 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-            {step === 2 ? (
-              <button
-                type="submit"
-                disabled={pending}
-                className="inline-flex h-12 min-w-[200px] items-center justify-center rounded-full bg-[#111111] text-sm font-semibold text-white shadow-lg shadow-zinc-900/10 transition-transform disabled:opacity-60 hover:enabled:scale-[1.02]"
-              >
-                {pending ? "Saving…" : "Save & generate QR"}
-              </button>
-            ) : (
-              <button
-                type="button"
-                onClick={() => {
-                  if (validateStep1()) setStep(2);
-                }}
-                className="inline-flex h-12 min-w-[200px] items-center justify-center rounded-full bg-[#111111] text-sm font-semibold text-white transition-transform hover:scale-[1.02]"
-              >
-                Continue
-              </button>
-            )}
-            {step === 2 ? (
-              <button
-                type="button"
-                onClick={() => setStep(1)}
-                className="inline-flex h-12 items-center justify-center rounded-full border border-zinc-200 px-6 text-sm font-medium text-zinc-700 hover:bg-zinc-50"
-              >
-                Back
-              </button>
-            ) : null}
-          </div>
+          {type === "vehicle" && (
+            <VehicleFields values={values} set={set} showOptional={showOptional} />
+          )}
+          {type === "child" && (
+            <ChildFields values={values} set={set} showOptional={showOptional} />
+          )}
+          {type === "pet" && (
+            <PetFields values={values} set={set} showOptional={showOptional} />
+          )}
+          {type === "business" && (
+            <BusinessFields values={values} set={set} showOptional={showOptional} />
+          )}
+
+          {/* Optional toggle */}
           <button
             type="button"
-            onClick={clearDraft}
-            className="text-xs font-medium text-zinc-500 underline-offset-4 hover:text-[#111111] hover:underline"
+            onClick={() => setShowOptional((v) => !v)}
+            className="flex w-full items-center gap-2 rounded-xl border border-dashed border-zinc-200 px-4 py-3 text-sm font-medium text-zinc-600 transition hover:border-zinc-300 hover:bg-zinc-50"
           >
-            Clear saved draft
+            <span
+              className={`inline-block transition-transform duration-200 ${
+                showOptional ? "rotate-90" : ""
+              }`}
+            >
+              ▶
+            </span>
+            {showOptional ? "Hide optional fields" : "Add more details (optional)"}
           </button>
         </div>
 
-        <Link
-          href="/create/type"
-          className="inline-flex text-sm font-medium text-zinc-600 hover:text-[#111111]"
-        >
-          ← Change tag type
-        </Link>
-      </form>
+        {/* Divider */}
+        <div className="mx-6 h-px bg-zinc-100" />
+
+        {/* Auth section */}
+        <div className="px-6 pt-5 pb-6 space-y-4">
+          {isLoggedIn ? (
+            <p className="text-xs text-zinc-500">
+              Generating QR as{" "}
+              <span className="font-semibold text-[#111111]">{email}</span>
+            </p>
+          ) : (
+            <>
+              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-zinc-400">
+                Your account
+              </p>
+              <InputField
+                label="Email address"
+                name="email"
+                type="email"
+                value={email}
+                onChange={(v) => {
+                  setEmail(v);
+                  if (authPhase === "idle") setAuthPhase("needs-auth");
+                }}
+                required
+                placeholder="you@example.com"
+                autoComplete="email"
+              />
+              <InputField
+                label="Password"
+                name="password"
+                type="password"
+                value={password}
+                onChange={setPassword}
+                required
+                placeholder="Min 6 characters"
+                hint="New to QRNetra? We'll create your account."
+                autoComplete="new-password"
+              />
+            </>
+          )}
+
+          {error && (
+            <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
+              {error}
+            </p>
+          )}
+
+          <button
+            type="button"
+            onClick={() => void handleSubmit()}
+            disabled={loading || authPhase === "submitting"}
+            className="flex h-14 w-full items-center justify-center rounded-2xl bg-[#ffd400] text-base font-bold text-[#111111] shadow-lg shadow-[#ffd400]/25 transition-all hover:scale-[1.01] disabled:opacity-60 disabled:scale-100"
+          >
+            {submitLabel}
+          </button>
+
+          <p className="text-center text-xs leading-relaxed text-zinc-400">
+            Your QR scan URL never contains personal data — only a random slug.
+            Update details anytime from the dashboard.
+          </p>
+        </div>
+      </div>
     </div>
   );
 }

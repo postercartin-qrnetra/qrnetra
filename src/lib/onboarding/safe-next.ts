@@ -23,7 +23,7 @@ export function safeNextPath(raw: string | null | undefined): string {
   const allowedExact = new Set([
     "/",
     "/dashboard",
-    "/create/type",
+    "/create",
     "/login",
     "/auth/update-password",
   ]);
@@ -33,9 +33,8 @@ export function safeNextPath(raw: string | null | undefined): string {
   }
 
   const allowedPrefixes = [
-    "/create/profile",
+    "/create/",
     "/dashboard/",
-    "/create/type/",
   ];
 
   if (allowedPrefixes.some((p) => pathname.startsWith(p))) {

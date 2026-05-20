@@ -12,10 +12,12 @@ function ActionLink({
   href,
   label,
   primary,
+  variant,
 }: {
   href: string;
   label: string;
   primary?: boolean;
+  variant?: "green";
 }) {
   return (
     <a
@@ -23,11 +25,24 @@ function ActionLink({
       className={`flex min-h-[52px] w-full items-center justify-center rounded-2xl text-base font-semibold transition-transform active:scale-[0.99] ${
         primary
           ? "bg-[#ffd400] text-[#111111] shadow-lg shadow-[#ffd400]/20"
-          : "border-2 border-zinc-200 bg-white text-[#111111] hover:border-zinc-300"
+          : variant === "green"
+            ? "border-2 border-[#25D366] bg-white text-[#111111] hover:bg-green-50"
+            : "border-2 border-zinc-200 bg-white text-[#111111] hover:border-zinc-300"
       }`}
     >
       {label}
     </a>
+  );
+}
+
+function InfoRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex gap-2">
+      <span className="min-w-[110px] text-xs font-semibold text-zinc-500">
+        {label}
+      </span>
+      <span className="text-sm text-zinc-800">{value}</span>
+    </div>
   );
 }
 
@@ -39,10 +54,6 @@ export default async function PublicScanPage({ params }: Props) {
     notFound();
   }
 
-  // Fetch + validate without calling notFound() inside the try block — calling
-  // notFound() throws a NEXT_HTTP_ERROR_FALLBACK error which would otherwise be
-  // re-caught by our own catch and produce noisy logs. We collect the result,
-  // bail out via notFound() exactly once after the try/catch resolves.
   let data: PublicQrScanPayload | null = null;
   let rpcFailed = false;
   try {
@@ -66,195 +77,266 @@ export default async function PublicScanPage({ params }: Props) {
   }
 
   const ch = data.channels ?? {};
-  const waDigits = digitsForWhatsApp(data.whatsapp_phone);
+  const waDigits = digitsForWhatsApp(data.whatsapp_phone ?? data.owner_phone);
   const waHref =
-    ch.whatsapp && waDigits ? `https://wa.me/${waDigits}` : null;
+    ch.whatsapp && waDigits
+      ? `https://wa.me/${waDigits}`
+      : null;
 
   const kind = data.kind;
 
+  const kindBadge =
+    kind === "vehicle"
+      ? "Vehicle QR"
+      : kind === "child"
+        ? "Child Safety"
+        : kind === "pet"
+          ? "Pet Tag"
+          : kind === "business"
+            ? "Business / Fleet"
+            : "Safety Tag";
+
+  const pageTitle =
+    kind === "vehicle" && data.vehicle_registration
+      ? `Vehicle · ${data.vehicle_registration}`
+      : kind === "child"
+        ? data.title
+          ? `${data.title}`
+          : "Child safety"
+        : kind === "pet"
+          ? data.title ?? "Pet tag"
+          : kind === "business"
+            ? data.title ?? "Fleet contact"
+            : data.title ?? "Safety tag";
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-zinc-50 to-white px-4 pb-12 pt-8">
+    <div className="min-h-screen bg-gradient-to-b from-zinc-50 to-white px-4 pb-16 pt-8">
       <ScanLogClient qrId={data.id} />
 
       <div className="mx-auto max-w-md">
-        <p className="text-center text-[11px] font-semibold uppercase tracking-[0.2em] text-zinc-500">
-          QRNetra
-        </p>
-        <h1 className="mt-2 text-center text-2xl font-bold tracking-tight text-[#111111]">
-          {kind === "vehicle" && data.vehicle_registration
-            ? `Vehicle ${data.vehicle_registration}`
-            : kind === "child"
-              ? data.title
-                ? `Child · ${data.title}`
-                : "Child safety"
-              : kind === "pet"
-                ? data.title
-                  ? `${data.title}`
-                  : "Pet tag"
-                : kind === "business"
-                  ? data.title ?? "Fleet contact"
-                  : data.title ?? "Safety tag"}
-        </h1>
-        <p className="mt-2 text-center text-sm text-zinc-500">
-          Emergency contact · your number stays private until you connect
-        </p>
-
-        {data.message ? (
-          <p className="mt-6 rounded-2xl border border-zinc-100 bg-white px-4 py-3 text-center text-sm leading-relaxed text-zinc-700 shadow-sm">
-            {data.message}
+        {/* Header */}
+        <div className="mb-8 text-center">
+          <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-zinc-400">
+            QRNetra
           </p>
-        ) : null}
+          <div className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-zinc-200 bg-white px-3 py-1 text-xs font-semibold text-zinc-600 shadow-sm">
+            {kind === "vehicle" && "🚗"}
+            {kind === "child" && "👶"}
+            {kind === "pet" && "🐾"}
+            {kind === "business" && "🏢"}
+            {kindBadge}
+          </div>
+          <h1 className="mt-3 text-2xl font-bold tracking-tight text-[#111111]">
+            {pageTitle}
+          </h1>
+          <p className="mt-2 text-sm text-zinc-500">
+            Emergency contact · scanned by you
+          </p>
+        </div>
 
-        <div className="mt-8 flex flex-col gap-3">
-          {kind === "vehicle" ? (
+        {/* Finder message */}
+        {data.message && (
+          <div className="mb-6 rounded-2xl border border-amber-100 bg-amber-50 px-4 py-4 text-sm leading-relaxed text-amber-900 shadow-sm">
+            <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-amber-600">
+              Message from owner
+            </p>
+            {data.message}
+          </div>
+        )}
+
+        {/* Action buttons */}
+        <div className="flex flex-col gap-3">
+          {/* ── Vehicle ── */}
+          {kind === "vehicle" && (
             <>
-              {ch.call && data.owner_phone ? (
+              {ch.call && data.owner_phone && (
                 <ActionLink
                   href={`tel:${data.owner_phone.replace(/\s/g, "")}`}
-                  label="Call owner"
+                  label="📞  Call owner"
                   primary
                 />
-              ) : null}
-              {waHref ? (
-                <ActionLink href={waHref} label="WhatsApp owner" />
-              ) : null}
-              {data.alternate_contact ? (
+              )}
+              {waHref && (
+                <ActionLink href={waHref} label="💬  WhatsApp owner" variant="green" />
+              )}
+              {data.alternate_contact && (
                 <ActionLink
                   href={`tel:${data.alternate_contact.replace(/\s/g, "")}`}
-                  label="Alternate / emergency contact"
+                  label="📞  Alternate / emergency contact"
                 />
-              ) : null}
+              )}
             </>
-          ) : null}
+          )}
 
-          {kind === "child" ? (
+          {/* ── Child ── */}
+          {kind === "child" && (
             <>
-              {ch.call && data.owner_phone ? (
+              {ch.call && data.owner_phone && (
                 <ActionLink
                   href={`tel:${data.owner_phone.replace(/\s/g, "")}`}
-                  label="Call parent / guardian"
+                  label={`📞  Call${data.parent_name ? ` ${data.parent_name}` : " parent / guardian"}`}
                   primary
                 />
-              ) : null}
-              {data.emergency_phone ? (
+              )}
+              {waHref && (
+                <ActionLink href={waHref} label="💬  WhatsApp parent" variant="green" />
+              )}
+              {data.emergency_phone && (
                 <ActionLink
                   href={`tel:${data.emergency_phone.replace(/\s/g, "")}`}
-                  label="Emergency contact"
+                  label="📞  Emergency contact"
                 />
-              ) : null}
-              {(data.blood_group || data.allergies) && (
+              )}
+              {(data.blood_group || data.allergies || data.school_name || data.emergency_instructions) && (
                 <details className="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm open:shadow-md">
                   <summary className="cursor-pointer text-sm font-semibold text-[#111111]">
-                    Medical info
+                    Medical &amp; safety info
                   </summary>
-                  <div className="mt-3 space-y-2 text-sm text-zinc-700">
-                    {data.blood_group ? (
-                      <p>
-                        <span className="font-medium text-zinc-900">
-                          Blood group:{" "}
-                        </span>
-                        {data.blood_group}
-                      </p>
-                    ) : null}
-                    {data.allergies ? (
-                      <p>
-                        <span className="font-medium text-zinc-900">
-                          Allergies:{" "}
-                        </span>
-                        {data.allergies}
-                      </p>
-                    ) : null}
+                  <div className="mt-4 space-y-2.5">
+                    {data.blood_group && (
+                      <InfoRow label="Blood group" value={data.blood_group} />
+                    )}
+                    {data.allergies && (
+                      <InfoRow label="Allergies" value={data.allergies} />
+                    )}
+                    {data.school_name && (
+                      <InfoRow label="School" value={data.school_name} />
+                    )}
+                    {data.emergency_instructions && (
+                      <div className="mt-2 rounded-xl border border-zinc-100 bg-zinc-50 px-3 py-2.5 text-sm leading-relaxed text-zinc-700">
+                        <p className="mb-1 text-xs font-semibold text-zinc-500">
+                          Emergency instructions
+                        </p>
+                        {data.emergency_instructions}
+                      </div>
+                    )}
                   </div>
                 </details>
               )}
             </>
-          ) : null}
+          )}
 
-          {kind === "pet" ? (
+          {/* ── Pet ── */}
+          {kind === "pet" && (
             <>
-              {ch.call && data.owner_phone ? (
+              {ch.call && data.owner_phone && (
                 <ActionLink
                   href={`tel:${data.owner_phone.replace(/\s/g, "")}`}
-                  label="Contact owner"
+                  label="📞  Contact owner"
                   primary
                 />
-              ) : null}
-              {waHref ? <ActionLink href={waHref} label="WhatsApp owner" /> : null}
-              {data.vet_phone ? (
+              )}
+              {waHref && (
+                <ActionLink href={waHref} label="💬  WhatsApp owner" variant="green" />
+              )}
+              {data.vet_phone && (
                 <ActionLink
                   href={`tel:${data.vet_phone.replace(/\s/g, "")}`}
-                  label="Vet / clinic"
+                  label="🏥  Call vet / clinic"
                 />
-              ) : null}
-              {data.breed || data.medical_notes ? (
+              )}
+              {data.reward_note && (
+                <div className="rounded-2xl border border-green-100 bg-green-50 px-4 py-3 text-sm leading-relaxed text-green-900 shadow-sm">
+                  <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-green-600">
+                    Note from owner
+                  </p>
+                  {data.reward_note}
+                </div>
+              )}
+              {(data.breed || data.medical_notes) && (
                 <details className="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
                   <summary className="cursor-pointer text-sm font-semibold text-[#111111]">
                     Pet details
                   </summary>
-                  <div className="mt-3 space-y-2 text-sm text-zinc-700">
-                    {data.breed ? (
-                      <p>
-                        <span className="font-medium">Breed: </span>
-                        {data.breed}
-                      </p>
-                    ) : null}
-                    {data.medical_notes ? (
-                      <p>
-                        <span className="font-medium">Notes: </span>
+                  <div className="mt-4 space-y-2.5">
+                    {data.breed && <InfoRow label="Breed" value={data.breed} />}
+                    {data.medical_notes && (
+                      <div className="rounded-xl border border-zinc-100 bg-zinc-50 px-3 py-2.5 text-sm leading-relaxed text-zinc-700">
+                        <p className="mb-1 text-xs font-semibold text-zinc-500">
+                          Medical notes
+                        </p>
                         {data.medical_notes}
-                      </p>
-                    ) : null}
+                      </div>
+                    )}
                   </div>
                 </details>
-              ) : null}
+              )}
             </>
-          ) : null}
+          )}
 
-          {kind === "business" ? (
+          {/* ── Business / Fleet ── */}
+          {kind === "business" && (
             <>
-              {ch.call && data.owner_phone ? (
+              {ch.call && data.owner_phone && (
                 <ActionLink
                   href={`tel:${data.owner_phone.replace(/\s/g, "")}`}
-                  label="Admin contact"
+                  label="📞  Admin contact"
                   primary
                 />
-              ) : null}
-              {data.business_emergency ? (
+              )}
+              {waHref && (
+                <ActionLink href={waHref} label="💬  WhatsApp admin" variant="green" />
+              )}
+              {data.escalation_contact && (
+                <ActionLink
+                  href={`tel:${data.escalation_contact.replace(/\s/g, "")}`}
+                  label="📞  Escalation contact"
+                />
+              )}
+              {data.business_emergency && (
                 <ActionLink
                   href={`tel:${data.business_emergency.replace(/\s/g, "")}`}
-                  label="Emergency line"
+                  label="🚨  Emergency line"
                 />
-              ) : null}
-              {waHref ? (
-                <ActionLink href={waHref} label="WhatsApp" />
-              ) : null}
-              {data.fleet_size ? (
-                <p className="text-center text-xs text-zinc-500">
-                  Fleet: {data.fleet_size}
-                </p>
-              ) : null}
+              )}
+              {(data.asset_id || data.department || data.fleet_size) && (
+                <div className="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
+                  <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-zinc-500">
+                    Asset info
+                  </p>
+                  <div className="space-y-2">
+                    {data.asset_id && <InfoRow label="Asset / ID" value={data.asset_id} />}
+                    {data.department && (
+                      <InfoRow label="Department" value={data.department} />
+                    )}
+                    {data.fleet_size && (
+                      <InfoRow label="Fleet size" value={data.fleet_size} />
+                    )}
+                  </div>
+                </div>
+              )}
             </>
-          ) : null}
+          )}
 
-          {kind === "other" ? (
+          {/* ── Other / fallback ── */}
+          {kind === "other" && (
             <>
-              {ch.call && data.owner_phone ? (
+              {ch.call && data.owner_phone && (
                 <ActionLink
                   href={`tel:${data.owner_phone.replace(/\s/g, "")}`}
-                  label="Call"
+                  label="📞  Call"
                   primary
                 />
-              ) : null}
-              {waHref ? <ActionLink href={waHref} label="WhatsApp" /> : null}
+              )}
+              {waHref && <ActionLink href={waHref} label="💬  WhatsApp" variant="green" />}
             </>
-          ) : null}
+          )}
         </div>
 
-        <p className="mt-10 text-center text-xs leading-relaxed text-zinc-400">
-          If this is a life-threatening emergency, contact local emergency
-          services. QRNetra helps you reach the owner — it is not a substitute
-          for emergency services.
-        </p>
+        {/* Footer */}
+        <div className="mt-10 space-y-3 border-t border-zinc-100 pt-6 text-center">
+          <p className="text-xs leading-relaxed text-zinc-400">
+            If this is a life-threatening emergency, contact local emergency
+            services immediately. QRNetra helps reach the owner — it is not a
+            substitute for emergency services.
+          </p>
+          <a
+            href="/"
+            className="inline-flex text-xs font-semibold text-zinc-500 underline-offset-4 hover:text-[#111111] hover:underline"
+          >
+            Powered by QRNetra — create your own safety QR →
+          </a>
+        </div>
       </div>
     </div>
   );

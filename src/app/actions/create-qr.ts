@@ -1,6 +1,5 @@
 "use server";
 
-import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import {
   generatePublicSlug,
@@ -12,35 +11,38 @@ import { isQrKind, type QrKind } from "@/lib/qr/types";
 export type { QrKind };
 
 function optPhone(raw: string): string | null {
-  const n = normalizeIndiaPhone(raw);
+  const n = normalizeIndiaPhone(raw.trim());
   if (!n || !isPlausiblePhone(n)) return null;
   return n;
 }
 
-export type CreateQrState = { error: string | null };
+function str(fd: FormData, key: string): string {
+  return String(fd.get(key) ?? "").trim();
+}
 
-export async function createQrProfileAction(
-  _prevState: CreateQrState,
+export type CreateQrResult = { error: string | null; slug: string | null };
+
+export async function createQrAction(
   formData: FormData,
-): Promise<CreateQrState> {
-  const rawType = String(formData.get("type") ?? "");
+): Promise<CreateQrResult> {
+  const rawType = str(formData, "type");
   if (!isQrKind(rawType)) {
-    return { error: "Invalid profile type." };
+    return { error: "Invalid profile type.", slug: null };
   }
 
   const supabase = await createClient();
   if (!supabase) {
     return {
-      error:
-        "Server is missing Supabase environment variables. Contact support.",
+      error: "Server is missing Supabase configuration. Contact support.",
+      slug: null,
     };
   }
+
   const {
     data: { user },
   } = await supabase.auth.getUser();
-
   if (!user) {
-    return { error: "You must be signed in." };
+    return { error: "Not authenticated. Please sign in and try again.", slug: null };
   }
 
   const profileExtra: Record<string, string> = {};
@@ -48,53 +50,73 @@ export async function createQrProfileAction(
   let vehicle_registration: string | null = null;
   let owner_phone: string | null = null;
   let whatsapp_e164: string | null = null;
-  const finder_message: string | null = null;
+  let finder_message: string | null = null;
 
   if (rawType === "vehicle") {
-    title = String(formData.get("full_name") ?? "").trim() || null;
-    owner_phone = normalizeIndiaPhone(String(formData.get("phone") ?? "").trim());
-    whatsapp_e164 = optPhone(String(formData.get("whatsapp") ?? ""));
-    vehicle_registration =
-      String(formData.get("vehicle_number") ?? "").trim() || null;
-    const alt = String(formData.get("alternate_contact") ?? "").trim();
-    const altN = optPhone(alt);
-    if (altN) profileExtra.alternate_contact = altN;
+    title = str(formData, "full_name") || null;
+    owner_phone = normalizeIndiaPhone(str(formData, "phone"));
+    whatsapp_e164 = optPhone(str(formData, "whatsapp"));
+    vehicle_registration = str(formData, "vehicle_number") || null;
+    const alt = optPhone(str(formData, "alternate_contact"));
+    if (alt) profileExtra.alternate_contact = alt;
+    const note = str(formData, "emergency_note");
+    if (note) finder_message = note;
   } else if (rawType === "child") {
-    title = String(formData.get("child_name") ?? "").trim() || null;
-    owner_phone = normalizeIndiaPhone(
-      String(formData.get("parent_contact") ?? "").trim(),
-    );
-    const emerg = optPhone(String(formData.get("emergency_contact") ?? ""));
+    title = str(formData, "child_name") || null;
+    owner_phone = normalizeIndiaPhone(str(formData, "parent_contact"));
+    const parentName = str(formData, "parent_name");
+    if (parentName) profileExtra.parent_name = parentName;
+    const emerg = optPhone(str(formData, "emergency_contact"));
     if (emerg) profileExtra.emergency_contact = emerg;
-    const bg = String(formData.get("blood_group") ?? "").trim();
+    const bg = str(formData, "blood_group");
     if (bg) profileExtra.blood_group = bg;
-    const allergies = String(formData.get("allergies") ?? "").trim();
+    const allergies = str(formData, "allergies");
     if (allergies) profileExtra.allergies = allergies;
+    const school = str(formData, "school_name");
+    if (school) profileExtra.school_name = school;
+    const instructions = str(formData, "emergency_instructions");
+    if (instructions) profileExtra.emergency_instructions = instructions;
+    const note = str(formData, "emergency_note");
+    if (note) finder_message = note;
   } else if (rawType === "pet") {
-    title = String(formData.get("pet_name") ?? "").trim() || null;
-    owner_phone = normalizeIndiaPhone(
-      String(formData.get("owner_contact") ?? "").trim(),
-    );
-    const breed = String(formData.get("breed") ?? "").trim();
+    title = str(formData, "pet_name") || null;
+    owner_phone = normalizeIndiaPhone(str(formData, "owner_contact"));
+    const breed = str(formData, "breed");
     if (breed) profileExtra.breed = breed;
-    const vet = optPhone(String(formData.get("vet_contact") ?? ""));
+    const vet = optPhone(str(formData, "vet_contact"));
     if (vet) profileExtra.vet_contact = vet;
-    const notes = String(formData.get("medical_notes") ?? "").trim();
+    const notes = str(formData, "medical_notes");
     if (notes) profileExtra.medical_notes = notes;
+    const reward = str(formData, "reward_note");
+    if (reward) profileExtra.reward_note = reward;
+    const wa = optPhone(str(formData, "whatsapp"));
+    if (wa) whatsapp_e164 = wa;
+    const note = str(formData, "emergency_note");
+    if (note) finder_message = note;
   } else if (rawType === "business") {
-    title = String(formData.get("company_name") ?? "").trim() || null;
-    owner_phone = normalizeIndiaPhone(
-      String(formData.get("admin_contact") ?? "").trim(),
-    );
-    const fleet = String(formData.get("fleet_size") ?? "").trim();
+    title = str(formData, "company_name") || null;
+    owner_phone = normalizeIndiaPhone(str(formData, "admin_contact"));
+    const escalation = optPhone(str(formData, "escalation_contact"));
+    if (escalation) profileExtra.escalation_contact = escalation;
+    const assetId = str(formData, "asset_id");
+    if (assetId) {
+      profileExtra.asset_id = assetId;
+      vehicle_registration = assetId;
+    }
+    const dept = str(formData, "department");
+    if (dept) profileExtra.department = dept;
+    const fleet = str(formData, "fleet_size");
     if (fleet) profileExtra.fleet_size = fleet;
-    const emerg = optPhone(String(formData.get("emergency_number") ?? ""));
-    if (emerg) profileExtra.emergency_number = emerg;
+    const wa = optPhone(str(formData, "whatsapp"));
+    if (wa) whatsapp_e164 = wa;
+    const note = str(formData, "emergency_note");
+    if (note) finder_message = note;
   }
 
   if (!title || !owner_phone || !isPlausiblePhone(owner_phone)) {
     return {
-      error: "Please fill required fields with valid phone numbers (10+ digits).",
+      error: "Please fill the required fields with a valid phone number (10+ digits).",
+      slug: null,
     };
   }
 
@@ -117,7 +139,7 @@ export async function createQrProfileAction(
       channel_email: false,
       notify_owner_on_scan: true,
       owner_phone,
-      whatsapp_e164: whatsapp_e164 || null,
+      whatsapp_e164: whatsapp_e164 ?? null,
       profile_extra: profileExtra,
     });
 
@@ -127,12 +149,12 @@ export async function createQrProfileAction(
     }
 
     if (error.code !== "23505") {
-      return { error: error.message };
+      return { error: error.message, slug: null };
     }
   }
 
   if (!created) {
-    return { error: "Could not allocate a unique QR code. Try again." };
+    return { error: "Could not allocate a unique QR code. Try again.", slug: null };
   }
 
   await supabase.from("profiles").upsert(
@@ -145,5 +167,28 @@ export async function createQrProfileAction(
     { onConflict: "id" },
   );
 
-  redirect(`/dashboard/tags?new=${encodeURIComponent(slug)}`);
+  return { error: null, slug };
+}
+
+/** Toggle a QR between active and disabled. */
+export async function toggleQrStatusAction(
+  qrId: string,
+  currentStatus: string,
+): Promise<{ error: string | null }> {
+  const supabase = await createClient();
+  if (!supabase) return { error: "Server configuration error." };
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { error: "Not authenticated." };
+
+  const newStatus = currentStatus === "active" ? "disabled" : "active";
+  const { error } = await supabase
+    .from("qrs")
+    .update({ status: newStatus })
+    .eq("id", qrId)
+    .eq("owner_user_id", user.id);
+
+  return { error: error?.message ?? null };
 }
