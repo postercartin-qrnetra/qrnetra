@@ -1,5 +1,6 @@
 "use client";
 
+import { buildAuthCallbackUrl } from "@/lib/auth/callback-url";
 import { createClient } from "@/lib/supabase/client";
 import {
   getOAuthReturnPath,
@@ -77,7 +78,7 @@ export function AuthLoginForm() {
     setLoading(true);
     const supabase = createClient();
     const returnPath = getOAuthReturnPath(nextParam);
-    const redirectTo = `${window.location.origin}/auth/callback?next=${encodeURIComponent(returnPath)}`;
+    const redirectTo = buildAuthCallbackUrl(returnPath);
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: { redirectTo },
@@ -146,7 +147,7 @@ export function AuthLoginForm() {
     }
     const supabase = createClient();
     const returnPath = getOAuthReturnPath(nextParam);
-    const emailRedirectTo = `${window.location.origin}/auth/callback?next=${encodeURIComponent(returnPath)}`;
+    const emailRedirectTo = buildAuthCallbackUrl(returnPath);
     const { error } = await supabase.auth.signInWithOtp({
       email,
       options: { emailRedirectTo, shouldCreateUser: true },
@@ -169,7 +170,7 @@ export function AuthLoginForm() {
       return;
     }
     const supabase = createClient();
-    const redirectTo = `${window.location.origin}/auth/callback?next=${encodeURIComponent("/auth/update-password")}`;
+    const redirectTo = buildAuthCallbackUrl("/auth/update-password");
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo,
     });

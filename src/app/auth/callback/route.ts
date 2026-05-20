@@ -1,10 +1,12 @@
+import { getRequestOrigin } from "@/lib/auth/callback-url";
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { safeNextPath } from "@/lib/onboarding/safe-next";
 
 export async function GET(request: Request) {
-  const { searchParams, origin } = new URL(request.url);
+  const { searchParams } = new URL(request.url);
+  const origin = getRequestOrigin(request);
   const code = searchParams.get("code");
   const nextRaw = searchParams.get("next");
   const next = safeNextPath(nextRaw);

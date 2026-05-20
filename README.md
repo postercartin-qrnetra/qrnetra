@@ -26,21 +26,27 @@ In **Project → Settings → Environment Variables**, add the following for all
 | --- | --- | --- |
 | `NEXT_PUBLIC_SUPABASE_URL` | `https://<project-ref>.supabase.co` | From Supabase dashboard → Settings → API |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | `eyJ...` (anon, **not** service role) | From Supabase dashboard → Settings → API |
-| `NEXT_PUBLIC_SITE_URL` | `https://your-domain.com` | Optional. If unset, falls back to `NEXT_PUBLIC_VERCEL_URL` |
+| `NEXT_PUBLIC_SITE_URL` | `https://your-domain.com` | Optional on Vercel (auto-uses `NEXT_PUBLIC_VERCEL_URL`). **Never** set to `localhost` in Production/Preview. |
 | `SUPABASE_SERVICE_ROLE_KEY` | `eyJ...` (server only) | Only required if you add admin scripts or webhooks |
 
 > Do **not** copy your local `127.0.0.1:54321` URL into Vercel.
 
 ### 2. Configure Supabase Auth redirects
 
-In **Supabase → Authentication → URL Configuration → Redirect URLs**, add:
+In **Supabase → Authentication → URL Configuration**:
+
+1. **Site URL** — your production domain (e.g. `https://your-domain.com`), **not** `http://localhost:3000`.
+2. **Redirect URLs** — add every callback origin you use:
 
 ```
 http://localhost:3000/auth/callback
 https://your-domain.com/auth/callback
+https://*.vercel.app/auth/callback
 ```
 
-Replace the production URL with your real Vercel domain. If you use Google OAuth, also enable the Google provider in **Authentication → Providers**.
+If Site URL or Redirect URLs still point at localhost, Google OAuth will send users to `http://localhost:3000/?code=…` even from production.
+
+Replace `your-domain.com` with your real Vercel/custom domain. If you use Google OAuth, also enable the Google provider in **Authentication → Providers** and add the same production callback URL to the Google Cloud OAuth client **Authorized redirect URIs** (Supabase shows the exact URI in the provider settings).
 
 ### 3. Run database migrations
 

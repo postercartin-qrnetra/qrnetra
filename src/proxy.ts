@@ -1,7 +1,23 @@
-import { type NextRequest } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { updateSession } from "@/lib/supabase/proxy";
 
+/** Supabase may fall back to Site URL root with `?code=` when redirectTo is not allowlisted. */
+function redirectOAuthCodeToCallback(request: NextRequest): NextResponse | null {
+  const code = request.nextUrl.searchParams.get("code");
+  if (!code || request.nextUrl.pathname === "/auth/callback") {
+    return null;
+  }
+
+  const callback = request.nextUrl.clone();
+  callback.pathname = "/auth/callback";
+  return NextResponse.redirect(callback);
+}
+
 export async function proxy(request: NextRequest) {
+  const oauthRedirect = redirectOAuthCodeToCallback(request);
+  if (oauthRedirect) {
+    return oauthRedirect;
+  }
   return await updateSession(request);
 }
 
