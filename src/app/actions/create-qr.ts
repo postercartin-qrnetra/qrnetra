@@ -1,5 +1,6 @@
 "use server";
 
+import { cookies } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
 import { runQrGenerationPipeline } from "@/lib/qr/pipeline";
 import {
@@ -15,26 +16,102 @@ export type CreateQrResult = {
   slug: string | null;
 };
 
+const AUTH_DEBUG =
+  process.env.QR_AUTH_DEBUG === "1" ||
+  process.env.QR_PIPELINE_AUDIT === "1";
+
+function authLog(message: string, detail?: Record<string, unknown>) {
+  if (!AUTH_DEBUG) return;
+  console.log(message, detail ?? "");
+}
+
 export async function createQrAction(
   formData: FormData,
 ): Promise<CreateQrResult> {
+  console.log("[CREATE QR ACTION START]");
+
   const validation = validateCreateForm(formData);
   if (!validation.ok) {
+    console.log("RETURNING VALIDATION ERROR", validation.error);
     return { error: validation.error, slug: null };
   }
 
   const supabase = await createClient();
   if (!supabase) {
+    console.log("RETURNING CONFIG ERROR — Supabase env missing");
     return {
       error: "Server is missing Supabase configuration. Contact support.",
       slug: null,
     };
   }
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const cookieStore = await cookies();
+  const allCookies = cookieStore.getAll();
+  const sbCookieNames = allCookies
+    .map((c) => c.name)
+    .filter((n) => n.includes("sb-") || n.includes("supabase"));
+  console.log("[AUTH CHECK] cookies on server action", {
+    totalCookies: allCookies.length,
+    supabaseCookieNames: sbCookieNames,
+  });
+  authLog("[AUTH CHECK] cookies on server action request", {
+    totalCookies: allCookies.length,
+    supabaseCookieNames: sbCookieNames,
+  });
+
+  const sessionResult = await supabase.auth.getSession();
+  console.log("[AUTH CHECK] getSession() response", {
+    hasSession: Boolean(sessionResult.data.session),
+    sessionUserId: sessionResult.data.session?.user?.id ?? null,
+    sessionEmail: sessionResult.data.session?.user?.email ?? null,
+    sessionError: sessionResult.error?.message ?? null,
+  });
+  authLog("[AUTH CHECK] getSession() response", {
+    hasSession: Boolean(sessionResult.data.session),
+    sessionUserId: sessionResult.data.session?.user?.id ?? null,
+    sessionEmail: sessionResult.data.session?.user?.email ?? null,
+    sessionError: sessionResult.error?.message ?? null,
+  });
+
+  if (sessionResult.data.session?.user) {
+    console.log("[AUTH CHECK] Session found");
+    console.log("[AUTH CHECK] User ID", sessionResult.data.session.user.id);
+    console.log(
+      "[AUTH CHECK] Email",
+      sessionResult.data.session.user.email ?? "(none)",
+    );
+  } else {
+    console.log("[AUTH CHECK] No session in server action cookies");
+  }
+
+  const userResult = await supabase.auth.getUser();
+  console.log("[AUTH CHECK] getUser() response", {
+    userId: userResult.data.user?.id ?? null,
+    email: userResult.data.user?.email ?? null,
+    userError: userResult.error?.message ?? null,
+    userErrorStatus: userResult.error?.status ?? null,
+  });
+  authLog("[AUTH CHECK] getUser() full response", {
+    userId: userResult.data.user?.id ?? null,
+    email: userResult.data.user?.email ?? null,
+    userError: userResult.error?.message ?? null,
+    userErrorStatus: userResult.error?.status ?? null,
+  });
+
+  let user = userResult.data.user;
+
+  if (!user && sessionResult.data.session) {
+    authLog("[AUTH CHECK] getUser() empty but session exists — refreshSession");
+    const refreshed = await supabase.auth.refreshSession();
+    authLog("[AUTH CHECK] refreshSession() response", {
+      hasSession: Boolean(refreshed.data.session),
+      refreshError: refreshed.error?.message ?? null,
+    });
+    user = refreshed.data.user ?? refreshed.data.session?.user ?? null;
+  }
+
   if (!user) {
+    console.log("RETURNING AUTH ERROR — getUser() returned no user");
     return {
       error: "Not authenticated. Please sign in and try again.",
       slug: null,
@@ -42,12 +119,19 @@ export async function createQrAction(
   }
 
   const profile = validatedFormToProfile(validation.data);
+  authLog("[AUTH CHECK] proceeding to pipeline insert", {
+    userId: user.id,
+    profileType: profile.profileType,
+  });
+
   const pipeline = await runQrGenerationPipeline(supabase, user.id, profile);
 
   if (!pipeline.ok) {
+    console.log("RETURNING INSERT ERROR", pipeline.error);
     return { error: pipeline.error, slug: null };
   }
 
+  console.log("RETURNING SUCCESS", { slug: pipeline.result.slug });
   return { error: null, slug: pipeline.result.slug };
 }
 

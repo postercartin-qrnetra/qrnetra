@@ -18,13 +18,23 @@ export type QrPipelineResult = {
 /**
  * Steps 2–7: profile → unique slug → qr_codes row → QR images (URL only).
  */
+const AUDIT = process.env.QR_PIPELINE_AUDIT === "1";
+
+function audit(step: string, detail?: Record<string, unknown>) {
+  if (!AUDIT) return;
+  console.log(`[QR-AUDIT] ${step}`, detail ?? "");
+}
+
 export async function runQrGenerationPipeline(
   supabase: SupabaseClient,
   userId: string,
   profile: ParsedProfilePayload,
 ): Promise<{ ok: true; result: QrPipelineResult } | { ok: false; error: string }> {
+  audit("[STEP 4] slug allocation started");
+
   const slug = await allocateUniqueQnrSlug(supabase);
   if (!slug) {
+    audit("[STEP 5] slug allocation failed");
     return {
       ok: false,
       error: "Could not allocate a unique QR ID. Please try again.",
@@ -33,47 +43,80 @@ export async function runQrGenerationPipeline(
 
   const site = getPublicSiteUrl();
   const scanUrl = buildPublicScanUrl(site, slug);
+  audit("[STEP 5] slug generated", { slug, site, scanUrl });
+
+  const profileInsertPayload = {
+    user_id: userId,
+    profile_type: profile.profileType,
+    name: profile.name,
+    phone: profile.phone,
+    slug,
+    status: "active",
+    data_json: profile.dataJson,
+  };
+  console.log("[QR INSERT] qr_profiles payload", profileInsertPayload);
+  audit("[STEP 6] qr_profiles insert started");
 
   const { data: qrProfile, error: profileError } = await supabase
     .from("qr_profiles")
-    .insert({
-      user_id: userId,
-      profile_type: profile.profileType,
-      name: profile.name,
-      phone: profile.phone,
-      slug,
-      status: "active",
-      data_json: profile.dataJson,
-    })
+    .insert(profileInsertPayload)
     .select("id")
     .single();
 
+  console.log("[QR INSERT] qr_profiles response", {
+    id: qrProfile?.id ?? null,
+    error: profileError?.message ?? null,
+    code: profileError?.code ?? null,
+  });
+
   if (profileError || !qrProfile) {
+    audit("[STEP 6] qr_profiles insert failed", {
+      message: profileError?.message,
+      code: profileError?.code,
+      details: profileError?.details,
+    });
     return {
       ok: false,
       error: profileError?.message ?? "Failed to save emergency profile.",
     };
   }
+  audit("[STEP 6] qr_profiles insert succeeded", { profileId: qrProfile.id });
+
+  const qrCodeInsertPayload = {
+    profile_id: qrProfile.id,
+    slug,
+    qr_url: scanUrl,
+    status: "active",
+    scans: 0,
+  };
+  console.log("[QR INSERT] qr_codes payload", qrCodeInsertPayload);
+  audit("[STEP 7] qr_codes insert started", { profile_id: qrProfile.id });
 
   const { data: qrCode, error: qrError } = await supabase
     .from("qr_codes")
-    .insert({
-      profile_id: qrProfile.id,
-      slug,
-      qr_url: scanUrl,
-      status: "active",
-      scans: 0,
-    })
+    .insert(qrCodeInsertPayload)
     .select("id")
     .single();
 
+  console.log("[QR INSERT] qr_codes response", {
+    id: qrCode?.id ?? null,
+    error: qrError?.message ?? null,
+    code: qrError?.code ?? null,
+  });
+
   if (qrError || !qrCode) {
+    audit("[STEP 7] qr_codes insert failed", {
+      message: qrError?.message,
+      code: qrError?.code,
+      details: qrError?.details,
+    });
     await supabase.from("qr_profiles").delete().eq("id", qrProfile.id);
     return {
       ok: false,
       error: qrError?.message ?? "Failed to create QR record.",
     };
   }
+  audit("[STEP 7] qr_codes insert succeeded", { qrId: qrCode.id });
 
   // Legacy mirror so existing dashboard/RPC paths keep working during transition
   const legacyExtra = { ...profile.dataJson };
@@ -117,7 +160,15 @@ export async function runQrGenerationPipeline(
     const assets = await generateQrImageAssets(scanUrl);
     pngDataUrl = assets.pngDataUrl;
     svg = assets.svg;
+    audit("[STEP 7b] QR image generation succeeded", {
+      pngLength: pngDataUrl.length,
+      svgLength: svg.length,
+      encodes: scanUrl,
+    });
   } catch (e) {
+    audit("[STEP 7b] QR image generation failed (non-fatal)", {
+      error: e instanceof Error ? e.message : String(e),
+    });
     console.error("QR image generation failed (success page will retry):", e);
   }
 

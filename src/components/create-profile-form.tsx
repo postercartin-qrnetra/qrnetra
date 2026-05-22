@@ -535,11 +535,36 @@ export function CreateProfileForm({
     return fd;
   }
 
+  /**
+   * Ensure Supabase session cookies are written and the App Router cache is
+   * refreshed before a server action runs (fixes sign-in → immediate action race).
+   */
+  async function ensureSessionReady(): Promise<boolean> {
+    const supabase = createClient();
+    const {
+      data: { session },
+      error,
+    } = await supabase.auth.getSession();
+    if (error || !session?.user) {
+      return false;
+    }
+    router.refresh();
+    return true;
+  }
+
   async function submitQrCreation() {
     setLoading(true);
     setError(null);
     setAuthPhase("submitting");
     try {
+      const sessionOk = await ensureSessionReady();
+      if (!sessionOk) {
+        setIsLoggedIn(false);
+        setError("Not authenticated. Please sign in and try again.");
+        setAuthPhase("idle");
+        return;
+      }
+
       const fd = buildFormData();
       const result = await createQrAction(fd);
       if (result.error) {
@@ -549,8 +574,13 @@ export function CreateProfileForm({
       }
       if (result.slug) {
         clearDraft(type);
-        router.push(`/create/success/${result.slug}`);
+        const redirectTarget = `/create/success/${result.slug}`;
+        console.log("[QR CLIENT] redirect target", redirectTarget);
+        router.push(redirectTarget);
+        return;
       }
+      setError("QR creation did not complete. Please try again.");
+      setAuthPhase("idle");
     } catch (e) {
       setError(e instanceof Error ? e.message : "Something went wrong.");
       setAuthPhase("idle");
@@ -599,6 +629,8 @@ export function CreateProfileForm({
 
     if (!signInErr) {
       setIsLoggedIn(true);
+      await supabase.auth.getSession();
+      router.refresh();
       await submitQrCreation();
       return;
     }
@@ -621,6 +653,8 @@ export function CreateProfileForm({
 
       if (data.session) {
         setIsLoggedIn(true);
+        await supabase.auth.getSession();
+        router.refresh();
         await submitQrCreation();
         return;
       }

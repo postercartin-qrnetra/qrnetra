@@ -14,11 +14,20 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
+const AUDIT = process.env.QR_PIPELINE_AUDIT === "1";
+
+function audit(step: string, detail?: Record<string, unknown>) {
+  if (!AUDIT) return;
+  console.log(`[QR-AUDIT] ${step}`, detail ?? "");
+}
+
 export default async function CreateSuccessPage({ params }: Props) {
   const { slug } = await params;
+  audit("[STEP 9] success page render", { slug, slugEmpty: !slug?.trim() });
 
   const supabase = await createClient();
   if (!supabase) {
+    audit("[STEP 9] supabase null — redirect /create");
     redirect("/create");
   }
 
@@ -27,6 +36,7 @@ export default async function CreateSuccessPage({ params }: Props) {
   } = await supabase.auth.getUser();
 
   if (!user) {
+    audit("[STEP 9] no user — redirect login");
     redirect(`/login?next=/create/success/${encodeURIComponent(slug)}`);
   }
 
@@ -36,6 +46,12 @@ export default async function CreateSuccessPage({ params }: Props) {
     .eq("slug", slug)
     .single();
 
+  audit("[STEP 9] qr_codes lookup", {
+    found: Boolean(qrCode),
+    codeErr: codeErr?.message,
+    code: codeErr?.code,
+  });
+
   if (!codeErr && qrCode) {
     const { data: profile } = await supabase
       .from("qr_profiles")
@@ -43,7 +59,13 @@ export default async function CreateSuccessPage({ params }: Props) {
       .eq("id", qrCode.profile_id)
       .single();
 
+    audit("[STEP 9] qr_profiles lookup", {
+      found: Boolean(profile),
+      ownerMatch: profile?.user_id === user.id,
+    });
+
     if (!profile || profile.user_id !== user.id) {
+      audit("[STEP 9] profile missing or wrong owner — notFound");
       notFound();
     }
 
@@ -76,7 +98,13 @@ export default async function CreateSuccessPage({ params }: Props) {
     .eq("owner_user_id", user.id)
     .single();
 
+  audit("[STEP 9] legacy qrs fallback", {
+    found: Boolean(qr),
+    error: error?.message,
+  });
+
   if (error || !qr) {
+    audit("[STEP 9] no qr_codes or legacy qrs — notFound");
     notFound();
   }
 
