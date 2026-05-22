@@ -1,6 +1,7 @@
 "use server";
 
-import { cookies } from "next/headers";
+import { parseCookieHeader } from "@supabase/ssr";
+import { cookies, headers } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
 import { runQrGenerationPipeline } from "@/lib/qr/pipeline";
 import {
@@ -46,13 +47,18 @@ export async function createQrAction(
   }
 
   const cookieStore = await cookies();
+  const headerStore = await headers();
   const allCookies = cookieStore.getAll();
+  const headerCookieNames = parseCookieHeader(headerStore.get("cookie") ?? "")
+    .map((c) => c.name)
+    .filter((n) => n.includes("sb-") || n.includes("supabase"));
   const sbCookieNames = allCookies
     .map((c) => c.name)
     .filter((n) => n.includes("sb-") || n.includes("supabase"));
   console.log("[AUTH CHECK] cookies on server action", {
     totalCookies: allCookies.length,
-    supabaseCookieNames: sbCookieNames,
+    supabaseCookieNamesFromStore: sbCookieNames,
+    supabaseCookieNamesFromHeader: headerCookieNames,
   });
   authLog("[AUTH CHECK] cookies on server action request", {
     totalCookies: allCookies.length,
@@ -111,12 +117,19 @@ export async function createQrAction(
   }
 
   if (!user) {
-    console.log("RETURNING AUTH ERROR — getUser() returned no user");
+    console.log("RETURNING AUTH ERROR — getUser() returned no user", {
+      userError: userResult.error?.message ?? null,
+      hasSession: Boolean(sessionResult.data.session),
+      sbCookies: sbCookieNames,
+    });
     return {
       error: "Not authenticated. Please sign in and try again.",
       slug: null,
     };
   }
+
+  console.log("[AUTH FIX VERIFIED] User ID", user.id);
+  console.log("[AUTH FIX VERIFIED] Email", user.email ?? "(none)");
 
   const profile = validatedFormToProfile(validation.data);
   authLog("[AUTH CHECK] proceeding to pipeline insert", {
@@ -131,6 +144,9 @@ export async function createQrAction(
     return { error: pipeline.error, slug: null };
   }
 
+  console.log("[AUTH FIX VERIFIED] Profile insert success");
+  console.log("[AUTH FIX VERIFIED] QR insert success");
+  console.log("[AUTH FIX VERIFIED] Generated slug", pipeline.result.slug);
   console.log("RETURNING SUCCESS", { slug: pipeline.result.slug });
   return { error: null, slug: pipeline.result.slug };
 }

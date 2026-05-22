@@ -1,14 +1,13 @@
 import { getRequestOrigin } from "@/lib/auth/callback-url";
 import { createServerClient } from "@supabase/ssr";
-import { cookies } from "next/headers";
-import { NextResponse } from "next/server";
 import { safeNextPath } from "@/lib/onboarding/safe-next";
+import { type NextRequest, NextResponse } from "next/server";
 
-export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url);
+export async function GET(request: NextRequest) {
+  const requestUrl = new URL(request.url);
   const origin = getRequestOrigin(request);
-  const code = searchParams.get("code");
-  const nextRaw = searchParams.get("next");
+  const code = requestUrl.searchParams.get("code");
+  const nextRaw = requestUrl.searchParams.get("next");
   const next = safeNextPath(nextRaw);
 
   if (!code) {
@@ -23,20 +22,26 @@ export async function GET(request: Request) {
     );
   }
 
+  const redirectTo = `${origin}${next}`;
+  let response = NextResponse.redirect(redirectTo);
+
   try {
-    const cookieStore = await cookies();
     const supabase = createServerClient(url, anon, {
       cookies: {
         getAll() {
-          return cookieStore.getAll();
+          return request.cookies.getAll();
         },
-        setAll(cookiesToSet) {
-          try {
-            cookiesToSet.forEach(({ name, value, options }) =>
-              cookieStore.set(name, value, options),
+        setAll(cookiesToSet, headers) {
+          cookiesToSet.forEach(({ name, value }) =>
+            request.cookies.set(name, value),
+          );
+          cookiesToSet.forEach(({ name, value, options }) =>
+            response.cookies.set(name, value, options),
+          );
+          if (headers) {
+            Object.entries(headers).forEach(([key, value]) =>
+              response.headers.set(key, value),
             );
-          } catch {
-            /* session writes handled by proxy.ts */
           }
         },
       },
@@ -44,6 +49,7 @@ export async function GET(request: Request) {
 
     const { error } = await supabase.auth.exchangeCodeForSession(code);
     if (error) {
+      console.error("auth/callback exchange failed:", error.message);
       return NextResponse.redirect(
         `${origin}/login?error=${encodeURIComponent("auth_exchange_failed")}`,
       );
@@ -55,5 +61,5 @@ export async function GET(request: Request) {
     );
   }
 
-  return NextResponse.redirect(`${origin}${next}`);
+  return response;
 }
