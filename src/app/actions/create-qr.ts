@@ -8,10 +8,6 @@ import {
   validateCreateForm,
   validatedFormToProfile,
 } from "@/lib/qr/validate-create-form";
-import type { QrKind } from "@/lib/qr/types";
-
-export type { QrKind };
-
 export type CreateQrResult = {
   error: string | null;
   slug: string | null;
