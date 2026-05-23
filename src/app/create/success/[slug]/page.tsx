@@ -70,7 +70,7 @@ export default async function CreateSuccessPage({ params }: Props) {
     }
 
     const site = getPublicSiteUrl();
-    const scanUrl = qrCode.qr_url || buildPublicScanUrl(site, qrCode.slug);
+    const scanUrl = buildPublicScanUrl(site, qrCode.slug);
     const extra = (profile.data_json ?? {}) as Record<string, string>;
     const whatsapp =
       typeof extra.whatsapp === "string" ? extra.whatsapp : null;
@@ -80,6 +80,7 @@ export default async function CreateSuccessPage({ params }: Props) {
         qrId={qrCode.id}
         slug={qrCode.slug}
         scanUrl={scanUrl}
+        status={qrCode.status}
         title={profile.name ?? "Emergency QR"}
         kind={profile.profile_type ?? "vehicle"}
         vehicleReg={extra.vehicle_number ?? extra.asset_id ?? null}

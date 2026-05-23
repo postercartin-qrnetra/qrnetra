@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { QrPreview } from "@/components/qr-preview";
-import { QrTagActions } from "@/components/qr-tag-actions";
+import { QrDashboardActions } from "@/components/qr-dashboard-actions";
 import { getPublicSiteUrl } from "@/lib/site-url";
 import { buildPublicScanUrl } from "@/lib/qr/slug";
 
@@ -198,10 +198,14 @@ export default async function DashboardTagsPage({ searchParams }: Props) {
                     >
                       View public scan page →
                     </Link>
-                    <QrTagActions
+                    <QrDashboardActions
                       qrId={tag.id}
                       slug={tag.slug}
+                      scanUrl={url}
                       status={tag.status}
+                      kind={tag.kind}
+                      title={tag.title ?? "Emergency QR"}
+                      subtitle={tag.vehicle_registration}
                     />
                   </div>
                 </div>

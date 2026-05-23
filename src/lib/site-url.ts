@@ -9,38 +9,25 @@ function isLocalSiteUrl(url: string): boolean {
 }
 
 /**
- * Resolve the absolute base URL used to render QR images, OAuth callbacks and
- * any other place we need a "public" link.
+ * Public base URL for QR codes, OAuth redirects, and absolute links.
  *
- * Priority:
- *  1. NEXT_PUBLIC_SITE_URL — explicit production override (ignored on Vercel
- *     when it still points at localhost).
- *  2. NEXT_PUBLIC_VERCEL_URL — auto-set on every Vercel deployment.
- *  3. http://localhost:3000 — local dev default.
+ * Always prefers `NEXT_PUBLIC_SITE_URL` (e.g. https://qrnetra.com) so printed
+ * QRs never encode preview or deployment hostnames.
+ *
+ * Falls back to http://localhost:3000 in local dev when unset.
  */
 export function getPublicSiteUrl(): string {
   const explicit = process.env.NEXT_PUBLIC_SITE_URL;
-  const vercel = process.env.NEXT_PUBLIC_VERCEL_URL;
 
-  if (vercel && vercel.trim()) {
-    const trimmed = normalizeBaseUrl(vercel);
-    const vercelUrl = trimmed.startsWith("http")
-      ? trimmed
-      : `https://${trimmed}`;
-
-    if (!explicit?.trim() || isLocalSiteUrl(explicit)) {
-      return vercelUrl;
-    }
-  }
-
-  if (explicit && explicit.trim()) {
+  if (explicit?.trim()) {
     return normalizeBaseUrl(explicit);
   }
 
-  if (vercel && vercel.trim()) {
-    const trimmed = normalizeBaseUrl(vercel);
-    return trimmed.startsWith("http") ? trimmed : `https://${trimmed}`;
-  }
-
   return "http://localhost:3000";
+}
+
+/** True when running locally without a production site URL configured. */
+export function isLocalDevSite(): boolean {
+  const url = getPublicSiteUrl();
+  return isLocalSiteUrl(url);
 }

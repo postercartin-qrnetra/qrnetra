@@ -56,7 +56,7 @@ function clearDraft(type: QrKind) {
 
 // ─── Field primitives ────────────────────────────────────────────────────────
 
-function InputField({
+export function InputField({
   label,
   name,
   value,
@@ -98,7 +98,7 @@ function InputField({
   );
 }
 
-function TextAreaField({
+export function TextAreaField({
   label,
   name,
   value,
@@ -133,7 +133,7 @@ function TextAreaField({
 
 // ─── Type-specific field sections ────────────────────────────────────────────
 
-function VehicleFields({
+export function VehicleFields({
   values,
   set,
   showOptional,
@@ -203,7 +203,7 @@ function VehicleFields({
   );
 }
 
-function ChildFields({
+export function ChildFields({
   values,
   set,
   showOptional,
@@ -290,7 +290,7 @@ function ChildFields({
   );
 }
 
-function PetFields({
+export function PetFields({
   values,
   set,
   showOptional,
@@ -364,7 +364,7 @@ function PetFields({
   );
 }
 
-function BusinessFields({
+export function BusinessFields({
   values,
   set,
   showOptional,
@@ -461,7 +461,11 @@ export function CreateProfileForm({
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const [type, setType] = useState<QrKind>(initialType ?? "vehicle");
-  const [values, setValues] = useState<Values>({});
+  const [values, setValues] = useState<Values>(() =>
+    typeof window !== "undefined"
+      ? loadDraft(initialType ?? "vehicle")
+      : {},
+  );
   const [showOptional, setShowOptional] = useState(false);
 
   const [email, setEmail] = useState(initialEmail ?? "");
@@ -473,11 +477,8 @@ export function CreateProfileForm({
 
   const accountEmail = user?.email ?? email;
 
-  // Load draft on mount
   useEffect(() => {
     clearOnboardingDraftMarker();
-    setValues(loadDraft(type));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Save draft debounced

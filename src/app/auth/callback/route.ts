@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
   }
 
   const redirectTo = `${origin}${next}`;
-  let response = NextResponse.redirect(redirectTo);
+  const response = NextResponse.redirect(redirectTo);
 
   try {
     const supabase = createServerClient(url, anon, {

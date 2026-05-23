@@ -46,7 +46,7 @@ export async function createClient(): Promise<SupabaseClient | null> {
       }
       return fromStore.length > 0 ? fromStore : fromHeader;
     },
-    setAll(cookiesToSet, _cacheHeaders) {
+    setAll(cookiesToSet) {
       try {
         cookiesToSet.forEach(({ name, value, options }) =>
           cookieStore.set(name, value, options),

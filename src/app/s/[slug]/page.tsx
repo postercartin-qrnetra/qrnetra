@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createPublicServerClient } from "@/lib/supabase/public-server";
 import { ScanLogClient } from "@/components/scan-log-client";
@@ -368,12 +369,12 @@ export default async function PublicScanPage({ params }: Props) {
             services immediately. QRNetra helps reach the owner — it is not a
             substitute for emergency services.
           </p>
-          <a
+          <Link
             href="/"
             className="inline-flex text-xs font-semibold text-zinc-500 underline-offset-4 hover:text-[#111111] hover:underline"
           >
             Powered by QRNetra — create your own safety QR →
-          </a>
+          </Link>
         </div>
       </div>
     </div>

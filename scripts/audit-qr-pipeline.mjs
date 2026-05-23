@@ -49,7 +49,9 @@ const slug = generateQnrSlug();
 console.log("Generated slug:", slug);
 console.log("Format valid:", /^QNR-[A-Z0-9]{6}$/.test(slug));
 
-const site = "https://qrnetra.vercel.app";
+const site =
+  process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ||
+  "https://qrnetra.com";
 const scanUrl = buildPublicScanUrl(site, slug);
 console.log("\n=== QR encode URL (must be scan path only) ===");
 console.log(scanUrl);
