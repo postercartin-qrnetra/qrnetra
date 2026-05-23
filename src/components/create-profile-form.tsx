@@ -1,5 +1,6 @@
 "use client";
 
+import { useAuth } from "@/components/auth/auth-provider";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
@@ -455,6 +456,8 @@ export function CreateProfileForm({
   initialEmail?: string | null;
 }) {
   const router = useRouter();
+  const { user } = useAuth();
+  const isLoggedIn = Boolean(user);
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const [type, setType] = useState<QrKind>(initialType ?? "vehicle");
@@ -464,23 +467,16 @@ export function CreateProfileForm({
   const [email, setEmail] = useState(initialEmail ?? "");
   const [password, setPassword] = useState("");
   const [authPhase, setAuthPhase] = useState<AuthPhase>("idle");
-  const [isLoggedIn, setIsLoggedIn] = useState(Boolean(initialEmail));
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Load draft + check auth on mount
+  const accountEmail = user?.email ?? email;
+
+  // Load draft on mount
   useEffect(() => {
     clearOnboardingDraftMarker();
     setValues(loadDraft(type));
-
-    const supabase = createClient();
-    supabase.auth.getSession().then(({ data }) => {
-      if (data.session?.user?.email) {
-        setIsLoggedIn(true);
-        if (!initialEmail) setEmail(data.session.user.email);
-      }
-    }).catch(() => undefined);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -559,7 +555,6 @@ export function CreateProfileForm({
     try {
       const sessionOk = await ensureSessionReady();
       if (!sessionOk) {
-        setIsLoggedIn(false);
         setError("Not authenticated. Please sign in and try again.");
         setAuthPhase("idle");
         return;
@@ -628,7 +623,6 @@ export function CreateProfileForm({
     });
 
     if (!signInErr) {
-      setIsLoggedIn(true);
       await supabase.auth.getSession();
       router.refresh();
       await submitQrCreation();
@@ -652,7 +646,6 @@ export function CreateProfileForm({
       }
 
       if (data.session) {
-        setIsLoggedIn(true);
         await supabase.auth.getSession();
         router.refresh();
         await submitQrCreation();
@@ -766,7 +759,7 @@ export function CreateProfileForm({
           {isLoggedIn ? (
             <p className="text-xs text-zinc-500">
               Generating QR as{" "}
-              <span className="font-semibold text-[#111111]">{email}</span>
+              <span className="font-semibold text-[#111111]">{accountEmail}</span>
             </p>
           ) : (
             <>

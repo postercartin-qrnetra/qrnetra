@@ -1,3 +1,4 @@
+import { UserMenu } from "@/components/auth/user-menu";
 import Link from "next/link";
 
 const links = [
@@ -12,7 +13,7 @@ const links = [
 export function DashboardShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex min-h-screen bg-[#fafafa]">
-      <aside className="hidden w-56 shrink-0 border-r border-zinc-200 bg-white px-3 py-6 md:block">
+      <aside className="hidden w-56 shrink-0 flex-col border-r border-zinc-200 bg-white px-3 py-6 md:flex">
         <Link
           href="/"
           className="block px-2 text-sm font-bold tracking-tight text-[#111111]"
@@ -30,9 +31,15 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
             </Link>
           ))}
         </nav>
+        <div className="mt-auto pt-6">
+          <UserMenu variant="sidebar" />
+        </div>
       </aside>
       <div className="flex min-h-screen flex-1 flex-col">
         <header className="border-b border-zinc-200 bg-white px-4 py-3 md:hidden">
+          <div className="mb-3 flex justify-end">
+            <UserMenu variant="header" />
+          </div>
           <nav className="flex flex-wrap gap-2 text-xs font-medium text-zinc-700">
             {links.map((l) => (
               <Link key={l.href} href={l.href} className="hover:text-[#111111]">

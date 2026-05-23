@@ -1,5 +1,8 @@
 "use client";
 
+import { HeaderAuthActions } from "@/components/auth/header-auth-actions";
+import { useAuth } from "@/components/auth/auth-provider";
+import { UserMenu } from "@/components/auth/user-menu";
 import Link from "next/link";
 import { useState } from "react";
 
@@ -65,6 +68,7 @@ function MenuIcon({ open }: { open: boolean }) {
 
 export function MainHeader() {
   const [open, setOpen] = useState(false);
+  const { user, isLoading } = useAuth();
 
   return (
     <header className="sticky top-0 z-50 border-b border-zinc-200/90 bg-white/85 backdrop-blur-xl">
@@ -104,12 +108,7 @@ export function MainHeader() {
         </nav>
 
         <div className="flex items-center gap-2 sm:gap-3">
-          <Link
-            href="/login"
-            className="hidden text-sm font-medium text-zinc-600 transition-colors hover:text-[#111111] sm:inline"
-          >
-            Login
-          </Link>
+          <HeaderAuthActions />
           <Link
             href="/cart"
             className="flex h-10 w-10 items-center justify-center rounded-xl text-zinc-700 transition-colors hover:bg-zinc-100 hover:text-[#111111]"
@@ -143,13 +142,28 @@ export function MainHeader() {
               {item.label}
             </Link>
           ))}
-          <Link
-            href="/login"
-            className="rounded-xl px-4 py-3 text-sm font-medium text-zinc-800 hover:bg-zinc-50"
-            onClick={() => setOpen(false)}
-          >
-            Login
-          </Link>
+          {!isLoading && user ? (
+            <div className="px-2 py-2">
+              <UserMenu variant="header" />
+            </div>
+          ) : !isLoading ? (
+            <Link
+              href="/login"
+              className="rounded-xl px-4 py-3 text-sm font-medium text-zinc-800 hover:bg-zinc-50"
+              onClick={() => setOpen(false)}
+            >
+              Login
+            </Link>
+          ) : null}
+          {!isLoading && user ? (
+            <Link
+              href="/dashboard"
+              className="rounded-xl px-4 py-3 text-sm font-medium text-zinc-800 hover:bg-zinc-50"
+              onClick={() => setOpen(false)}
+            >
+              Dashboard
+            </Link>
+          ) : null}
         </nav>
       </div>
     </header>
