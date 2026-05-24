@@ -1,6 +1,5 @@
 "use client";
 
-import { QnLogo } from "@/components/ui/logo";
 import {
   LayoutDashboard,
   QrCode,
@@ -80,5 +79,3 @@ export function DashboardMobileNav() {
     </nav>
   );
 }
-
-export { QnLogo };

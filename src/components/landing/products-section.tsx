@@ -8,7 +8,9 @@ import { Section } from "./section";
 
 const PRODUCTS: {
   name: string;
-  type: QrKind;
+  type?: QrKind;
+  ctaHref?: string;
+  ctaLabel?: string;
   price: string;
   features: string[];
   badge: string;
@@ -40,7 +42,8 @@ const PRODUCTS: {
   },
   {
     name: "Business / Fleet QR",
-    type: "business",
+    ctaHref: "/business-fleet",
+    ctaLabel: "Business & Fleet Solutions",
     price: "Custom",
     features: ["Bulk pricing", "Admin roles", "Branded tags"],
     badge: "B2B",
@@ -97,12 +100,21 @@ export function ProductsSection() {
                   ))}
                 </ul>
                 <p className="mt-4 text-sm font-bold text-white">{p.price}</p>
-                <ProfileTypeContinueButton
-                  type={p.type}
-                  className="qn-btn-primary mt-4 w-full"
-                >
-                  Get started
-                </ProfileTypeContinueButton>
+                {p.ctaHref ? (
+                  <Link
+                    href={p.ctaHref}
+                    className="qn-btn-primary mt-4 w-full text-center"
+                  >
+                    {p.ctaLabel ?? "Learn more"}
+                  </Link>
+                ) : p.type ? (
+                  <ProfileTypeContinueButton
+                    type={p.type}
+                    className="qn-btn-primary mt-4 w-full"
+                  >
+                    Get started
+                  </ProfileTypeContinueButton>
+                ) : null}
               </div>
             </article>
           </FadeIn>

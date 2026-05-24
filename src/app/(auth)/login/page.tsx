@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import { AuthLoginForm } from "@/components/auth-login-form";
+import { QnLogoStatic } from "@/components/ui/logo";
 import { createClient } from "@/lib/supabase/server";
 import { safeNextPath } from "@/lib/onboarding/safe-next";
 import type { Metadata } from "next";
@@ -22,10 +23,7 @@ function LeftPanel() {
       />
 
       <div className="relative">
-        <p className="text-xl font-extrabold tracking-tight">
-          <span className="text-white">QR</span>
-          <span className="text-qn-accent">Netra</span>
-        </p>
+        <QnLogoStatic href="/" size="lg" />
         <p className="mt-3 max-w-sm text-sm leading-relaxed text-qn-muted-2">
           Protect what matters with privacy-first QR safety — vehicles,
           children, pets, and teams.

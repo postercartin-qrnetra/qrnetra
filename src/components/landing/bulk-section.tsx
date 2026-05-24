@@ -41,8 +41,8 @@ export function BulkSection() {
             <li>● Volume pricing & invoicing</li>
             <li>● Admin dashboard & exports</li>
           </ul>
-          <Link href="/bulk-orders" className="qn-btn-primary mt-8 px-8">
-            Request Bulk Demo
+          <Link href="/business-fleet" className="qn-btn-primary mt-8 px-8">
+            Business & Fleet Solutions
           </Link>
         </FadeIn>
         <FadeIn delay={0.1}>

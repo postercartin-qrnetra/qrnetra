@@ -1,13 +1,12 @@
+import { QnLogoStatic } from "@/components/ui/logo";
 import Link from "next/link";
 
 export function ShopShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex min-h-screen flex-col bg-qn-bg">
-      <header className="border-b border-white/[0.08]">
+      <header className="border-b border-white/[0.08] bg-qn-bg-elevated">
         <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4">
-          <Link href="/" className="text-sm font-medium text-qn-muted hover:text-white">
-            ← QRNetra
-          </Link>
+          <QnLogoStatic size="sm" />
           <div className="flex items-center gap-4 text-sm font-medium">
             <Link href="/shop" className="text-white">
               Shop

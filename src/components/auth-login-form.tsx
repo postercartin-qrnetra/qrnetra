@@ -6,6 +6,7 @@ import {
   getOAuthReturnPath,
   resolvePostLoginRedirect,
 } from "@/lib/onboarding/client-storage";
+import { QnLogoStatic } from "@/components/ui/logo";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
@@ -187,9 +188,7 @@ export function AuthLoginForm() {
     <div className="w-full max-w-[420px]">
       <div className="qn-card rounded-3xl p-8 sm:p-10">
         <div className="mb-8 lg:hidden">
-          <p className="text-lg font-bold tracking-tight text-white">
-            QRNetra
-          </p>
+          <QnLogoStatic size="md" />
           <p className="mt-1 text-sm text-qn-muted-2">
             Continue setting up your safety tag
           </p>

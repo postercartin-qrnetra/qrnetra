@@ -3,20 +3,15 @@
 import { HeaderAuthActions } from "@/components/auth/header-auth-actions";
 import { UserMenu } from "@/components/auth/user-menu";
 import { useAuth } from "@/components/auth/auth-provider";
-import Link from "next/link";
+import { QnLogoStatic } from "@/components/ui/logo";
 
 export function CreateLayoutHeader() {
   const { user, isLoading } = useAuth();
 
   return (
-    <header className="sticky top-0 z-20 border-b border-white/[0.08] bg-white/90 backdrop-blur">
+    <header className="qn-header sticky top-0 z-20">
       <div className="mx-auto flex h-14 max-w-lg items-center justify-between px-4">
-        <Link
-          href="/"
-          className="text-sm font-bold tracking-tight text-white"
-        >
-          QRNetra
-        </Link>
+        <QnLogoStatic size="sm" />
         {!isLoading && user ? (
           <UserMenu variant="header" />
         ) : !isLoading ? (

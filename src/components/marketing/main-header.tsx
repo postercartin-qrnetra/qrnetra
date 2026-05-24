@@ -3,33 +3,33 @@
 import { HeaderAuthActions } from "@/components/auth/header-auth-actions";
 import { useAuth } from "@/components/auth/auth-provider";
 import { UserMenu } from "@/components/auth/user-menu";
+import { ProductsNav } from "@/components/marketing/products-nav";
 import { QnLogo } from "@/components/ui/logo";
 import { Menu, ShoppingCart, X } from "lucide-react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useState } from "react";
 
-const NAV = [
-  { href: "/", label: "Home" },
-  { href: "/#products", label: "Products" },
+const NAV_LINKS_AFTER_PRODUCTS = [
   { href: "/how-it-works", label: "How It Works" },
   { href: "/#features", label: "Features" },
-  { href: "/pricing", label: "Pricing" },
-  { href: "/bulk-orders", label: "Bulk Orders" },
-  { href: "/about", label: "About" },
-  { href: "/contact", label: "Contact" },
+  { href: "/business-fleet", label: "Business & Fleet" },
 ];
 
 export function MainHeader() {
   const [open, setOpen] = useState(false);
   const { user, isLoading } = useAuth();
+  const pathname = usePathname();
+  const isHome = pathname === "/";
+  const closeMobile = () => setOpen(false);
 
   return (
     <header className="qn-header sticky top-0 z-50">
-      <div className="mx-auto flex h-14 max-w-7xl items-center justify-between gap-4 px-4 sm:h-16 lg:px-8">
-        <div className="flex items-center gap-3">
+      <div className="mx-auto flex h-14 max-w-7xl items-center justify-between gap-3 px-4 sm:h-16 lg:px-8">
+        <div className="flex min-w-0 items-center gap-2 sm:gap-3">
           <button
             type="button"
-            className="flex h-10 w-10 items-center justify-center rounded-xl text-white lg:hidden"
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-white lg:hidden"
             aria-expanded={open}
             aria-controls="mobile-nav"
             onClick={() => setOpen((v) => !v)}
@@ -37,14 +37,22 @@ export function MainHeader() {
             <span className="sr-only">Menu</span>
             {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
-          <QnLogo />
+          <QnLogo
+            variant={isHome ? "animated" : "static"}
+            size="md"
+            priority={isHome}
+          />
         </div>
 
         <nav
           className="hidden items-center gap-0.5 lg:flex"
           aria-label="Primary"
         >
-          {NAV.map((item) => (
+          <Link href="/" className="qn-btn-ghost rounded-lg px-3 py-2">
+            Home
+          </Link>
+          <ProductsNav mode="desktop" />
+          {NAV_LINKS_AFTER_PRODUCTS.map((item) => (
             <Link
               key={item.href}
               href={item.href}
@@ -55,17 +63,23 @@ export function MainHeader() {
           ))}
         </nav>
 
-        <div className="flex items-center gap-2 sm:gap-3">
+        <div className="flex shrink-0 items-center gap-2 sm:gap-3">
           <HeaderAuthActions />
           <Link
             href="/cart"
-            className="flex h-10 w-10 items-center justify-center rounded-xl text-qn-muted transition-colors hover:bg-white/[0.05] hover:text-white"
+            className="hidden h-10 w-10 items-center justify-center rounded-xl text-qn-muted transition-colors hover:bg-white/[0.05] hover:text-white sm:flex"
             aria-label="Cart"
           >
             <ShoppingCart className="h-5 w-5" strokeWidth={1.75} />
           </Link>
-          <Link href="/create/type" className="qn-btn-primary hidden h-11 px-5 sm:inline-flex">
-            Create QR
+          <Link
+            href="/create/type"
+            className="qn-btn-secondary hidden h-11 px-4 text-sm sm:inline-flex"
+          >
+            Create Free QR
+          </Link>
+          <Link href="/shop" className="qn-btn-primary hidden h-11 px-5 sm:inline-flex">
+            Shop Now
           </Link>
         </div>
       </div>
@@ -76,13 +90,21 @@ export function MainHeader() {
           open ? "block" : "hidden"
         }`}
       >
-        <nav className="mx-auto flex max-w-7xl flex-col gap-1 px-4 py-4">
-          {NAV.map((item) => (
+        <nav className="mx-auto flex max-w-7xl flex-col px-4 py-4">
+          <Link
+            href="/"
+            className="rounded-xl px-4 py-3 text-sm font-medium text-qn-muted transition-colors hover:bg-white/[0.04] hover:text-white"
+            onClick={closeMobile}
+          >
+            Home
+          </Link>
+          <ProductsNav mode="mobile" onNavigate={closeMobile} />
+          {NAV_LINKS_AFTER_PRODUCTS.map((item) => (
             <Link
               key={item.href}
               href={item.href}
               className="rounded-xl px-4 py-3 text-sm font-medium text-qn-muted transition-colors hover:bg-white/[0.04] hover:text-white"
-              onClick={() => setOpen(false)}
+              onClick={closeMobile}
             >
               {item.label}
             </Link>
@@ -95,7 +117,7 @@ export function MainHeader() {
             <Link
               href="/login"
               className="rounded-xl px-4 py-3 text-sm font-medium text-qn-muted hover:bg-white/[0.04] hover:text-white"
-              onClick={() => setOpen(false)}
+              onClick={closeMobile}
             >
               Login
             </Link>
@@ -104,18 +126,23 @@ export function MainHeader() {
             <Link
               href="/dashboard"
               className="rounded-xl px-4 py-3 text-sm font-medium text-qn-muted hover:bg-white/[0.04] hover:text-white"
-              onClick={() => setOpen(false)}
+              onClick={closeMobile}
             >
               Dashboard
             </Link>
           ) : null}
-          <Link
-            href="/create/type"
-            className="qn-btn-primary mt-2"
-            onClick={() => setOpen(false)}
-          >
-            Create QR
-          </Link>
+          <div className="mt-3 flex flex-col gap-2">
+            <Link
+              href="/create/type"
+              className="qn-btn-secondary"
+              onClick={closeMobile}
+            >
+              Create Free QR
+            </Link>
+            <Link href="/shop" className="qn-btn-primary" onClick={closeMobile}>
+              Shop Now
+            </Link>
+          </div>
         </nav>
       </div>
     </header>
