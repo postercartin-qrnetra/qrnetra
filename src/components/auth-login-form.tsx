@@ -185,25 +185,25 @@ export function AuthLoginForm() {
 
   return (
     <div className="w-full max-w-[420px]">
-      <div className="rounded-3xl border border-zinc-200/80 bg-white p-8 shadow-[0_24px_80px_-24px_rgba(0,0,0,0.18)] sm:p-10">
+      <div className="qn-card rounded-3xl p-8 sm:p-10">
         <div className="mb-8 lg:hidden">
-          <p className="text-lg font-bold tracking-tight text-[#111111]">
+          <p className="text-lg font-bold tracking-tight text-white">
             QRNetra
           </p>
-          <p className="mt-1 text-sm text-zinc-500">
+          <p className="mt-1 text-sm text-qn-muted-2">
             Continue setting up your safety tag
           </p>
         </div>
 
-        <h1 className="text-2xl font-bold tracking-tight text-[#111111]">
+        <h1 className="text-2xl font-bold tracking-tight text-white">
           {mode === "signin" ? "Welcome back" : "Create your account"}
         </h1>
-        <p className="mt-2 text-sm leading-relaxed text-zinc-600">
+        <p className="mt-2 text-sm leading-relaxed text-qn-muted">
           Sign in to finish your emergency profile and generate your dynamic QR.
         </p>
 
         {errorBanner ? (
-          <p className="mt-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+          <p className="mt-4 rounded-xl border border-qn-warning/30 bg-qn-warning/15 px-4 py-3 text-sm text-qn-warning">
             {errorBanner}
           </p>
         ) : null}
@@ -212,7 +212,7 @@ export function AuthLoginForm() {
           type="button"
           disabled={loading}
           onClick={() => void startGoogle()}
-          className="mt-8 flex h-14 w-full items-center justify-center gap-3 rounded-2xl border border-zinc-200 bg-white text-[15px] font-semibold text-[#111111] shadow-sm transition-all hover:border-zinc-300 hover:shadow-md active:scale-[0.99] disabled:opacity-50"
+          className="mt-8 flex h-14 w-full items-center justify-center gap-3 rounded-2xl border border-white/[0.08] bg-qn-card text-[15px] font-semibold text-white shadow-sm transition-all hover:border-white/[0.15] hover:shadow-md active:scale-[0.99] disabled:opacity-50"
         >
           <GoogleMark className="h-5 w-5" />
           Continue with Google
@@ -220,20 +220,20 @@ export function AuthLoginForm() {
 
         <div className="relative my-8">
           <div className="absolute inset-0 flex items-center" aria-hidden>
-            <div className="w-full border-t border-zinc-200" />
+            <div className="w-full border-t border-white/[0.08]" />
           </div>
-          <div className="relative flex justify-center text-xs font-medium uppercase tracking-wider text-zinc-400">
-            <span className="bg-white px-3">or continue with email</span>
+          <div className="relative flex justify-center text-xs font-medium uppercase tracking-wider text-qn-muted-2">
+            <span className="bg-qn-card px-3">or continue with email</span>
           </div>
         </div>
 
-        <div className="flex rounded-2xl bg-zinc-100 p-1 text-xs font-semibold">
+        <div className="flex rounded-2xl bg-qn-surface p-1 text-xs font-semibold">
           <button
             type="button"
             className={`flex-1 rounded-xl py-2.5 transition-all ${
               emailMode === "password"
-                ? "bg-white text-[#111111] shadow-sm"
-                : "text-zinc-500"
+                ? "bg-qn-card text-white shadow-sm"
+                : "text-qn-muted-2"
             }`}
             onClick={() => {
               setEmailMode("password");
@@ -246,8 +246,8 @@ export function AuthLoginForm() {
             type="button"
             className={`flex-1 rounded-xl py-2.5 transition-all ${
               emailMode === "magic"
-                ? "bg-white text-[#111111] shadow-sm"
-                : "text-zinc-500"
+                ? "bg-qn-card text-white shadow-sm"
+                : "text-qn-muted-2"
             }`}
             onClick={() => {
               setEmailMode("magic");
@@ -258,13 +258,13 @@ export function AuthLoginForm() {
           </button>
         </div>
 
-        <div className="mt-5 flex rounded-2xl bg-zinc-100 p-1 text-xs font-semibold">
+        <div className="mt-5 flex rounded-2xl bg-qn-surface p-1 text-xs font-semibold">
           <button
             type="button"
             className={`flex-1 rounded-xl py-2 transition-all ${
               mode === "signin"
-                ? "bg-white text-[#111111] shadow-sm"
-                : "text-zinc-500"
+                ? "bg-qn-card text-white shadow-sm"
+                : "text-qn-muted-2"
             }`}
             onClick={() => {
               setMode("signin");
@@ -277,8 +277,8 @@ export function AuthLoginForm() {
             type="button"
             className={`flex-1 rounded-xl py-2 transition-all ${
               mode === "signup"
-                ? "bg-white text-[#111111] shadow-sm"
-                : "text-zinc-500"
+                ? "bg-qn-card text-white shadow-sm"
+                : "text-qn-muted-2"
             }`}
             onClick={() => {
               setMode("signup");
@@ -299,17 +299,17 @@ export function AuthLoginForm() {
               }}
             >
               <label className="block">
-                <span className="text-sm font-medium text-[#111111]">Email</span>
+                <span className="text-sm font-medium text-white">Email</span>
                 <input
                   name="email"
                   type="email"
                   autoComplete="email"
                   required
-                  className="mt-1.5 w-full rounded-2xl border border-zinc-200 bg-zinc-50/50 px-4 py-3.5 text-base outline-none transition-shadow focus:border-zinc-400 focus:bg-white focus:ring-2 focus:ring-[#ffd400]/35"
+                  className="mt-1.5 w-full rounded-2xl border border-white/[0.08] bg-qn-surface/50 px-4 py-3.5 text-base outline-none transition-shadow focus:border-qn-accent/50 focus:bg-qn-card focus:ring-2 focus:ring-qn-accent/35"
                 />
               </label>
               <label className="block">
-                <span className="text-sm font-medium text-[#111111]">
+                <span className="text-sm font-medium text-white">
                   Password
                 </span>
                 <input
@@ -320,12 +320,12 @@ export function AuthLoginForm() {
                   }
                   required
                   minLength={6}
-                  className="mt-1.5 w-full rounded-2xl border border-zinc-200 bg-zinc-50/50 px-4 py-3.5 text-base outline-none transition-shadow focus:border-zinc-400 focus:bg-white focus:ring-2 focus:ring-[#ffd400]/35"
+                  className="mt-1.5 w-full rounded-2xl border border-white/[0.08] bg-qn-surface/50 px-4 py-3.5 text-base outline-none transition-shadow focus:border-qn-accent/50 focus:bg-qn-card focus:ring-2 focus:ring-qn-accent/35"
                 />
               </label>
 
               {message ? (
-                <p className="rounded-2xl border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm text-zinc-800">
+                <p className="rounded-2xl border border-white/[0.08] bg-qn-surface px-4 py-3 text-sm text-white">
                   {message}
                 </p>
               ) : null}
@@ -333,7 +333,7 @@ export function AuthLoginForm() {
               <button
                 type="submit"
                 disabled={loading}
-                className="flex h-12 w-full items-center justify-center rounded-2xl bg-[#ffd400] text-sm font-bold text-[#111111] shadow-lg shadow-[#ffd400]/25 transition-transform hover:scale-[1.01] disabled:opacity-60"
+                className="flex h-12 w-full items-center justify-center rounded-2xl bg-qn-accent text-sm font-bold text-white shadow-lg shadow-qn-accent/25 transition-transform hover:scale-[1.01] disabled:opacity-60"
               >
                 {loading
                   ? "Please wait…"
@@ -346,7 +346,7 @@ export function AuthLoginForm() {
             {mode === "signin" ? (
               <button
                 type="button"
-                className="text-sm font-medium text-zinc-600 underline-offset-4 hover:text-[#111111] hover:underline"
+                className="text-sm font-medium text-qn-muted underline-offset-4 hover:text-white hover:underline"
                 onClick={() => {
                   setShowForgot((v) => !v);
                   setMessage(null);
@@ -357,8 +357,8 @@ export function AuthLoginForm() {
             ) : null}
 
             {showForgot && mode === "signin" ? (
-              <div className="rounded-2xl border border-zinc-100 bg-zinc-50 p-4">
-                <p className="text-xs text-zinc-600">
+              <div className="rounded-2xl border border-white/[0.08] bg-qn-surface p-4">
+                <p className="text-xs text-qn-muted">
                   We’ll email you a secure link to set a new password.
                 </p>
                 <form
@@ -373,12 +373,12 @@ export function AuthLoginForm() {
                     type="email"
                     required
                     placeholder="Email"
-                    className="min-w-0 flex-1 rounded-xl border border-zinc-200 px-3 py-2 text-sm"
+                    className="min-w-0 flex-1 rounded-xl border border-white/[0.08] px-3 py-2 text-sm"
                   />
                   <button
                     type="submit"
                     disabled={loading}
-                    className="shrink-0 rounded-xl bg-[#111111] px-3 py-2 text-xs font-semibold text-white disabled:opacity-50"
+                    className="shrink-0 rounded-xl bg-qn-card-2 px-3 py-2 text-xs font-semibold text-white disabled:opacity-50"
                   >
                     Send
                   </button>
@@ -395,34 +395,34 @@ export function AuthLoginForm() {
             }}
           >
             <label className="block">
-              <span className="text-sm font-medium text-[#111111]">Email</span>
+              <span className="text-sm font-medium text-white">Email</span>
               <input
                 name="magic_email"
                 type="email"
                 autoComplete="email"
                 required
-                className="mt-1.5 w-full rounded-2xl border border-zinc-200 bg-zinc-50/50 px-4 py-3.5 text-base outline-none transition-shadow focus:border-zinc-400 focus:bg-white focus:ring-2 focus:ring-[#ffd400]/35"
+                className="mt-1.5 w-full rounded-2xl border border-white/[0.08] bg-qn-surface/50 px-4 py-3.5 text-base outline-none transition-shadow focus:border-qn-accent/50 focus:bg-qn-card focus:ring-2 focus:ring-qn-accent/35"
               />
             </label>
             {message ? (
-              <p className="rounded-2xl border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm text-zinc-800">
+              <p className="rounded-2xl border border-white/[0.08] bg-qn-surface px-4 py-3 text-sm text-white">
                 {message}
               </p>
             ) : null}
             <button
               type="submit"
               disabled={loading}
-              className="flex h-12 w-full items-center justify-center rounded-2xl bg-[#111111] text-sm font-semibold text-white disabled:opacity-60"
+              className="flex h-12 w-full items-center justify-center rounded-2xl bg-qn-card-2 text-sm font-semibold text-white disabled:opacity-60"
             >
               {loading ? "Sending…" : "Email me a link"}
             </button>
           </form>
         )}
 
-        <p className="mt-8 text-center text-sm text-zinc-500">
+        <p className="mt-8 text-center text-sm text-qn-muted-2">
           <Link
             href="/create/type"
-            className="font-semibold text-[#111111] hover:underline"
+            className="font-semibold text-white hover:underline"
           >
             ← Back to tag type
           </Link>

@@ -119,7 +119,7 @@ export function EditQrProfileForm({
 
   return (
     <form onSubmit={(e) => void handleSubmit(e)} className="space-y-6">
-      <p className="rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-900">
+      <p className="rounded-xl bg-qn-warning/15 px-4 py-3 text-sm text-qn-warning">
         Editing updates your emergency profile only. Your QR code and scan link (
         <span className="font-mono font-semibold">/s/…</span>) stay the same.
       </p>
@@ -141,7 +141,7 @@ export function EditQrProfileForm({
         <button
           type="button"
           onClick={() => setShowOptional(true)}
-          className="text-sm font-semibold text-zinc-600 underline-offset-4 hover:underline"
+          className="text-sm font-semibold text-qn-muted underline-offset-4 hover:underline"
         >
           Show optional fields
         </button>
@@ -161,7 +161,7 @@ export function EditQrProfileForm({
       <button
         type="submit"
         disabled={loading}
-        className="flex h-12 w-full items-center justify-center rounded-2xl bg-[#ffd400] text-sm font-bold text-[#111111] disabled:opacity-60"
+        className="flex h-12 w-full items-center justify-center rounded-2xl bg-qn-accent text-sm font-bold text-white disabled:opacity-60"
       >
         {loading ? "Saving…" : "Save profile"}
       </button>

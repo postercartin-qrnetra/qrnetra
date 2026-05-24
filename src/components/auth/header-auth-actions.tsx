@@ -27,7 +27,7 @@ export function HeaderAuthActions({
     return (
       <Link
         href="/login"
-        className="text-xs font-medium text-zinc-500 transition-colors hover:text-[#111111]"
+        className="qn-btn-ghost text-xs"
         onClick={onNavigate}
       >
         Login
@@ -38,7 +38,7 @@ export function HeaderAuthActions({
   return (
     <Link
       href="/login"
-      className="hidden text-sm font-medium text-zinc-600 transition-colors hover:text-[#111111] sm:inline"
+      className="qn-btn-ghost hidden sm:inline"
       onClick={onNavigate}
     >
       Login

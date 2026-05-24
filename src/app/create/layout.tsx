@@ -6,7 +6,7 @@ export default function CreateLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen bg-[#fafafa]">
+    <div className="min-h-screen bg-qn-bg">
       <CreateLayoutHeader />
       {children}
     </div>

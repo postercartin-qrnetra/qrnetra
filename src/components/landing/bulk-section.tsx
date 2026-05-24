@@ -1,3 +1,4 @@
+import { FadeIn } from "@/components/ui/motion";
 import Link from "next/link";
 import { Section } from "./section";
 
@@ -11,16 +12,14 @@ const USES = [
 
 export function BulkSection() {
   return (
-    <Section className="bg-gradient-to-b from-zinc-100/80 to-white">
+    <Section className="border-t border-white/[0.08]">
       <div className="grid gap-12 lg:grid-cols-2 lg:items-center lg:gap-16">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500">
-            Bulk & societies
-          </p>
-          <h2 className="mt-3 text-3xl font-bold tracking-tight text-[#111111] sm:text-4xl">
+        <FadeIn>
+          <span className="qn-badge">Bulk & societies</span>
+          <h2 className="qn-section-title mt-4 text-white">
             Branded QR at scale
           </h2>
-          <p className="mt-4 text-sm leading-relaxed text-zinc-600 sm:text-base">
+          <p className="mt-4 text-base leading-relaxed text-qn-muted">
             Corporate programs with bulk discounts, dedicated onboarding, and
             admin dashboards for your teams.
           </p>
@@ -28,46 +27,48 @@ export function BulkSection() {
             {USES.map((u) => (
               <li
                 key={u}
-                className="flex items-center gap-2 rounded-xl border border-zinc-200 bg-white px-4 py-3 text-sm font-medium text-zinc-800 shadow-sm"
+                className="qn-card flex items-center gap-2 px-4 py-3 text-sm font-medium text-white"
               >
-                <span className="text-[#ffd400]" aria-hidden>
+                <span className="text-qn-accent" aria-hidden>
                   ✓
                 </span>
                 {u}
               </li>
             ))}
           </ul>
-          <ul className="mt-6 space-y-2 text-sm text-zinc-600">
+          <ul className="mt-6 space-y-2 text-sm text-qn-muted">
             <li>● Custom branded QR tags</li>
             <li>● Volume pricing & invoicing</li>
             <li>● Admin dashboard & exports</li>
           </ul>
-          <Link
-            href="/bulk-orders"
-            className="mt-8 inline-flex h-12 items-center justify-center rounded-full bg-[#111111] px-8 text-sm font-semibold text-white transition-transform hover:scale-[1.02]"
-          >
+          <Link href="/bulk-orders" className="qn-btn-primary mt-8 px-8">
             Request Bulk Demo
           </Link>
-        </div>
-        <div className="rounded-3xl border border-zinc-200 bg-white p-6 shadow-xl">
-          <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
-            Admin preview
-          </p>
-          <div className="mt-4 space-y-3">
-            <div className="flex gap-2">
-              <div className="h-10 flex-1 rounded-lg bg-zinc-100" />
-              <div className="h-10 w-24 rounded-lg bg-[#ffd400]/40" />
-            </div>
-            <div className="rounded-xl border border-zinc-100 p-4">
+        </FadeIn>
+        <FadeIn delay={0.1}>
+          <div className="qn-card p-6">
+            <p className="text-xs font-semibold uppercase tracking-wide text-qn-muted">
+              Admin preview
+            </p>
+            <div className="mt-4 space-y-3">
               <div className="flex gap-2">
-                {[1, 2, 3, 4].map((i) => (
-                  <div key={i} className="h-16 flex-1 rounded-lg bg-zinc-50" />
-                ))}
+                <div className="h-10 flex-1 rounded-lg bg-qn-surface" />
+                <div className="h-10 w-24 rounded-lg bg-qn-accent/30" />
               </div>
+              <div className="rounded-xl border border-white/[0.08] p-4">
+                <div className="flex gap-2">
+                  {[1, 2, 3, 4].map((i) => (
+                    <div
+                      key={i}
+                      className="h-16 flex-1 rounded-lg bg-qn-card-3"
+                    />
+                  ))}
+                </div>
+              </div>
+              <div className="h-24 rounded-xl bg-qn-surface" />
             </div>
-            <div className="h-24 rounded-xl bg-[#fafafa]" />
           </div>
-        </div>
+        </FadeIn>
       </div>
     </Section>
   );

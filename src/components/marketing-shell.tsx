@@ -4,7 +4,7 @@ import { MainHeader } from "@/components/marketing/main-header";
 
 export function MarketingShell({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex min-h-screen flex-col bg-[#fafafa]">
+    <div className="flex min-h-screen flex-col bg-qn-bg">
       <AnnouncementBar />
       <MainHeader />
       <main className="flex-1">{children}</main>

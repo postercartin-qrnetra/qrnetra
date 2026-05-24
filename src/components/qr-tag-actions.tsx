@@ -31,7 +31,7 @@ export function QrTagActions({
     <div className="mt-4 flex flex-wrap items-center gap-2">
       <a
         href={`/create/success/${slug}`}
-        className="inline-flex h-8 items-center gap-1.5 rounded-full border border-zinc-200 px-3 text-xs font-semibold text-zinc-700 transition hover:bg-zinc-50"
+        className="inline-flex h-8 items-center gap-1.5 rounded-full border border-white/[0.08] px-3 text-xs font-semibold text-qn-muted transition hover:bg-white/[0.05]"
       >
         <svg
           className="h-3 w-3"
@@ -54,7 +54,7 @@ export function QrTagActions({
         disabled={busy}
         className={`inline-flex h-8 items-center gap-1.5 rounded-full border px-3 text-xs font-semibold transition disabled:opacity-50 ${
           currentStatus === "active"
-            ? "border-zinc-200 text-zinc-600 hover:border-red-200 hover:bg-red-50 hover:text-red-700"
+            ? "border-white/[0.08] text-qn-muted hover:border-red-200 hover:bg-qn-danger/10 hover:text-red-700"
             : "border-green-200 bg-green-50 text-green-700 hover:bg-green-100"
         }`}
       >

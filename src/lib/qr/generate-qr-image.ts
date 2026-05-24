@@ -17,13 +17,13 @@ export async function generateQrImageAssets(
     QRCode.toDataURL(scanUrl, {
       margin: 2,
       width: 512,
-      color: { dark: "#111111", light: "#ffffff" },
+      color: { dark: "#020817", light: "#ffffff" },
       errorCorrectionLevel: "M",
     }),
     QRCode.toString(scanUrl, {
       type: "svg",
       margin: 2,
-      color: { dark: "#111111", light: "#ffffff" },
+      color: { dark: "#020817", light: "#ffffff" },
       errorCorrectionLevel: "M",
     }),
   ]);

@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { FadeIn } from "@/components/ui/motion";
+import { ChevronDown } from "lucide-react";
 import { Section } from "./section";
 
 const FAQS = [
@@ -34,17 +36,13 @@ export function FaqSection() {
   const [open, setOpen] = useState<number | null>(0);
 
   return (
-    <Section className="bg-[#fafafa]">
-      <div className="mx-auto max-w-3xl text-center">
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500">
-          FAQ
-        </p>
-        <h2 className="mt-3 text-3xl font-bold tracking-tight text-[#111111] sm:text-4xl">
-          Questions, answered
-        </h2>
-      </div>
+    <Section className="border-t border-white/[0.08] bg-qn-bg-elevated">
+      <FadeIn className="mx-auto max-w-3xl text-center">
+        <span className="qn-badge">FAQ</span>
+        <h2 className="qn-section-title mt-4 text-white">Questions, answered</h2>
+      </FadeIn>
 
-      <div className="mx-auto mt-12 max-w-3xl divide-y divide-zinc-200 rounded-2xl border border-zinc-200 bg-white px-2 shadow-sm">
+      <div className="qn-card mx-auto mt-12 max-w-3xl divide-y divide-white/[0.08] px-2">
         {FAQS.map((item, i) => {
           const isOpen = open === i;
           return (
@@ -55,20 +53,20 @@ export function FaqSection() {
                 onClick={() => setOpen(isOpen ? null : i)}
                 aria-expanded={isOpen}
               >
-                <span className="text-sm font-semibold text-[#111111] sm:text-base">
+                <span className="text-sm font-semibold text-white sm:text-base">
                   {item.q}
                 </span>
                 <span
-                  className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-zinc-200 text-zinc-500 transition-transform ${
-                    isOpen ? "rotate-180 bg-zinc-50" : ""
+                  className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-white/[0.12] text-qn-muted transition-transform ${
+                    isOpen ? "rotate-180 bg-white/[0.05]" : ""
                   }`}
                   aria-hidden
                 >
-                  ⌄
+                  <ChevronDown className="h-4 w-4" />
                 </span>
               </button>
               {isOpen ? (
-                <p className="pb-4 text-sm leading-relaxed text-zinc-600">
+                <p className="pb-4 text-sm leading-relaxed text-qn-muted">
                   {item.a}
                 </p>
               ) : null}

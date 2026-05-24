@@ -14,7 +14,7 @@ export function Section({
   return (
     <section id={id} className={`scroll-mt-28 ${className}`}>
       <div
-        className={`mx-auto max-w-6xl px-4 py-16 sm:py-20 lg:px-6 lg:py-24 ${innerClassName}`}
+        className={`mx-auto max-w-7xl px-4 qn-section-padding sm:px-6 lg:px-8 ${innerClassName}`}
       >
         {children}
       </div>

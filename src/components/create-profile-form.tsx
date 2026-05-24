@@ -79,11 +79,11 @@ export function InputField({
 }) {
   return (
     <div>
-      <label className="block text-sm font-medium text-[#111111]">
+      <label className="block text-sm font-medium text-white">
         {label}
         {required && <span className="ml-0.5 text-red-500">*</span>}
       </label>
-      {hint && <p className="mt-0.5 text-xs text-zinc-500">{hint}</p>}
+      {hint && <p className="mt-0.5 text-xs text-qn-muted-2">{hint}</p>}
       <input
         name={name}
         type={type}
@@ -92,7 +92,7 @@ export function InputField({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         autoComplete={autoComplete ?? "off"}
-        className="mt-2 w-full rounded-xl border border-zinc-200 bg-white px-4 py-3 text-base text-[#111111] shadow-sm outline-none transition placeholder:text-zinc-400 focus:border-zinc-400 focus:ring-2 focus:ring-[#ffd400]/30"
+        className="mt-2 w-full rounded-xl border border-white/[0.08] bg-qn-card px-4 py-3 text-base text-white shadow-sm outline-none transition placeholder:text-qn-muted-2 focus:border-qn-accent/50 focus:ring-2 focus:ring-qn-accent/30"
       />
     </div>
   );
@@ -117,15 +117,15 @@ export function TextAreaField({
 }) {
   return (
     <div>
-      <label className="block text-sm font-medium text-[#111111]">{label}</label>
-      {hint && <p className="mt-0.5 text-xs text-zinc-500">{hint}</p>}
+      <label className="block text-sm font-medium text-white">{label}</label>
+      {hint && <p className="mt-0.5 text-xs text-qn-muted-2">{hint}</p>}
       <textarea
         name={name}
         rows={rows}
         placeholder={placeholder}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="mt-2 w-full resize-y rounded-xl border border-zinc-200 bg-white px-4 py-3 text-base text-[#111111] shadow-sm outline-none placeholder:text-zinc-400 focus:border-zinc-400 focus:ring-2 focus:ring-[#ffd400]/30"
+        className="mt-2 w-full resize-y rounded-xl border border-white/[0.08] bg-qn-card px-4 py-3 text-base text-white shadow-sm outline-none placeholder:text-qn-muted-2 focus:border-qn-accent/50 focus:ring-2 focus:ring-qn-accent/30"
       />
     </div>
   );
@@ -675,13 +675,13 @@ export function CreateProfileForm({
     <div className="mx-auto max-w-lg px-4 py-10 sm:py-14">
       {/* Header */}
       <div className="mb-8">
-        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-qn-muted-2">
           QRNetra · Emergency QR
         </p>
-        <h1 className="mt-2 text-3xl font-bold tracking-tight text-[#111111]">
+        <h1 className="mt-2 text-3xl font-bold tracking-tight text-white">
           Create your safety QR
         </h1>
-        <p className="mt-2 text-sm leading-relaxed text-zinc-600">
+        <p className="mt-2 text-sm leading-relaxed text-qn-muted">
           Takes 2 minutes. The QR links to an emergency contact page — your
           private details stay with you.
         </p>
@@ -689,7 +689,7 @@ export function CreateProfileForm({
 
       {/* Type selector */}
       <div className="mb-8">
-        <p className="mb-3 text-xs font-semibold uppercase tracking-[0.12em] text-zinc-500">
+        <p className="mb-3 text-xs font-semibold uppercase tracking-[0.12em] text-qn-muted-2">
           What are you protecting?
         </p>
         <div className="flex gap-2 flex-wrap">
@@ -700,8 +700,8 @@ export function CreateProfileForm({
               onClick={() => handleTypeChange(t.id)}
               className={`flex items-center gap-1.5 rounded-full border px-4 py-2 text-sm font-semibold transition-all ${
                 type === t.id
-                  ? "border-[#111111] bg-[#111111] text-white"
-                  : "border-zinc-200 bg-white text-zinc-700 hover:border-zinc-400"
+                  ? "border-qn-accent bg-qn-card-2 text-white"
+                  : "border-white/[0.08] bg-qn-card text-qn-muted hover:border-zinc-400"
               }`}
             >
               <span className="text-base leading-none">{t.emoji}</span>
@@ -712,10 +712,10 @@ export function CreateProfileForm({
       </div>
 
       {/* Form card */}
-      <div className="rounded-3xl border border-zinc-200 bg-white shadow-[0_20px_60px_-12px_rgba(0,0,0,0.1)]">
+      <div className="rounded-3xl border border-white/[0.08] bg-qn-card shadow-[0_20px_60px_-12px_rgba(0,0,0,0.1)]">
         {/* Required fields */}
         <div className="px-6 pt-6 pb-5 space-y-5">
-          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-zinc-400">
+          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-qn-muted-2">
             {type === "vehicle" && "Vehicle details"}
             {type === "child" && "Child details"}
             {type === "pet" && "Pet details"}
@@ -739,7 +739,7 @@ export function CreateProfileForm({
           <button
             type="button"
             onClick={() => setShowOptional((v) => !v)}
-            className="flex w-full items-center gap-2 rounded-xl border border-dashed border-zinc-200 px-4 py-3 text-sm font-medium text-zinc-600 transition hover:border-zinc-300 hover:bg-zinc-50"
+            className="flex w-full items-center gap-2 rounded-xl border border-dashed border-white/[0.08] px-4 py-3 text-sm font-medium text-qn-muted transition hover:border-white/[0.15] hover:bg-white/[0.05]"
           >
             <span
               className={`inline-block transition-transform duration-200 ${
@@ -753,18 +753,18 @@ export function CreateProfileForm({
         </div>
 
         {/* Divider */}
-        <div className="mx-6 h-px bg-zinc-100" />
+        <div className="mx-6 h-px bg-qn-surface" />
 
         {/* Auth section */}
         <div className="px-6 pt-5 pb-6 space-y-4">
           {isLoggedIn ? (
-            <p className="text-xs text-zinc-500">
+            <p className="text-xs text-qn-muted-2">
               Generating QR as{" "}
-              <span className="font-semibold text-[#111111]">{accountEmail}</span>
+              <span className="font-semibold text-white">{accountEmail}</span>
             </p>
           ) : (
             <>
-              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-zinc-400">
+              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-qn-muted-2">
                 Your account
               </p>
               <InputField
@@ -804,12 +804,12 @@ export function CreateProfileForm({
             type="button"
             onClick={() => void handleSubmit()}
             disabled={loading || authPhase === "submitting"}
-            className="flex h-14 w-full items-center justify-center rounded-2xl bg-[#ffd400] text-base font-bold text-[#111111] shadow-lg shadow-[#ffd400]/25 transition-all hover:scale-[1.01] disabled:opacity-60 disabled:scale-100"
+            className="flex h-14 w-full items-center justify-center rounded-2xl bg-qn-accent text-base font-bold text-white shadow-lg shadow-qn-accent/25 transition-all hover:scale-[1.01] disabled:opacity-60 disabled:scale-100"
           >
             {submitLabel}
           </button>
 
-          <p className="text-center text-xs leading-relaxed text-zinc-400">
+          <p className="text-center text-xs leading-relaxed text-qn-muted-2">
             Your QR scan URL never contains personal data — only a random slug.
             Update details anytime from the dashboard.
           </p>

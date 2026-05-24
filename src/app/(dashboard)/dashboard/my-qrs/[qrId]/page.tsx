@@ -54,14 +54,14 @@ export default async function QrDetailPage({ params }: Props) {
     <div className="max-w-2xl">
       <Link
         href="/dashboard/tags"
-        className="text-sm font-semibold text-zinc-500 hover:text-[#111111]"
+        className="text-sm font-semibold text-qn-muted-2 hover:text-white"
       >
         ← Back to tags
       </Link>
-      <h1 className="mt-4 text-2xl font-bold tracking-tight text-[#111111]">
+      <h1 className="mt-4 text-2xl font-bold tracking-tight text-white">
         Edit emergency profile
       </h1>
-      <p className="mt-1 font-mono text-xs text-zinc-500">{code.slug}</p>
+      <p className="mt-1 font-mono text-xs text-qn-muted-2">{code.slug}</p>
 
       <div className="mt-8 grid gap-8 lg:grid-cols-2">
         <div>

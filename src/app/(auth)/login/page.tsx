@@ -11,9 +11,9 @@ export const metadata: Metadata = {
 
 function LeftPanel() {
   return (
-    <div className="relative flex min-h-screen flex-col justify-between overflow-hidden bg-[#111111] px-12 py-14 text-white lg:px-14">
+    <div className="relative flex min-h-screen flex-col justify-between overflow-hidden bg-qn-card-2 px-12 py-14 text-white lg:px-14">
       <div
-        className="pointer-events-none absolute -right-24 top-20 h-80 w-80 rounded-full bg-[#ffd400]/12 blur-3xl"
+        className="pointer-events-none absolute -right-24 top-20 h-80 w-80 rounded-full bg-qn-accent/12 blur-3xl"
         aria-hidden
       />
       <div
@@ -22,8 +22,11 @@ function LeftPanel() {
       />
 
       <div className="relative">
-        <p className="text-xl font-bold tracking-tight">QRNetra</p>
-        <p className="mt-3 max-w-sm text-sm leading-relaxed text-zinc-400">
+        <p className="text-xl font-extrabold tracking-tight">
+          <span className="text-white">QR</span>
+          <span className="text-qn-accent">Netra</span>
+        </p>
+        <p className="mt-3 max-w-sm text-sm leading-relaxed text-qn-muted-2">
           Protect what matters with privacy-first QR safety — vehicles,
           children, pets, and teams.
         </p>
@@ -33,7 +36,7 @@ function LeftPanel() {
         <div className="flex items-end gap-4">
           <div className="h-36 w-28 rounded-2xl border border-white/10 bg-gradient-to-b from-zinc-800 to-zinc-950 p-3 shadow-2xl">
             <div className="h-16 w-full rounded-lg bg-white/90" />
-            <p className="mt-2 text-center text-[9px] font-medium uppercase tracking-wider text-[#ffd400]">
+            <p className="mt-2 text-center text-[9px] font-medium uppercase tracking-wider text-qn-accent">
               Vehicle
             </p>
           </div>
@@ -47,12 +50,12 @@ function LeftPanel() {
             </div>
           </div>
         </div>
-        <p className="max-w-xs text-xs leading-relaxed text-zinc-500">
+        <p className="max-w-xs text-xs leading-relaxed text-qn-muted-2">
           You’re one step away from your dynamic QR and secure public scan page.
         </p>
       </div>
 
-      <p className="relative text-xs text-zinc-600">
+      <p className="relative text-xs text-qn-muted">
         © {new Date().getFullYear()} QRNetra
       </p>
     </div>
@@ -76,12 +79,12 @@ export default async function LoginPage({ searchParams }: Props) {
   }
 
   return (
-    <div className="min-h-screen bg-[#fafafa] lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)]">
+    <div className="min-h-screen bg-qn-bg lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)]">
       <LeftPanel />
       <div className="flex flex-col items-center justify-center px-4 py-12 sm:py-16 lg:py-10">
         <Suspense
           fallback={
-            <div className="text-sm font-medium text-zinc-500">Loading…</div>
+            <div className="text-sm font-medium text-qn-muted-2">Loading…</div>
           }
         >
           <AuthLoginForm />

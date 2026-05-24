@@ -1,104 +1,188 @@
+import { FadeIn } from "@/components/ui/motion";
+import {
+  Activity,
+  Bell,
+  Car,
+  Dog,
+  LayoutDashboard,
+  QrCode,
+  Settings,
+  User,
+} from "lucide-react";
 import { Section } from "./section";
 
-const ROWS = [
-  { label: "Active tags", value: "12", trend: "+2" },
-  { label: "Scans (30d)", value: "1,248", trend: "+18%" },
-  { label: "Alerts sent", value: "342", trend: "Stable" },
+const STATS = [
+  { label: "Active Tags", value: "12", icon: QrCode },
+  { label: "Scans (30d)", value: "1,248", icon: Activity },
+  { label: "Alerts Sent", value: "342", icon: Bell },
+  { label: "Profiles", value: "6", icon: User },
 ];
+
+const SCANS = [
+  {
+    name: "Vehicle Sticker",
+    location: "MG Road, Bengaluru",
+    time: "2 min ago",
+    status: "Contacted",
+    pill: "success" as const,
+  },
+  {
+    name: "Pet Tag — Bruno",
+    location: "Bandra West, Mumbai",
+    time: "18 min ago",
+    status: "Viewed",
+    pill: "info" as const,
+  },
+  {
+    name: "Child Wristband",
+    location: "Koramangala, Bengaluru",
+    time: "1 hr ago",
+    status: "Alert sent",
+    pill: "accent" as const,
+  },
+];
+
+const PROFILES = [
+  { name: "Vehicle — MH-12-AB-1234", icon: Car },
+  { name: "Bruno (Labrador)", icon: Dog },
+];
+
+const pillClass = {
+  success: "qn-pill-success",
+  info: "qn-pill-info",
+  accent: "qn-pill-accent",
+};
 
 export function DashboardSection() {
   return (
-    <Section className="border-t border-zinc-100 bg-white">
-      <div className="text-center">
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500">
-          Dashboard
+    <Section className="border-t border-white/[0.08]">
+      <FadeIn className="text-center">
+        <span className="qn-badge">Dashboard</span>
+        <h2 className="qn-section-title mt-4 text-white">Your Command Center</h2>
+        <p className="mx-auto mt-4 max-w-2xl text-base text-qn-muted">
+          Every tag, scan, and emergency profile managed from one calm, modern
+          surface.
         </p>
-        <h2 className="mt-3 text-3xl font-bold tracking-tight text-[#111111] sm:text-4xl">
-          Your command center
-        </h2>
-        <p className="mx-auto mt-4 max-w-2xl text-sm text-zinc-600 sm:text-base">
-          Scan history, active tags, emergency profiles, notifications, and
-          privacy controls — in one calm, modern surface.
-        </p>
-      </div>
+      </FadeIn>
 
-      <div className="mt-14 rounded-3xl border border-zinc-200 bg-gradient-to-b from-zinc-50 to-white p-4 shadow-[0_40px_80px_-40px_rgba(0,0,0,0.2)] sm:p-8">
-        <div className="overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm">
-          <div className="flex items-center justify-between border-b border-zinc-100 bg-[#fafafa] px-4 py-3 sm:px-6">
-            <div className="flex items-center gap-3">
-              <div className="h-8 w-8 rounded-lg bg-[#111111]" />
-              <div>
-                <p className="text-sm font-semibold text-[#111111]">QRNetra</p>
-                <p className="text-xs text-zinc-500">Owner workspace</p>
-              </div>
-            </div>
-            <div className="hidden gap-2 sm:flex">
-              <span className="rounded-full bg-zinc-100 px-3 py-1 text-xs font-medium text-zinc-600">
-                All tags
-              </span>
-              <span className="rounded-full bg-[#ffd400]/25 px-3 py-1 text-xs font-semibold text-[#111111]">
-                Live
-              </span>
-            </div>
-          </div>
-
-          <div className="grid gap-4 p-4 sm:grid-cols-3 sm:gap-6 sm:p-6">
-            {ROWS.map((r) => (
-              <div
-                key={r.label}
-                className="rounded-xl border border-zinc-100 bg-[#fafafa] p-4"
-              >
-                <p className="text-xs font-medium text-zinc-500">{r.label}</p>
-                <p className="mt-1 text-2xl font-bold text-[#111111]">
-                  {r.value}
+      <FadeIn delay={0.1} className="mt-14">
+        <div className="rounded-[20px] border border-qn-accent/30 bg-qn-card p-1 shadow-[0_0_48px_rgba(255,107,44,0.12)]">
+          <div className="overflow-hidden rounded-[18px] border border-white/[0.08] bg-qn-bg-elevated">
+            <div className="flex min-h-[480px]">
+              <aside className="hidden w-48 shrink-0 border-r border-white/[0.08] bg-qn-sidebar p-4 sm:block">
+                <p className="text-xs font-bold text-white">
+                  QR<span className="text-qn-accent">Netra</span>
                 </p>
-                <p className="mt-1 text-xs text-emerald-600">{r.trend}</p>
-              </div>
-            ))}
-          </div>
+                <nav className="mt-6 space-y-1">
+                  {[
+                    { label: "Overview", icon: LayoutDashboard, active: true },
+                    { label: "My Tags", icon: QrCode },
+                    { label: "Alerts", icon: Bell },
+                    { label: "Profiles", icon: User },
+                    { label: "Analytics", icon: Activity },
+                    { label: "Settings", icon: Settings },
+                  ].map((item) => (
+                    <div
+                      key={item.label}
+                      className={`flex items-center gap-2 rounded-lg px-2 py-2 text-xs font-medium ${
+                        item.active
+                          ? "border-l-2 border-qn-accent bg-[rgba(255,107,44,0.12)] text-white"
+                          : "text-qn-muted-2"
+                      }`}
+                    >
+                      <item.icon className="h-3.5 w-3.5" strokeWidth={1.75} />
+                      {item.label}
+                    </div>
+                  ))}
+                </nav>
+              </aside>
 
-          <div className="grid gap-4 border-t border-zinc-100 p-4 sm:grid-cols-2 sm:gap-6 sm:p-6">
-            <div className="rounded-xl border border-zinc-100 p-4">
-              <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
-                Scan history
-              </p>
-              <div className="mt-4 flex h-28 items-end gap-1">
-                {[40, 65, 45, 80, 55, 90, 70].map((h, i) => (
-                  <div
-                    key={i}
-                    className="flex-1 rounded-t bg-[#111111]/80"
-                    style={{ height: `${h}%` }}
-                  />
-                ))}
+              <div className="flex-1 p-4 sm:p-6">
+                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                  {STATS.map((s) => (
+                    <div key={s.label} className="qn-card p-4">
+                      <div className="flex items-start justify-between">
+                        <p className="text-xs text-qn-muted">{s.label}</p>
+                        <s.icon
+                          className="h-4 w-4 text-qn-accent"
+                          strokeWidth={1.75}
+                        />
+                      </div>
+                      <p className="mt-2 text-2xl font-extrabold text-white">
+                        {s.value}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="qn-card mt-4 p-4">
+                  <p className="text-sm font-semibold text-white">Recent Scans</p>
+                  <div className="mt-4 space-y-0">
+                    {SCANS.map((row) => (
+                      <div
+                        key={row.name}
+                        className="qn-table-row text-sm"
+                      >
+                        <div>
+                          <p className="font-medium text-white">{row.name}</p>
+                          <p className="text-xs text-qn-muted">{row.location}</p>
+                        </div>
+                        <div className="flex items-center gap-3 sm:text-right">
+                          <span className="text-xs text-qn-muted-2">
+                            {row.time}
+                          </span>
+                          <span className={pillClass[row.pill]}>{row.status}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                  <div className="qn-card p-4">
+                    <p className="text-sm font-semibold text-white">
+                      Active Profiles
+                    </p>
+                    <ul className="mt-4 space-y-3">
+                      {PROFILES.map((p) => (
+                        <li
+                          key={p.name}
+                          className="flex items-center gap-3 text-sm text-qn-muted"
+                        >
+                          <p.icon
+                            className="h-4 w-4 text-qn-accent"
+                            strokeWidth={1.75}
+                          />
+                          {p.name}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                  <div className="qn-card p-4">
+                    <p className="text-sm font-semibold text-white">
+                      Quick Actions
+                    </p>
+                    <div className="mt-4 space-y-2">
+                      <button
+                        type="button"
+                        className="qn-btn-primary w-full text-left"
+                      >
+                        Enable Lost Mode
+                      </button>
+                      <button type="button" className="qn-btn-secondary w-full">
+                        Add New Profile
+                      </button>
+                      <button type="button" className="qn-btn-secondary w-full">
+                        Order More Stickers
+                      </button>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
-            <div className="rounded-xl border border-zinc-100 p-4">
-              <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
-                Emergency profile
-              </p>
-              <div className="mt-4 space-y-2">
-                <div className="h-2 rounded-full bg-zinc-200" />
-                <div className="h-2 w-4/5 rounded-full bg-zinc-100" />
-                <div className="h-2 w-3/5 rounded-full bg-[#ffd400]/40" />
-              </div>
-              <div className="mt-4 flex gap-2">
-                <span className="rounded-md bg-zinc-100 px-2 py-1 text-[10px] font-medium text-zinc-600">
-                  Masked call
-                </span>
-                <span className="rounded-md bg-zinc-100 px-2 py-1 text-[10px] font-medium text-zinc-600">
-                  WhatsApp
-                </span>
-              </div>
-            </div>
-          </div>
-
-          <div className="border-t border-zinc-100 bg-[#fafafa] px-4 py-3 sm:px-6">
-            <p className="text-xs text-zinc-500">
-              Notifications · QR management · Privacy controls
-            </p>
           </div>
         </div>
-      </div>
+      </FadeIn>
     </Section>
   );
 }

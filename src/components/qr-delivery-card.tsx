@@ -84,9 +84,9 @@ export function QrDeliveryCard({
   return (
     <div className="mx-auto max-w-lg px-4 py-10 sm:py-14">
       <div className="mb-8 text-center">
-        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[#ffd400]">
+        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-qn-accent">
           <svg
-            className="h-8 w-8 text-[#111111]"
+            className="h-8 w-8 text-white"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -99,21 +99,21 @@ export function QrDeliveryCard({
             />
           </svg>
         </div>
-        <h1 className="text-2xl font-bold tracking-tight text-[#111111]">
+        <h1 className="text-2xl font-bold tracking-tight text-white">
           Your emergency QR is ready
         </h1>
-        <p className="mt-2 text-sm text-zinc-600">
+        <p className="mt-2 text-sm text-qn-muted">
           Download your {meta.title.toLowerCase()}, print the PDF, or share the
           link.
         </p>
-        <p className="mt-3 inline-flex items-center gap-2 rounded-full bg-zinc-100 px-4 py-1.5 font-mono text-xs font-semibold text-zinc-700">
+        <p className="mt-3 inline-flex items-center gap-2 rounded-full bg-qn-surface px-4 py-1.5 font-mono text-xs font-semibold text-qn-muted">
           QR ID · {slug}
         </p>
       </div>
 
-      <div className="overflow-hidden rounded-3xl border border-zinc-200 bg-white shadow-[0_20px_60px_-12px_rgba(0,0,0,0.1)]">
-        <div className="flex flex-col items-center bg-[#111111] px-6 py-8">
-          <div className="rounded-2xl bg-white p-4 shadow-xl">
+      <div className="overflow-hidden rounded-3xl border border-white/[0.08] bg-qn-card shadow-[0_20px_60px_-12px_rgba(0,0,0,0.1)]">
+        <div className="flex flex-col items-center bg-qn-card-2 px-6 py-8">
+          <div className="rounded-2xl bg-qn-card p-4 shadow-xl">
             {pngDataUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
@@ -124,17 +124,17 @@ export function QrDeliveryCard({
                 className="block"
               />
             ) : (
-              <div className="h-[200px] w-[200px] animate-pulse rounded-lg bg-zinc-100" />
+              <div className="h-[200px] w-[200px] animate-pulse rounded-lg bg-qn-surface" />
             )}
           </div>
-          <p className="mt-4 text-xs font-semibold uppercase tracking-[0.18em] text-[#ffd400]">
+          <p className="mt-4 text-xs font-semibold uppercase tracking-[0.18em] text-qn-accent">
             QRNetra · {kindLabel}
           </p>
           <p className="mt-1 text-lg font-bold text-white">{title}</p>
           {vehicleReg && (
-            <p className="mt-0.5 text-sm text-zinc-400">{vehicleReg}</p>
+            <p className="mt-0.5 text-sm text-qn-muted-2">{vehicleReg}</p>
           )}
-          <p className="mt-3 max-w-[280px] break-all text-center font-mono text-xs text-zinc-500">
+          <p className="mt-3 max-w-[280px] break-all text-center font-mono text-xs text-qn-muted-2">
             {scanUrl}
           </p>
         </div>
@@ -152,7 +152,7 @@ export function QrDeliveryCard({
             <button
               type="button"
               onClick={() => void copyLink()}
-              className="flex h-12 items-center justify-center gap-2 rounded-xl border border-zinc-200 bg-white text-sm font-semibold text-[#111111] transition hover:bg-zinc-50"
+              className="flex h-12 items-center justify-center gap-2 rounded-xl border border-white/[0.08] bg-qn-card text-sm font-semibold text-white transition hover:bg-white/[0.05]"
             >
               {copyDone ? "✓ Copied" : "Copy link"}
             </button>
@@ -162,7 +162,7 @@ export function QrDeliveryCard({
                 href={waHref}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex h-12 items-center justify-center gap-2 rounded-xl border border-zinc-200 bg-white text-sm font-semibold text-[#111111] transition hover:bg-zinc-50"
+                className="flex h-12 items-center justify-center gap-2 rounded-xl border border-white/[0.08] bg-qn-card text-sm font-semibold text-white transition hover:bg-white/[0.05]"
               >
                 WhatsApp
               </a>
@@ -171,7 +171,7 @@ export function QrDeliveryCard({
                 href={`https://wa.me/?text=${encodeURIComponent(`${title} · Emergency QR: ${scanUrl}`)}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex h-12 items-center justify-center gap-2 rounded-xl border border-zinc-200 bg-white text-sm font-semibold text-[#111111] transition hover:bg-zinc-50"
+                className="flex h-12 items-center justify-center gap-2 rounded-xl border border-white/[0.08] bg-qn-card text-sm font-semibold text-white transition hover:bg-white/[0.05]"
               >
                 Share on WhatsApp
               </a>
@@ -179,13 +179,13 @@ export function QrDeliveryCard({
           </div>
         </div>
 
-        <div className="mx-5 mb-5 flex items-center gap-3 rounded-xl bg-zinc-50 px-4 py-3">
-          <span className="text-xs text-zinc-500">Public scan page:</span>
+        <div className="mx-5 mb-5 flex items-center gap-3 rounded-xl bg-qn-surface px-4 py-3">
+          <span className="text-xs text-qn-muted-2">Public scan page:</span>
           <a
             href={`/s/${slug}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex-1 truncate font-mono text-xs font-semibold text-[#111111] underline-offset-4 hover:underline"
+            className="flex-1 truncate font-mono text-xs font-semibold text-white underline-offset-4 hover:underline"
           >
             /s/{slug}
           </a>
@@ -193,7 +193,7 @@ export function QrDeliveryCard({
       </div>
 
       {qrId && (
-        <div className="mt-6 rounded-2xl border border-zinc-200 bg-white p-5">
+        <div className="mt-6 rounded-2xl border border-white/[0.08] bg-qn-card p-5">
           <QrDashboardActions
             qrId={qrId}
             slug={slug}
@@ -209,19 +209,19 @@ export function QrDeliveryCard({
       <div className="mt-8 space-y-3">
         <a
           href="/dashboard/tags"
-          className="flex h-12 w-full items-center justify-center rounded-2xl bg-[#111111] text-sm font-semibold text-white shadow-lg transition hover:bg-zinc-800"
+          className="flex h-12 w-full items-center justify-center rounded-2xl bg-qn-card-2 text-sm font-semibold text-white shadow-lg transition hover:bg-zinc-800"
         >
           View all my QR tags →
         </a>
         <a
           href="/create"
-          className="flex h-12 w-full items-center justify-center rounded-2xl border border-zinc-200 bg-white text-sm font-semibold text-[#111111] transition hover:bg-zinc-50"
+          className="flex h-12 w-full items-center justify-center rounded-2xl border border-white/[0.08] bg-qn-card text-sm font-semibold text-white transition hover:bg-white/[0.05]"
         >
           Create another QR
         </a>
       </div>
 
-      <p className="mt-6 text-center text-xs leading-relaxed text-zinc-400">
+      <p className="mt-6 text-center text-xs leading-relaxed text-qn-muted-2">
         Your QR always points to this link. Edit your profile anytime — scans
         show the latest information.
       </p>

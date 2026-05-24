@@ -9,11 +9,11 @@ export function CreateLayoutHeader() {
   const { user, isLoading } = useAuth();
 
   return (
-    <header className="sticky top-0 z-20 border-b border-zinc-200 bg-white/90 backdrop-blur">
+    <header className="sticky top-0 z-20 border-b border-white/[0.08] bg-white/90 backdrop-blur">
       <div className="mx-auto flex h-14 max-w-lg items-center justify-between px-4">
         <Link
           href="/"
-          className="text-sm font-bold tracking-tight text-[#111111]"
+          className="text-sm font-bold tracking-tight text-white"
         >
           QRNetra
         </Link>

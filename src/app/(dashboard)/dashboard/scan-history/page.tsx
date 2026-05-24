@@ -26,8 +26,8 @@ export default async function ScanHistoryPage() {
   if (ids.length === 0) {
     return (
       <div>
-        <h1 className="text-2xl font-bold text-[#111111]">Scan history</h1>
-        <p className="mt-2 text-sm text-zinc-600">
+        <h1 className="qn-page-title text-white">Scan history</h1>
+        <p className="mt-2 text-sm text-qn-muted">
           Scans will appear here after someone opens your public tag link.
         </p>
       </div>
@@ -43,39 +43,36 @@ export default async function ScanHistoryPage() {
 
   if (error) {
     return (
-      <p className="text-sm text-red-600">Could not load scans: {error.message}</p>
+      <p className="text-sm text-qn-danger">
+        Could not load scans: {error.message}
+      </p>
     );
   }
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-[#111111]">Scan history</h1>
-      <p className="mt-2 text-sm text-zinc-600">
+      <h1 className="qn-page-title text-white">Scan history</h1>
+      <p className="mt-2 text-sm text-qn-muted">
         Recent opens of your public pages (finder devices).
       </p>
 
-      <ul className="mt-8 divide-y divide-zinc-100 rounded-2xl border border-zinc-200 bg-white">
+      <div className="qn-table-wrap mt-8">
         {!events?.length ? (
-          <li className="px-4 py-8 text-center text-sm text-zinc-500">
+          <p className="px-4 py-8 text-center text-sm text-qn-muted">
             No scans recorded yet.
-          </li>
+          </p>
         ) : (
           events.map((ev) => {
             const q = slugById.get(ev.qr_id);
             return (
-              <li
-                key={ev.id}
-                className="flex flex-col gap-1 px-4 py-4 sm:flex-row sm:items-center sm:justify-between"
-              >
+              <div key={ev.id} className="qn-table-row">
                 <div>
-                  <p className="font-medium text-[#111111]">
-                    {q?.title ?? "Tag"}
-                  </p>
-                  <p className="text-xs font-mono text-zinc-500">
+                  <p className="font-medium text-white">{q?.title ?? "Tag"}</p>
+                  <p className="text-xs font-mono text-qn-muted-2">
                     /s/{q?.public_slug}
                   </p>
                 </div>
-                <div className="text-right text-sm text-zinc-600">
+                <div className="text-sm text-qn-muted sm:text-right">
                   <p>
                     {new Date(ev.created_at).toLocaleString(undefined, {
                       dateStyle: "medium",
@@ -83,16 +80,16 @@ export default async function ScanHistoryPage() {
                     })}
                   </p>
                   {ev.device_type ? (
-                    <p className="text-xs capitalize text-zinc-400">
+                    <p className="text-xs capitalize text-qn-muted-2">
                       {ev.device_type}
                     </p>
                   ) : null}
                 </div>
-              </li>
+              </div>
             );
           })
         )}
-      </ul>
+      </div>
     </div>
   );
 }

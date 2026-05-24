@@ -1,3 +1,4 @@
+import { QnLogo } from "@/components/ui/logo";
 import Link from "next/link";
 
 const COLS = [
@@ -42,33 +43,22 @@ const COLS = [
 ];
 
 function AppStoreBadge({ store }: { store: "apple" | "google" }) {
-  if (store === "apple") {
-    return (
-      <div className="flex h-10 items-center justify-center rounded-lg border border-zinc-700 bg-zinc-900 px-3 text-[10px] font-medium text-white">
-        <span>App Store</span>
-      </div>
-    );
-  }
+  const label = store === "apple" ? "App Store" : "Google Play";
   return (
-    <div className="flex h-10 items-center justify-center rounded-lg border border-zinc-700 bg-zinc-900 px-3 text-[10px] font-medium text-white">
-      <span>Google Play</span>
+    <div className="flex h-10 items-center justify-center rounded-lg border border-white/[0.12] bg-qn-card px-3 text-[10px] font-medium text-qn-muted">
+      <span>{label}</span>
     </div>
   );
 }
 
 export function MainFooter() {
   return (
-    <footer className="border-t border-zinc-800 bg-[#111111] text-zinc-300">
-      <div className="mx-auto max-w-6xl px-4 py-16 lg:px-6">
+    <footer className="border-t border-white/[0.08] bg-qn-bg-deep">
+      <div className="mx-auto max-w-7xl px-4 py-16 lg:px-8">
         <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-6">
           <div className="lg:col-span-2">
-            <Link
-              href="/"
-              className="text-xl font-semibold tracking-tight text-white"
-            >
-              QRNetra
-            </Link>
-            <p className="mt-4 max-w-sm text-sm leading-relaxed text-zinc-400">
+            <QnLogo size="lg" href="/" />
+            <p className="mt-4 max-w-sm text-sm leading-relaxed text-qn-muted">
               Privacy-first smart QR safety for vehicles, families, and
               emergencies. Built for India.
             </p>
@@ -76,21 +66,21 @@ export function MainFooter() {
               <AppStoreBadge store="apple" />
               <AppStoreBadge store="google" />
             </div>
-            <div className="mt-6 flex flex-wrap gap-3 text-xs text-zinc-500">
-              <span className="rounded-full border border-zinc-700 px-3 py-1">
+            <div className="mt-6 flex flex-wrap gap-3 text-xs text-qn-muted-2">
+              <span className="rounded-full border border-white/[0.1] px-3 py-1">
                 SSL Secure
               </span>
-              <span className="rounded-full border border-zinc-700 px-3 py-1">
+              <span className="rounded-full border border-white/[0.1] px-3 py-1">
                 Razorpay
               </span>
-              <span className="rounded-full border border-zinc-700 px-3 py-1">
+              <span className="rounded-full border border-white/[0.1] px-3 py-1">
                 DPDP-ready
               </span>
             </div>
           </div>
           {COLS.map((col) => (
             <div key={col.title}>
-              <p className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
+              <p className="text-xs font-semibold uppercase tracking-wider text-qn-muted-2">
                 {col.title}
               </p>
               <ul className="mt-4 space-y-3">
@@ -98,7 +88,7 @@ export function MainFooter() {
                   <li key={l.label}>
                     <Link
                       href={l.href}
-                      className="text-sm text-zinc-400 transition-colors hover:text-white"
+                      className="text-sm text-qn-muted transition-colors hover:text-qn-accent"
                     >
                       {l.label}
                     </Link>
@@ -109,11 +99,11 @@ export function MainFooter() {
           ))}
         </div>
 
-        <div className="mt-14 flex flex-col gap-6 border-t border-zinc-800 pt-10 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mt-14 flex flex-col gap-6 border-t border-white/[0.08] pt-10 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex flex-wrap gap-4">
             <a
               href="https://instagram.com"
-              className="text-sm text-zinc-400 hover:text-[#ffd400]"
+              className="text-sm text-qn-muted transition-colors hover:text-qn-accent"
               rel="noopener noreferrer"
               target="_blank"
             >
@@ -121,7 +111,7 @@ export function MainFooter() {
             </a>
             <a
               href="https://wa.me/"
-              className="text-sm text-zinc-400 hover:text-[#ffd400]"
+              className="text-sm text-qn-muted transition-colors hover:text-qn-accent"
               rel="noopener noreferrer"
               target="_blank"
             >
@@ -129,16 +119,19 @@ export function MainFooter() {
             </a>
             <a
               href="https://linkedin.com"
-              className="text-sm text-zinc-400 hover:text-[#ffd400]"
+              className="text-sm text-qn-muted transition-colors hover:text-qn-accent"
               rel="noopener noreferrer"
               target="_blank"
             >
               LinkedIn
             </a>
           </div>
-          <p className="text-xs text-zinc-500">
-            © {new Date().getFullYear()} QRNetra. All rights reserved.
-          </p>
+          <div className="flex flex-col gap-1 sm:items-end">
+            <p className="text-xs text-qn-muted-2">
+              © {new Date().getFullYear()} QRNetra. All rights reserved.
+            </p>
+            <p className="text-xs text-qn-muted-2">Built for India 🇮🇳</p>
+          </div>
         </div>
       </div>
     </footer>

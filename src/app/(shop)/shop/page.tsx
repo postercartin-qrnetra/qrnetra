@@ -11,7 +11,7 @@ export default function ShopPage() {
       />
       <ul className="mx-auto mt-8 max-w-2xl space-y-3">
         <li>
-          <Link href="/shop/vehicle-qr-sticker" className="text-zinc-900 underline-offset-4 hover:underline">
+          <Link href="/shop/vehicle-qr-sticker" className="text-white underline-offset-4 hover:underline">
             Vehicle QR sticker (stub PDP)
           </Link>
         </li>

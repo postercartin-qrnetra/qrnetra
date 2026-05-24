@@ -3,8 +3,8 @@ import Link from "next/link";
 export default function CheckoutSuccessPage() {
   return (
     <div className="mx-auto max-w-lg px-4 py-16 text-center">
-      <h1 className="text-2xl font-semibold text-zinc-900">Payment successful</h1>
-      <p className="mt-4 text-zinc-600">
+      <h1 className="text-2xl font-semibold text-white">Payment successful</h1>
+      <p className="mt-4 text-qn-muted">
         Order confirmation and activation steps will appear here after Razorpay webhooks are wired.
       </p>
       <Link

@@ -11,8 +11,8 @@ export type StickerDownloadInput = {
 };
 
 const BRAND = "QRNetra";
-const BRAND_YELLOW = "#ffd400";
-const BRAND_DARK = "#111111";
+const BRAND_YELLOW = "#ff6b2c";
+const BRAND_DARK = "#020817";
 
 function loadImage(src: string): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {

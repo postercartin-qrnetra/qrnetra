@@ -82,7 +82,7 @@ export default async function DashboardTagsPage({ searchParams }: Props) {
 
     if (error) {
       return (
-        <p className="text-sm text-red-600">
+        <p className="text-sm text-qn-danger">
           Could not load tags: {error.message}
         </p>
       );
@@ -105,28 +105,26 @@ export default async function DashboardTagsPage({ searchParams }: Props) {
     <div>
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-[#111111]">
-            My QR tags
-          </h1>
-          <p className="mt-1 text-sm text-zinc-600">
+          <h1 className="qn-page-title text-white">My QR tags</h1>
+          <p className="mt-1 text-sm text-qn-muted">
             Dynamic emergency QRs — edit profile data anytime; the printed code
             stays the same.
           </p>
         </div>
         <Link
           href="/create"
-          className="mt-1 inline-flex h-10 shrink-0 items-center justify-center rounded-full bg-[#ffd400] px-5 text-sm font-semibold text-[#111111] shadow-sm transition hover:opacity-90"
+          className="qn-btn-primary mt-1 h-10 shrink-0 px-5"
         >
           + New QR
         </Link>
       </div>
 
       {!tags.length ? (
-        <div className="mt-10 rounded-2xl border border-dashed border-zinc-200 bg-white p-10 text-center">
-          <p className="text-sm text-zinc-600">No tags yet.</p>
+        <div className="qn-card mt-10 border-dashed p-10 text-center">
+          <p className="text-sm text-qn-muted">No tags yet.</p>
           <Link
             href="/create"
-            className="mt-4 inline-flex h-11 items-center justify-center rounded-full bg-[#ffd400] px-6 text-sm font-semibold text-[#111111]"
+            className="qn-btn-primary mt-4 px-6"
           >
             Create your first QR
           </Link>
@@ -142,16 +140,16 @@ export default async function DashboardTagsPage({ searchParams }: Props) {
             return (
               <li
                 key={tag.id}
-                className={`rounded-2xl border bg-white p-5 shadow-sm ${
+                className={`qn-card p-5 ${
                   isNew
-                    ? "border-[#ffd400] ring-2 ring-[#ffd400]/30"
+                    ? "border-qn-accent ring-2 ring-qn-accent/30"
                     : isDisabled
-                      ? "border-zinc-200 opacity-70"
-                      : "border-zinc-200"
+                      ? "border-white/[0.08] opacity-70"
+                      : "border-white/[0.08]"
                 }`}
               >
                 {isNew && (
-                  <p className="mb-3 inline-flex items-center gap-1 rounded-full bg-[#ffd400] px-3 py-1 text-xs font-bold text-[#111111]">
+                  <p className="mb-3 inline-flex items-center gap-1 rounded-full bg-qn-accent px-3 py-1 text-xs font-bold text-white">
                     ✓ Just created
                   </p>
                 )}
@@ -159,34 +157,34 @@ export default async function DashboardTagsPage({ searchParams }: Props) {
                   <QrPreview url={url} slug={tag.slug} />
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">
-                      <span className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
+                      <span className="text-xs font-semibold uppercase tracking-wide text-qn-muted-2">
                         {tag.kind}
                       </span>
                       {isPaused && (
-                        <span className="rounded-full bg-amber-50 px-2 py-0.5 text-xs font-semibold text-amber-800">
+                        <span className="rounded-full bg-qn-warning/15 px-2 py-0.5 text-xs font-semibold text-qn-warning">
                           paused
                         </span>
                       )}
                       {isDisabled && (
-                        <span className="rounded-full bg-zinc-100 px-2 py-0.5 text-xs font-semibold text-zinc-500">
+                        <span className="rounded-full bg-qn-surface px-2 py-0.5 text-xs font-semibold text-qn-muted-2">
                           disabled
                         </span>
                       )}
                     </div>
-                    <h2 className="mt-1 text-lg font-semibold text-[#111111]">
+                    <h2 className="mt-1 text-lg font-semibold text-white">
                       {tag.title ?? "Untitled tag"}
                     </h2>
                     {tag.vehicle_registration && (
-                      <p className="mt-0.5 text-sm text-zinc-600">
+                      <p className="mt-0.5 text-sm text-qn-muted">
                         {tag.vehicle_registration}
                       </p>
                     )}
                     <div className="mt-2 flex items-center gap-3">
-                      <p className="font-mono text-xs text-zinc-400">
+                      <p className="font-mono text-xs text-qn-muted-2">
                         {tag.slug}
                       </p>
-                      <span className="text-zinc-200">·</span>
-                      <p className="text-xs font-semibold text-zinc-500">
+                      <span className="text-qn-muted-2">·</span>
+                      <p className="text-xs font-semibold text-qn-muted-2">
                         {tag.scans} scan{tag.scans !== 1 ? "s" : ""}
                       </p>
                     </div>
@@ -194,7 +192,7 @@ export default async function DashboardTagsPage({ searchParams }: Props) {
                       href={`/s/${tag.slug}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="mt-3 inline-flex text-sm font-semibold text-[#111111] underline-offset-4 hover:underline"
+                      className="mt-3 inline-flex text-sm font-semibold text-white underline-offset-4 hover:underline"
                     >
                       View public scan page →
                     </Link>

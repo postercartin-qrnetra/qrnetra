@@ -32,15 +32,15 @@ export default function UpdatePasswordPage() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-[#fafafa] px-4">
-      <div className="w-full max-w-md rounded-3xl border border-zinc-200 bg-white p-8 shadow-xl">
-        <h1 className="text-xl font-bold text-[#111111]">Set new password</h1>
-        <p className="mt-2 text-sm text-zinc-600">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-qn-bg px-4">
+      <div className="w-full max-w-md rounded-3xl border border-white/[0.08] bg-qn-card p-8 shadow-xl">
+        <h1 className="text-xl font-bold text-white">Set new password</h1>
+        <p className="mt-2 text-sm text-qn-muted">
           Choose a strong password for your QRNetra account.
         </p>
         <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
           <label className="block">
-            <span className="text-sm font-medium text-[#111111]">
+            <span className="text-sm font-medium text-white">
               New password
             </span>
             <input
@@ -49,7 +49,7 @@ export default function UpdatePasswordPage() {
               onChange={(e) => setPassword(e.target.value)}
               required
               minLength={6}
-              className="mt-1.5 w-full rounded-2xl border border-zinc-200 px-4 py-3 text-base outline-none focus:ring-2 focus:ring-[#ffd400]/35"
+              className="mt-1.5 w-full rounded-2xl border border-white/[0.08] px-4 py-3 text-base outline-none focus:ring-2 focus:ring-qn-accent/35"
             />
           </label>
           {message ? (
@@ -58,13 +58,13 @@ export default function UpdatePasswordPage() {
           <button
             type="submit"
             disabled={loading}
-            className="flex h-12 w-full items-center justify-center rounded-2xl bg-[#ffd400] text-sm font-bold text-[#111111] disabled:opacity-60"
+            className="flex h-12 w-full items-center justify-center rounded-2xl bg-qn-accent text-sm font-bold text-white disabled:opacity-60"
           >
             {loading ? "Saving…" : "Update password"}
           </button>
         </form>
-        <p className="mt-6 text-center text-sm text-zinc-500">
-          <Link href="/login" className="font-medium text-[#111111] hover:underline">
+        <p className="mt-6 text-center text-sm text-qn-muted-2">
+          <Link href="/login" className="font-medium text-white hover:underline">
             Back to sign in
           </Link>
         </p>

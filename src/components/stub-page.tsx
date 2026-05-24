@@ -10,22 +10,22 @@ export function StubPage({ title, description, breadcrumb }: StubPageProps) {
   return (
     <div className="mx-auto max-w-2xl px-4 py-16">
       {breadcrumb && breadcrumb.length > 0 ? (
-        <nav className="mb-6 text-sm text-zinc-500">
+        <nav className="mb-6 text-sm text-qn-muted-2">
           {breadcrumb.map((b, i) => (
             <span key={b.href}>
               {i > 0 ? " / " : ""}
-              <Link href={b.href} className="hover:text-zinc-800">
+              <Link href={b.href} className="hover:text-white">
                 {b.label}
               </Link>
             </span>
           ))}
         </nav>
       ) : null}
-      <h1 className="text-2xl font-semibold tracking-tight text-zinc-900">{title}</h1>
+      <h1 className="text-2xl font-semibold tracking-tight text-white">{title}</h1>
       {description ? (
-        <p className="mt-3 text-base leading-relaxed text-zinc-600">{description}</p>
+        <p className="mt-3 text-base leading-relaxed text-qn-muted">{description}</p>
       ) : null}
-      <p className="mt-8 rounded-lg border border-dashed border-zinc-200 bg-zinc-50 px-4 py-6 text-sm text-zinc-500">
+      <p className="mt-8 rounded-lg border border-dashed border-white/[0.08] bg-qn-surface px-4 py-6 text-sm text-qn-muted-2">
         Stub route — content ships in a later milestone.
       </p>
     </div>

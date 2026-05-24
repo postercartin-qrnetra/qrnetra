@@ -40,7 +40,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
         {toasts.map((t) => (
           <div
             key={t.id}
-            className="pointer-events-auto rounded-xl border border-zinc-200 bg-[#111111] px-4 py-3 text-sm font-medium text-white shadow-lg"
+            className="qn-glass pointer-events-auto rounded-xl px-4 py-3 text-sm font-medium text-white shadow-lg"
             role="status"
           >
             {t.message}

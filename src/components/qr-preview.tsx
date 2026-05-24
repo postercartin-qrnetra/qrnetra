@@ -41,23 +41,23 @@ export function QrPreview({ url, slug }: Props) {
   }
 
   return (
-    <div className="flex flex-col items-center rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm">
-      <div className="flex h-[220px] w-[220px] items-center justify-center rounded-xl bg-white">
+    <div className="flex flex-col items-center rounded-2xl border border-white/[0.08] bg-qn-card p-6 shadow-sm">
+      <div className="flex h-[220px] w-[220px] items-center justify-center rounded-xl bg-qn-card">
         {dataUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={dataUrl} alt={`QR code for ${slug}`} width={220} height={220} />
         ) : (
-          <div className="h-40 w-40 animate-pulse rounded-lg bg-zinc-100" />
+          <div className="h-40 w-40 animate-pulse rounded-lg bg-qn-surface" />
         )}
       </div>
-      <p className="mt-4 max-w-[260px] break-all text-center text-xs text-zinc-500">
+      <p className="mt-4 max-w-[260px] break-all text-center text-xs text-qn-muted-2">
         {url}
       </p>
       <div className="mt-4 flex w-full flex-col gap-2 sm:flex-row">
         <button
           type="button"
           onClick={copyLink}
-          className="inline-flex h-10 flex-1 items-center justify-center rounded-full border border-zinc-200 text-sm font-semibold text-[#111111] hover:bg-zinc-50"
+          className="inline-flex h-10 flex-1 items-center justify-center rounded-full border border-white/[0.08] text-sm font-semibold text-white hover:bg-white/[0.05]"
         >
           {copyDone ? "Copied" : "Copy link"}
         </button>
@@ -65,7 +65,7 @@ export function QrPreview({ url, slug }: Props) {
           <a
             href={dataUrl}
             download={`qrnetra-${slug}.png`}
-            className="inline-flex h-10 flex-1 items-center justify-center rounded-full bg-[#ffd400] text-sm font-semibold text-[#111111] hover:opacity-95"
+            className="inline-flex h-10 flex-1 items-center justify-center rounded-full bg-qn-accent text-sm font-semibold text-white hover:opacity-95"
           >
             Download QR
           </a>

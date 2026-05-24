@@ -1,3 +1,5 @@
+import { FadeIn } from "@/components/ui/motion";
+import { Star } from "lucide-react";
 import { Section } from "./section";
 
 const TESTIMONIALS = [
@@ -33,18 +35,9 @@ const STATS = [
 
 function Stars() {
   return (
-    <div className="flex gap-0.5 text-[#ffd400]" aria-label="5 stars">
+    <div className="flex gap-0.5 text-qn-accent" aria-label="5 stars">
       {Array.from({ length: 5 }).map((_, i) => (
-        <svg
-          key={i}
-          width="16"
-          height="16"
-          viewBox="0 0 24 24"
-          fill="currentColor"
-          aria-hidden
-        >
-          <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-        </svg>
+        <Star key={i} className="h-4 w-4 fill-current" strokeWidth={0} />
       ))}
     </div>
   );
@@ -52,58 +45,53 @@ function Stars() {
 
 export function SocialSection() {
   return (
-    <Section className="border-t border-zinc-100 bg-white">
-      <div className="text-center">
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500">
-          Social proof
-        </p>
-        <h2 className="mt-3 text-3xl font-bold tracking-tight text-[#111111] sm:text-4xl">
-          Trusted by thousands
-        </h2>
-        <p className="mx-auto mt-4 max-w-2xl text-sm text-zinc-600">
+    <Section className="border-t border-white/[0.08] bg-qn-bg-deep">
+      <FadeIn className="text-center">
+        <span className="qn-badge">Social proof</span>
+        <h2 className="qn-section-title mt-4 text-white">Trusted by thousands</h2>
+        <p className="mx-auto mt-4 max-w-2xl text-base text-qn-muted">
           Real families and fleets rely on QRNetra when contact speed and
           privacy both matter.
         </p>
-      </div>
+      </FadeIn>
 
       <div className="mt-12 grid gap-6 lg:grid-cols-3">
-        {TESTIMONIALS.map((t) => (
-          <blockquote
-            key={t.name}
-            className="flex flex-col rounded-2xl border border-zinc-200 bg-[#fafafa] p-6 shadow-sm"
-          >
-            <Stars />
-            <p className="mt-4 flex-1 text-sm leading-relaxed text-zinc-700">
-              “{t.quote}”
-            </p>
-            <footer className="mt-6 flex items-center gap-3">
-              <div
-                className="flex h-11 w-11 items-center justify-center rounded-full bg-[#111111] text-xs font-bold text-[#ffd400]"
-                aria-hidden
-              >
-                {t.initials}
-              </div>
-              <div>
-                <p className="text-sm font-semibold text-[#111111]">{t.name}</p>
-                <p className="text-xs text-zinc-500">{t.role}</p>
-              </div>
-            </footer>
-          </blockquote>
+        {TESTIMONIALS.map((t, i) => (
+          <FadeIn key={t.name} delay={i * 0.05}>
+            <blockquote className="qn-card flex flex-col p-6">
+              <Stars />
+              <p className="mt-4 flex-1 text-sm leading-relaxed text-qn-muted">
+                “{t.quote}”
+              </p>
+              <footer className="mt-6 flex items-center gap-3">
+                <div
+                  className="flex h-11 w-11 items-center justify-center rounded-full border border-qn-accent/30 bg-[rgba(255,107,44,0.12)] text-xs font-bold text-qn-accent"
+                  aria-hidden
+                >
+                  {t.initials}
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-white">{t.name}</p>
+                  <p className="text-xs text-qn-muted-2">{t.role}</p>
+                </div>
+              </footer>
+            </blockquote>
+          </FadeIn>
         ))}
       </div>
 
-      <div className="mt-16 grid grid-cols-2 gap-6 rounded-2xl border border-zinc-200 bg-[#111111] px-6 py-10 sm:grid-cols-4 sm:gap-4">
+      <FadeIn delay={0.15} className="qn-card mt-16 grid grid-cols-2 gap-6 border-qn-accent/20 bg-qn-card-2 px-6 py-10 sm:grid-cols-4 sm:gap-4">
         {STATS.map((s) => (
           <div key={s.label} className="text-center">
-            <p className="text-2xl font-bold text-[#ffd400] sm:text-3xl">
+            <p className="text-2xl font-extrabold text-qn-accent sm:text-3xl">
               {s.value}
             </p>
-            <p className="mt-1 text-xs font-medium uppercase tracking-wide text-zinc-400">
+            <p className="mt-1 text-xs font-medium uppercase tracking-wide text-qn-muted">
               {s.label}
             </p>
           </div>
         ))}
-      </div>
+      </FadeIn>
     </Section>
   );
 }

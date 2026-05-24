@@ -15,8 +15,8 @@ export function ScanChannelPanel({ channels }: { channels: Channels | null }) {
   ];
 
   return (
-    <div className="mt-8 rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
-      <p className="text-xs font-medium uppercase tracking-wide text-zinc-500">
+    <div className="mt-8 rounded-2xl border border-white/[0.08] bg-qn-card p-4 shadow-sm">
+      <p className="text-xs font-medium uppercase tracking-wide text-qn-muted-2">
         Owner-enabled channels
       </p>
       <ul className="mt-4 flex flex-wrap gap-2">
@@ -28,7 +28,7 @@ export function ScanChannelPanel({ channels }: { channels: Channels | null }) {
               className={`rounded-full px-3 py-1.5 text-sm font-medium ${
                 on
                   ? "bg-emerald-50 text-emerald-900 ring-1 ring-emerald-200"
-                  : "bg-zinc-100 text-zinc-400 line-through"
+                  : "bg-qn-surface text-qn-muted-2 line-through"
               }`}
             >
               {label}
@@ -36,7 +36,7 @@ export function ScanChannelPanel({ channels }: { channels: Channels | null }) {
           );
         })}
       </ul>
-      <p className="mt-4 text-xs leading-relaxed text-zinc-500">
+      <p className="mt-4 text-xs leading-relaxed text-qn-muted-2">
         Actions dial/masked relay ship next — your phone number is not shown on this page.
       </p>
     </div>

@@ -2,28 +2,9 @@
 
 import { useAuth } from "@/components/auth/auth-provider";
 import { LogoutButton } from "@/components/auth/logout-button";
+import { User } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useId, useRef, useState } from "react";
-
-function UserIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      className={className}
-      width="18"
-      height="18"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.75"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden
-    >
-      <circle cx="12" cy="8" r="4" />
-      <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
-    </svg>
-  );
-}
 
 type UserMenuProps = {
   variant?: "header" | "sidebar";
@@ -58,8 +39,8 @@ export function UserMenu({ variant = "header" }: UserMenuProps) {
   const email = user.email ?? "Account";
   const triggerClass =
     variant === "header"
-      ? "flex h-10 items-center gap-2 rounded-xl border border-zinc-200 bg-white px-3 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-50"
-      : "flex w-full items-center gap-2 rounded-lg border border-zinc-200 bg-zinc-50 px-2 py-2 text-left text-sm font-medium text-zinc-700 hover:bg-zinc-100";
+      ? "flex h-10 items-center gap-2 rounded-xl border border-white/[0.12] bg-qn-card px-3 text-sm font-medium text-qn-muted transition-colors hover:border-qn-accent/30 hover:text-white"
+      : "flex w-full items-center gap-2 rounded-xl border border-white/[0.08] bg-qn-surface px-2 py-2 text-left text-sm font-medium text-qn-muted hover:bg-white/[0.04] hover:text-white";
 
   return (
     <div ref={rootRef} className="relative">
@@ -71,7 +52,7 @@ export function UserMenu({ variant = "header" }: UserMenuProps) {
         aria-controls={menuId}
         onClick={() => setOpen((v) => !v)}
       >
-        <UserIcon className="shrink-0 text-zinc-500" />
+        <User className="h-4 w-4 shrink-0 text-qn-muted-2" strokeWidth={1.75} />
         <span className="max-w-[140px] truncate sm:max-w-[180px]">{email}</span>
       </button>
 
@@ -81,24 +62,24 @@ export function UserMenu({ variant = "header" }: UserMenuProps) {
           role="menu"
           className={
             variant === "header"
-              ? "absolute right-0 top-[calc(100%+0.5rem)] z-50 min-w-[220px] overflow-hidden rounded-xl border border-zinc-200 bg-white py-1 shadow-lg"
-              : "absolute bottom-full left-0 right-0 z-50 mb-2 overflow-hidden rounded-xl border border-zinc-200 bg-white py-1 shadow-lg"
+              ? "qn-card absolute right-0 top-[calc(100%+0.5rem)] z-50 min-w-[220px] overflow-hidden py-1 shadow-xl"
+              : "qn-card absolute bottom-full left-0 right-0 z-50 mb-2 overflow-hidden py-1 shadow-xl"
           }
         >
-          <p className="border-b border-zinc-100 px-3 py-2.5 text-xs text-zinc-500">
+          <p className="border-b border-white/[0.08] px-3 py-2.5 text-xs text-qn-muted-2">
             {email}
           </p>
           <Link
             href="/dashboard"
             role="menuitem"
-            className="block px-3 py-2 text-sm text-zinc-700 hover:bg-zinc-50"
+            className="block px-3 py-2 text-sm text-qn-muted transition-colors hover:bg-white/[0.04] hover:text-white"
             onClick={() => setOpen(false)}
           >
             Dashboard
           </Link>
-          <div className="border-t border-zinc-100 px-1 py-1">
+          <div className="border-t border-white/[0.08] px-1 py-1">
             <LogoutButton
-              className="w-full rounded-lg px-2 py-2 text-left text-sm text-red-600 hover:bg-red-50 disabled:opacity-50"
+              className="w-full rounded-lg px-2 py-2 text-left text-sm text-qn-danger hover:bg-qn-danger/10 disabled:opacity-50"
               onLoggedOut={() => setOpen(false)}
             />
           </div>

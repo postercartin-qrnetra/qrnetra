@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { Activity, Bell, QrCode, User } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
@@ -51,70 +52,76 @@ export default async function DashboardHomePage() {
       })
     : "—";
 
+  const statCards = [
+    {
+      label: "Active tags",
+      value: String(activeCount),
+      href: "/dashboard/tags",
+      icon: QrCode,
+    },
+    {
+      label: "Total scans",
+      value: String(totalScans),
+      href: "/dashboard/scan-history",
+      icon: Activity,
+    },
+    {
+      label: "Last scanned",
+      value: lastLabel,
+      href: "/dashboard/scan-history",
+      icon: Bell,
+    },
+    {
+      label: "Profile type",
+      value: tags?.[0]?.kind
+        ? tags[0].kind.charAt(0).toUpperCase() + tags[0].kind.slice(1)
+        : "—",
+      href: "/dashboard/tags",
+      icon: User,
+    },
+  ];
+
   return (
     <div>
-      <h1 className="text-2xl font-bold tracking-tight text-[#111111]">
-        Dashboard
-      </h1>
-      <p className="mt-2 max-w-xl text-sm text-zinc-600">
+      <h1 className="qn-page-title text-white">Dashboard</h1>
+      <p className="mt-2 max-w-xl text-sm text-qn-muted">
         Manage QR tags, scan activity, and emergency profiles.
       </p>
 
       <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {[
-          {
-            label: "Active tags",
-            value: String(activeCount),
-            href: "/dashboard/tags",
-          },
-          {
-            label: "Total scans",
-            value: String(totalScans),
-            href: "/dashboard/scan-history",
-          },
-          {
-            label: "Last scanned",
-            value: lastLabel,
-            href: "/dashboard/scan-history",
-          },
-          {
-            label: "Profile type",
-            value: tags?.[0]?.kind
-              ? tags[0].kind.charAt(0).toUpperCase() + tags[0].kind.slice(1)
-              : "—",
-            href: "/dashboard/tags",
-          },
-        ].map((card) => (
-          <Link
-            key={card.label}
-            href={card.href}
-            className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-md"
-          >
-            <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
-              {card.label}
-            </p>
-            <p className="mt-2 text-xl font-bold text-[#111111]">{card.value}</p>
-          </Link>
-        ))}
+        {statCards.map((card) => {
+          const Icon = card.icon;
+          return (
+            <Link
+              key={card.label}
+              href={card.href}
+              className="qn-card qn-card-interactive block p-6"
+            >
+              <div className="flex items-start justify-between">
+                <p className="text-xs font-semibold uppercase tracking-wide text-qn-muted">
+                  {card.label}
+                </p>
+                <Icon
+                  className="h-4 w-4 text-qn-accent"
+                  strokeWidth={1.75}
+                />
+              </div>
+              <p className="mt-3 text-xl font-extrabold text-white">
+                {card.value}
+              </p>
+            </Link>
+          );
+        })}
       </div>
 
       <div className="mt-10 flex flex-wrap gap-3">
-        <Link
-          href="/dashboard/tags"
-          className="inline-flex h-11 items-center justify-center rounded-full bg-[#111111] px-6 text-sm font-semibold text-white"
-        >
+        <Link href="/dashboard/tags" className="qn-btn-primary px-6">
           My QR tags
         </Link>
-        <Link
-          href="/create/type"
-          className="inline-flex h-11 items-center justify-center rounded-full border border-zinc-200 bg-white px-6 text-sm font-semibold text-[#111111]"
-        >
+        <Link href="/create/type" className="qn-btn-secondary px-6">
           Create another QR
         </Link>
-        <Link
-          href="/shop"
-          className="inline-flex h-11 items-center justify-center rounded-full border border-zinc-200 px-6 text-sm font-medium text-zinc-700"
-        >
+        <Link href="/shop" className="qn-btn-secondary px-6">
           Shop tags
         </Link>
       </div>

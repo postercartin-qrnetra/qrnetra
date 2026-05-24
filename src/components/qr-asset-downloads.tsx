@@ -79,7 +79,7 @@ export function QrAssetDownloads({
           type="button"
           disabled={disabled}
           onClick={() => void run("png", () => downloadRawQrPng(qrDataUrl!, slug))}
-          className="inline-flex h-8 items-center rounded-full border border-zinc-200 px-3 text-xs font-semibold text-zinc-700 hover:bg-zinc-50 disabled:opacity-40"
+          className="inline-flex h-8 items-center rounded-full border border-white/[0.08] px-3 text-xs font-semibold text-qn-muted hover:bg-white/[0.05] disabled:opacity-40"
         >
           {busy === "png" ? "…" : "PNG"}
         </button>
@@ -87,7 +87,7 @@ export function QrAssetDownloads({
           type="button"
           disabled={disabled}
           onClick={() => void run("sticker", () => downloadStickerPng(input))}
-          className="inline-flex h-8 items-center rounded-full bg-[#ffd400] px-3 text-xs font-bold text-[#111111] hover:opacity-90 disabled:opacity-40"
+          className="inline-flex h-8 items-center rounded-full bg-qn-accent px-3 text-xs font-bold text-white hover:opacity-90 disabled:opacity-40"
         >
           {busy === "sticker" ? "…" : meta.title}
         </button>
@@ -95,7 +95,7 @@ export function QrAssetDownloads({
           type="button"
           disabled={disabled}
           onClick={() => void run("pdf", () => downloadStickerPdf(input))}
-          className="inline-flex h-8 items-center rounded-full border border-zinc-200 px-3 text-xs font-semibold text-zinc-700 hover:bg-zinc-50 disabled:opacity-40"
+          className="inline-flex h-8 items-center rounded-full border border-white/[0.08] px-3 text-xs font-semibold text-qn-muted hover:bg-white/[0.05] disabled:opacity-40"
         >
           {busy === "pdf" ? "…" : "PDF"}
         </button>
@@ -105,7 +105,7 @@ export function QrAssetDownloads({
 
   return (
     <div className="space-y-3">
-      <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
+      <p className="text-xs font-semibold uppercase tracking-wide text-qn-muted-2">
         Download assets
       </p>
       <div className="grid gap-2 sm:grid-cols-2">
@@ -113,7 +113,7 @@ export function QrAssetDownloads({
           type="button"
           disabled={disabled}
           onClick={() => void run("png", () => downloadRawQrPng(qrDataUrl!, slug))}
-          className="flex h-11 items-center justify-center rounded-xl border border-zinc-200 text-sm font-semibold text-[#111111] hover:bg-zinc-50 disabled:opacity-40"
+          className="flex h-11 items-center justify-center rounded-xl border border-white/[0.08] text-sm font-semibold text-white hover:bg-white/[0.05] disabled:opacity-40"
         >
           {busy === "png" ? "Preparing…" : "Download QR PNG"}
         </button>
@@ -121,7 +121,7 @@ export function QrAssetDownloads({
           type="button"
           disabled={disabled}
           onClick={() => void run("sticker", () => downloadStickerPng(input))}
-          className="flex h-11 items-center justify-center rounded-xl bg-[#ffd400] text-sm font-bold text-[#111111] hover:opacity-90 disabled:opacity-40"
+          className="flex h-11 items-center justify-center rounded-xl bg-qn-accent text-sm font-bold text-white hover:opacity-90 disabled:opacity-40"
         >
           {busy === "sticker" ? "Preparing…" : meta.title}
         </button>
@@ -129,7 +129,7 @@ export function QrAssetDownloads({
           type="button"
           disabled={disabled}
           onClick={() => void run("pdf", () => downloadStickerPdf(input))}
-          className="col-span-full flex h-11 items-center justify-center gap-2 rounded-xl border-2 border-[#111111] text-sm font-bold text-[#111111] hover:bg-zinc-50 disabled:opacity-40 sm:col-span-2"
+          className="col-span-full flex h-11 items-center justify-center gap-2 rounded-xl border-2 border-qn-accent text-sm font-bold text-white hover:bg-white/[0.05] disabled:opacity-40 sm:col-span-2"
         >
           {busy === "pdf" ? "Generating PDF…" : "Download print-friendly PDF"}
         </button>
