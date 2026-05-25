@@ -11,7 +11,7 @@ export function CreateLayoutHeader() {
   return (
     <header className="qn-header sticky top-0 z-20">
       <div className="mx-auto flex h-14 max-w-lg items-center justify-between px-4">
-        <QnLogoStatic size="sm" />
+        <QnLogoStatic layout="compact" />
         {!isLoading && user ? (
           <UserMenu variant="header" />
         ) : !isLoading ? (

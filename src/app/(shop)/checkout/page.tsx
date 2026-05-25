@@ -1,11 +1,20 @@
-import { StubPage } from "@/components/stub-page";
+import { Suspense } from "react";
+import { CheckoutPageClient } from "@/components/checkout/checkout-page-client";
+
+export const metadata = {
+  title: "Checkout · QRNetra",
+};
 
 export default function CheckoutPage() {
   return (
-    <StubPage
-      title="Checkout"
-      description="One-page checkout — India address, Razorpay (UPI-first), optional COD flag — integration pending."
-      breadcrumb={[{ href: "/cart", label: "Cart" }, { href: "/checkout", label: "Checkout" }]}
-    />
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center bg-qn-bg">
+          <p className="text-sm text-qn-muted">Loading checkout…</p>
+        </div>
+      }
+    >
+      <CheckoutPageClient />
+    </Suspense>
   );
 }

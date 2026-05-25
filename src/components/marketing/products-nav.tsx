@@ -1,9 +1,47 @@
 "use client";
 
-import { PRODUCT_NAV_ITEMS } from "@/lib/brand";
 import { ChevronDown } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
+
+type NavItem = {
+  label: string;
+  href: string;
+  description?: string;
+};
+
+const ITEMS: NavItem[] = [
+  {
+    label: "All Products",
+    href: "/products",
+    description: "Browse the full catalog",
+  },
+  {
+    label: "Vehicle QR Sticker",
+    href: "/products/vehicle",
+    description: "Wrong parking & emergencies",
+  },
+  {
+    label: "Pet QR Tag",
+    href: "/products/pet",
+    description: "Lost pet recovery",
+  },
+  {
+    label: "Child Safety Wristband",
+    href: "/products/child",
+    description: "School-safe ID",
+  },
+  {
+    label: "QR Keychain",
+    href: "/products/keychain",
+    description: "Keys, bags & everyday carry",
+  },
+  {
+    label: "Business & Fleet Solutions",
+    href: "/business-fleet",
+    description: "Volume pricing & admin tools",
+  },
+];
 
 type ProductsNavProps = {
   mode: "desktop" | "mobile";
@@ -30,7 +68,7 @@ export function ProductsNav({ mode, onNavigate }: ProductsNavProps) {
         </button>
         {open ? (
           <div className="space-y-1 pb-3 pl-2 pr-2">
-            {PRODUCT_NAV_ITEMS.map((item) => (
+            {ITEMS.map((item) => (
               <Link
                 key={item.label}
                 href={item.href}
@@ -69,15 +107,21 @@ export function ProductsNav({ mode, onNavigate }: ProductsNavProps) {
         />
       </button>
       {hover ? (
-        <div className="qn-card absolute left-0 top-full z-50 mt-1 min-w-[280px] p-2 shadow-xl">
-          {PRODUCT_NAV_ITEMS.map((item) => (
+        <div className="qn-card absolute left-0 top-full z-50 mt-1 min-w-[280px] overflow-hidden p-2 shadow-xl">
+          {ITEMS.map((item, i) => (
             <Link
               key={item.label}
               href={item.href}
-              className="block rounded-xl px-3 py-2.5 transition-colors hover:bg-white/[0.04]"
+              className={`block rounded-xl px-3 py-2.5 transition-colors hover:bg-white/[0.04] ${
+                i === 0 ? "border-b border-white/[0.08] mb-1 pb-3" : ""
+              }`}
               onClick={onNavigate}
             >
-              <span className="text-sm font-medium text-white">{item.label}</span>
+              <span
+                className={`text-sm font-medium ${i === 0 ? "text-qn-accent" : "text-white"}`}
+              >
+                {item.label}
+              </span>
               {item.description ? (
                 <span className="mt-0.5 block text-xs text-qn-muted">
                   {item.description}

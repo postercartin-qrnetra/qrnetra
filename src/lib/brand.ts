@@ -4,6 +4,18 @@ import type { QrKind } from "@/lib/qr/types";
 export const LOGO_STATIC_SRC = "/logos/qrnetra-logo.jpeg";
 export const LOGO_ANIMATED_SRC = "/logos/qrnetra-logo-animated.mp4";
 
+/** Intrinsic asset dimensions (square master) */
+export const LOGO_INTRINSIC_WIDTH = 500;
+export const LOGO_INTRINSIC_HEIGHT = 500;
+
+/** Navbar logo heights — no CSS transform scaling */
+export const LOGO_HEIGHT_MOBILE = 40;
+export const LOGO_HEIGHT_TABLET = 48;
+export const LOGO_HEIGHT_DESKTOP = 52;
+
+/** Reserved logo column on desktop nav (whitespace + mark) */
+export const LOGO_NAV_AREA_MIN_WIDTH = 220;
+
 export const PRODUCT_NAV_ITEMS: {
   label: string;
   href: string;

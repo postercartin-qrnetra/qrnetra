@@ -23,7 +23,7 @@ function LeftPanel() {
       />
 
       <div className="relative">
-        <QnLogoStatic href="/" size="lg" />
+        <QnLogoStatic href="/" layout="auth" />
         <p className="mt-3 max-w-sm text-sm leading-relaxed text-qn-muted-2">
           Protect what matters with privacy-first QR safety — vehicles,
           children, pets, and teams.

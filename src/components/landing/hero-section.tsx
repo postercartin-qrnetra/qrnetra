@@ -5,7 +5,7 @@ import { HeroPhoneMockup } from "./hero-phone-mockup";
 import { HeroRotatingNotifications } from "./hero-rotating-notifications";
 import { Section } from "./section";
 
-const TRUST = [
+const TRUST_PILLS = [
   "No app for finder",
   "2 min setup",
   "Works across India",
@@ -49,10 +49,10 @@ export function HeroSection() {
             emergencies — without exposing your phone number publicly.
           </p>
           <p className="mt-4 text-sm text-qn-muted-2">
-            {TRUST.join(" • ")}
+            {TRUST_PILLS.join(" • ")}
           </p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
-            <Link href="/shop" className="qn-btn-primary px-8">
+            <Link href="/products" className="qn-btn-primary px-8">
               Get Your Sticker — Starting ₹249 →
             </Link>
             <Link href="/create/type" className="qn-btn-secondary px-8">

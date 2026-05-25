@@ -41,7 +41,7 @@ export function MainFooter() {
       <div className="mx-auto max-w-7xl px-4 py-16 lg:px-8">
         <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-5">
           <div className="lg:col-span-2">
-            <QnLogo variant="static" size="lg" href="/" />
+            <QnLogo variant="static" layout="footer" href="/" />
             <p className="mt-4 max-w-sm text-sm leading-relaxed text-qn-muted">
               Privacy-first smart QR safety for vehicles, families, and
               emergencies. Built for India.

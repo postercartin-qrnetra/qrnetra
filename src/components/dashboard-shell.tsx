@@ -9,7 +9,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex min-h-screen bg-qn-bg">
       <aside className="hidden w-60 shrink-0 flex-col border-r border-white/[0.08] bg-qn-sidebar px-4 py-6 md:flex">
-        <QnLogo variant="static" size="md" />
+        <QnLogo variant="static" layout="compact" />
         <DashboardNav />
         <div className="mt-auto border-t border-white/[0.08] pt-6">
           <UserMenu variant="sidebar" />
@@ -18,7 +18,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
       <div className="flex min-h-screen flex-1 flex-col">
         <header className="border-b border-white/[0.08] bg-qn-bg-elevated px-4 py-3 md:hidden">
           <div className="mb-3 flex items-center justify-between">
-            <QnLogo variant="static" size="sm" />
+            <QnLogo variant="static" layout="compact" />
             <UserMenu variant="header" />
           </div>
           <DashboardMobileNav />

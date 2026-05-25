@@ -188,7 +188,7 @@ export function AuthLoginForm() {
     <div className="w-full max-w-[420px]">
       <div className="qn-card rounded-3xl p-8 sm:p-10">
         <div className="mb-8 lg:hidden">
-          <QnLogoStatic size="md" />
+          <QnLogoStatic layout="compact" />
           <p className="mt-1 text-sm text-qn-muted-2">
             Continue setting up your safety tag
           </p>

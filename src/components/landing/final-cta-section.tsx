@@ -24,8 +24,8 @@ export function FinalCtaSection() {
           Physical stickers from ₹249.
         </p>
         <div className="relative mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row sm:flex-wrap">
-          <Link href="/shop" className="qn-btn-inverse min-w-[200px]">
-            Shop QR Stickers →
+          <Link href="/products" className="qn-btn-inverse min-w-[200px]">
+            Shop QR Products →
           </Link>
           <Link
             href="/create/type"

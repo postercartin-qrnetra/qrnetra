@@ -25,8 +25,8 @@ export function MainHeader() {
 
   return (
     <header className="qn-header sticky top-0 z-50">
-      <div className="mx-auto flex h-14 max-w-7xl items-center justify-between gap-3 px-4 sm:h-16 lg:px-8">
-        <div className="flex min-w-0 items-center gap-2 sm:gap-3">
+      <div className="mx-auto flex h-14 max-w-7xl items-center justify-between gap-3 px-4 sm:h-16 sm:px-6 md:gap-4 lg:h-20 lg:max-w-[1440px] lg:gap-6 lg:px-10 xl:max-w-[1600px] xl:px-12">
+        <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3 lg:flex-none">
           <button
             type="button"
             className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-white lg:hidden"
@@ -39,16 +39,16 @@ export function MainHeader() {
           </button>
           <QnLogo
             variant={isHome ? "animated" : "static"}
-            size="md"
+            layout="navbar"
             priority={isHome}
           />
         </div>
 
         <nav
-          className="hidden items-center gap-0.5 lg:flex"
+          className="hidden items-center gap-0.5 lg:flex lg:flex-1 lg:justify-center"
           aria-label="Primary"
         >
-          <Link href="/" className="qn-btn-ghost rounded-lg px-3 py-2">
+          <Link href="/" className="qn-btn-ghost rounded-lg px-3 py-2.5">
             Home
           </Link>
           <ProductsNav mode="desktop" />
@@ -56,7 +56,7 @@ export function MainHeader() {
             <Link
               key={item.href}
               href={item.href}
-              className="qn-btn-ghost rounded-lg px-3 py-2"
+              className="qn-btn-ghost rounded-lg px-3 py-2.5"
             >
               {item.label}
             </Link>
@@ -67,18 +67,21 @@ export function MainHeader() {
           <HeaderAuthActions />
           <Link
             href="/cart"
-            className="hidden h-10 w-10 items-center justify-center rounded-xl text-qn-muted transition-colors hover:bg-white/[0.05] hover:text-white sm:flex"
+            className="hidden h-11 w-11 items-center justify-center rounded-xl text-qn-muted transition-colors hover:bg-white/[0.05] hover:text-white sm:flex"
             aria-label="Cart"
           >
             <ShoppingCart className="h-5 w-5" strokeWidth={1.75} />
           </Link>
           <Link
             href="/create/type"
-            className="qn-btn-secondary hidden h-11 px-4 text-sm sm:inline-flex"
+            className="qn-btn-secondary hidden h-11 px-4 text-sm lg:inline-flex"
           >
             Create Free QR
           </Link>
-          <Link href="/shop" className="qn-btn-primary hidden h-11 px-5 sm:inline-flex">
+          <Link
+            href="/shop"
+            className="qn-btn-primary hidden h-11 px-5 lg:inline-flex"
+          >
             Shop Now
           </Link>
         </div>
@@ -90,7 +93,7 @@ export function MainHeader() {
           open ? "block" : "hidden"
         }`}
       >
-        <nav className="mx-auto flex max-w-7xl flex-col px-4 py-4">
+        <nav className="mx-auto flex max-w-7xl flex-col px-4 py-4 sm:px-6">
           <Link
             href="/"
             className="rounded-xl px-4 py-3 text-sm font-medium text-qn-muted transition-colors hover:bg-white/[0.04] hover:text-white"
