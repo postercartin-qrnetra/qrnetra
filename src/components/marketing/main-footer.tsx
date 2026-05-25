@@ -43,6 +43,9 @@ export function MainFooter() {
         <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-5">
           <div className="lg:col-span-2">
             <QnLogo variant="static" layout="footer" href="/" />
+            <p className="mt-3 text-sm font-semibold text-white">
+              Protect What Matters Most
+            </p>
             <p className="mt-4 max-w-sm text-sm leading-relaxed text-qn-muted">
               Privacy-first QR identity, safety, and recovery for vehicles,
               families, pets, and everyday belongings. Built for India.
@@ -134,7 +137,7 @@ export function MainFooter() {
           </div>
           <div className="flex flex-col gap-1 sm:items-end">
             <p className="text-xs text-qn-muted-2">
-              © {new Date().getFullYear()} QRNetra. All rights reserved.
+              © {new Date().getFullYear()} QR Netra. All rights reserved.
             </p>
             <p className="text-xs text-qn-muted-2">Built for India 🇮🇳</p>
           </div>

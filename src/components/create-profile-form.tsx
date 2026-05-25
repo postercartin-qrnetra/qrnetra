@@ -1,6 +1,7 @@
 "use client";
 
 import { useAuth } from "@/components/auth/auth-provider";
+import { QnLogoStatic } from "@/components/ui/logo";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
@@ -747,8 +748,9 @@ export function CreateProfileForm({
     <div className="mx-auto max-w-lg px-4 py-10 sm:py-14">
       {/* Header */}
       <div className="mb-8">
-        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-qn-muted-2">
-          QRNetra · Free QR profile
+        <QnLogoStatic layout="compact" />
+        <p className="mt-3 text-xs font-semibold uppercase tracking-[0.18em] text-qn-muted-2">
+          Free QR profile
         </p>
         <h1 className="mt-2 text-3xl font-bold tracking-tight text-white">
           Create your free QR profile

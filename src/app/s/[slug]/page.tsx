@@ -1,3 +1,4 @@
+import { QnLogoStatic } from "@/components/ui/logo";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createPublicServerClient } from "@/lib/supabase/public-server";
@@ -82,9 +83,7 @@ export default async function PublicScanPage({ params }: Props) {
   if (qrStatus === "disabled") {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center bg-qn-surface px-6 py-16 text-center">
-        <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-qn-muted-2">
-          QRNetra
-        </p>
+        <QnLogoStatic layout="compact" />
         <h1 className="mt-4 text-2xl font-bold text-white">
           This QR is inactive
         </h1>
@@ -100,9 +99,7 @@ export default async function PublicScanPage({ params }: Props) {
   if (qrStatus === "paused") {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center bg-qn-surface px-6 py-16 text-center">
-        <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-qn-muted-2">
-          QRNetra
-        </p>
+        <QnLogoStatic layout="compact" />
         <h1 className="mt-4 text-2xl font-bold text-white">
           Temporarily unavailable
         </h1>
@@ -159,9 +156,9 @@ export default async function PublicScanPage({ params }: Props) {
       <div className="mx-auto max-w-md">
         {/* Header */}
         <div className="mb-8 text-center">
-          <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-qn-muted-2">
-            QRNetra
-          </p>
+          <div className="flex justify-center">
+            <QnLogoStatic layout="compact" textClassName="text-qn-bg" />
+          </div>
           <div className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-white/[0.08] bg-qn-card px-3 py-1 text-xs font-semibold text-qn-muted shadow-sm">
             {kind === "vehicle" && "🚗"}
             {kind === "child" && "👶"}
@@ -401,14 +398,14 @@ export default async function PublicScanPage({ params }: Props) {
         <div className="mt-10 space-y-3 border-t border-white/[0.08] pt-6 text-center">
           <p className="text-xs leading-relaxed text-qn-muted-2">
             If this is a life-threatening emergency, contact local emergency
-            services immediately. QRNetra helps reach the owner — it is not a
+            services immediately. QR Netra helps reach the owner — it is not a
             substitute for emergency services.
           </p>
           <Link
             href="/"
             className="inline-flex text-xs font-semibold text-qn-muted-2 underline-offset-4 hover:text-white hover:underline"
           >
-            Powered by QRNetra — create your own safety QR →
+            Powered by QR Netra — create your own safety QR →
           </Link>
         </div>
       </div>

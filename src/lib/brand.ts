@@ -1,12 +1,11 @@
 import type { QrKind } from "@/lib/qr/types";
 
-/** URL-safe paths (copies of files in public/logos/) */
-export const LOGO_STATIC_SRC = "/logos/qrnetra-logo.jpeg";
-export const LOGO_ANIMATED_SRC = "/logos/qrnetra-logo-animated.mp4";
+/** Single source-of-truth SVG brand asset */
+export const LOGO_STATIC_SRC = "/logos/qrnetra_logo.svg";
 
-/** Intrinsic asset dimensions (square master) */
-export const LOGO_INTRINSIC_WIDTH = 500;
-export const LOGO_INTRINSIC_HEIGHT = 500;
+/** Intrinsic asset dimensions from the provided SVG */
+export const LOGO_INTRINSIC_WIDTH = 1000;
+export const LOGO_INTRINSIC_HEIGHT = 1000;
 
 /** Navbar logo heights — no CSS transform scaling */
 export const LOGO_HEIGHT_MOBILE = 40;

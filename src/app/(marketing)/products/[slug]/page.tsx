@@ -19,7 +19,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const product = getProduct(slug);
   if (!product) return { title: "Product not found" };
   return {
-    title: `${product.title} — QRNetra`,
+    title: `${product.title} — QR Netra`,
     description: product.description,
   };
 }

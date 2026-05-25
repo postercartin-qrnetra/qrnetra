@@ -1,5 +1,6 @@
 "use client";
 
+import { QnLogoStatic } from "@/components/ui/logo";
 import Link from "next/link";
 import { useEffect } from "react";
 
@@ -17,9 +18,7 @@ export default function AppError({
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-qn-bg px-4 py-16">
       <div className="w-full max-w-md rounded-3xl border border-white/[0.08] bg-qn-card p-8 shadow-xl">
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-qn-muted-2">
-          QRNetra
-        </p>
+        <QnLogoStatic layout="compact" />
         <h1 className="mt-2 text-xl font-bold text-white">
           Something went wrong
         </h1>

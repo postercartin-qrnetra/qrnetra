@@ -1,5 +1,6 @@
 "use client";
 
+import { QnLogoStatic } from "@/components/ui/logo";
 import { useEffect } from "react";
 
 export default function GlobalError({
@@ -38,17 +39,9 @@ export default function GlobalError({
             boxShadow: "0 24px 80px -24px rgba(0,0,0,0.5)",
           }}
         >
-          <p
-            style={{
-              fontSize: "11px",
-              fontWeight: 600,
-              letterSpacing: "0.2em",
-              textTransform: "uppercase",
-              color: "#ff6b2c",
-            }}
-          >
-            QRNetra
-          </p>
+          <div style={{ display: "inline-flex", marginBottom: "8px" }}>
+            <QnLogoStatic layout="compact" />
+          </div>
           <h1 style={{ marginTop: "8px", fontSize: "20px", fontWeight: 800 }}>
             We hit a critical error
           </h1>

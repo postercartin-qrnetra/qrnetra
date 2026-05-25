@@ -1,7 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import {
-  LOGO_ANIMATED_SRC,
   LOGO_HEIGHT_DESKTOP,
   LOGO_HEIGHT_MOBILE,
   LOGO_HEIGHT_TABLET,
@@ -11,72 +10,99 @@ import {
   LOGO_STATIC_SRC,
 } from "@/lib/brand";
 
-/** Legacy size tokens for non-navbar surfaces */
-type LogoSize = "sm" | "md" | "lg" | "xl";
+type LogoSize = "small" | "medium" | "large" | "sm" | "md" | "lg" | "xl";
 
 type LogoLayout = "navbar" | "compact" | "footer" | "auth";
-
-const LEGACY_HEIGHTS: Record<LogoSize, number> = {
-  sm: LOGO_HEIGHT_MOBILE,
-  md: LOGO_HEIGHT_TABLET,
-  lg: LOGO_HEIGHT_DESKTOP,
-  xl: 64,
-};
 
 type QnLogoBaseProps = {
   className?: string;
   href?: string;
-  /** @deprecated Prefer `layout` for responsive navbar sizing */
   size?: LogoSize;
   layout?: LogoLayout;
   priority?: boolean;
+  showText?: boolean;
+  textClassName?: string;
 };
 
-function legacyDimensions(size: LogoSize) {
-  const h = LEGACY_HEIGHTS[size];
-  return { height: h, width: h };
-}
-
-/** Responsive navbar mark: 40px mobile · 48px tablet · 52px desktop */
-const NAVBAR_MARK_CLASS =
-  "block object-contain object-left h-10 w-10 md:h-12 md:w-12 lg:h-[52px] lg:w-[52px]";
-
-const NAVBAR_AREA_CLASS =
-  "flex shrink-0 items-center pl-2 pr-2 min-w-[140px] md:pl-4 md:pr-4 md:min-w-[180px] lg:min-w-[220px] lg:pl-6 lg:pr-8";
-
-const LAYOUT_MARK_CLASS: Record<Exclude<LogoLayout, "navbar">, string> = {
-  compact: "block object-contain object-left h-10 w-10",
-  footer: "block object-contain object-left h-12 w-12 lg:h-14 lg:w-14",
-  auth: "block object-contain object-left h-12 w-12 lg:h-14 lg:w-14",
-};
-
-function markDimensions(layout: LogoLayout) {
-  switch (layout) {
-    case "navbar":
-      return {
-        width: LOGO_HEIGHT_DESKTOP,
-        height: LOGO_HEIGHT_DESKTOP,
-      };
-    case "footer":
-    case "auth":
-      return { width: 56, height: 56 };
-    case "compact":
+function normalizeSize(size: LogoSize) {
+  switch (size) {
+    case "small":
+      return "sm";
+    case "medium":
+      return "md";
+    case "large":
+      return "lg";
     default:
-      return {
-        width: LOGO_HEIGHT_MOBILE,
-        height: LOGO_HEIGHT_MOBILE,
-      };
+      return size;
   }
 }
 
-function resolveLayout(
-  layout: LogoLayout | undefined,
-  size: LogoSize,
-): LogoLayout {
+const NAVBAR_AREA_CLASS =
+  "flex shrink-0 items-center pl-2 pr-2 min-w-[176px] md:pl-4 md:pr-4 md:min-w-[210px] lg:min-w-[240px] lg:pl-6 lg:pr-8";
+
+function resolveLayout(layout: LogoLayout | undefined, size: LogoSize): LogoLayout {
   if (layout) return layout;
-  if (size === "sm") return "compact";
-  if (size === "lg" || size === "xl") return "footer";
+
+  const normalized = normalizeSize(size);
+  if (normalized === "lg" || normalized === "xl") return "footer";
   return "compact";
+}
+
+function getLayoutSizing(layout: LogoLayout, size: LogoSize) {
+  const normalized = normalizeSize(size);
+
+  if (layout === "navbar") {
+    return {
+      imageWidth: LOGO_HEIGHT_DESKTOP,
+      imageHeight: LOGO_HEIGHT_DESKTOP,
+      imageClassName:
+        "block h-10 w-10 object-contain object-left md:h-12 md:w-12 lg:h-[52px] lg:w-[52px]",
+      textClassName:
+        "text-base sm:text-[1.05rem] md:text-[1.1rem] lg:text-[1.15rem]",
+      gapClassName: "gap-2.5 md:gap-3",
+    };
+  }
+
+  if (layout === "footer" || layout === "auth") {
+    return {
+      imageWidth: 56,
+      imageHeight: 56,
+      imageClassName: "block h-12 w-12 object-contain object-left lg:h-14 lg:w-14",
+      textClassName:
+        layout === "footer"
+          ? "text-lg sm:text-xl lg:text-[1.45rem]"
+          : "text-lg sm:text-xl",
+      gapClassName: "gap-3",
+    };
+  }
+
+  if (normalized === "sm") {
+    return {
+      imageWidth: 32,
+      imageHeight: 32,
+      imageClassName: "block h-8 w-8 object-contain object-left",
+      textClassName: "text-sm sm:text-[0.95rem]",
+      gapClassName: "gap-2.5",
+    };
+  }
+
+  if (normalized === "lg" || normalized === "xl") {
+    return {
+      imageWidth: 56,
+      imageHeight: 56,
+      imageClassName: "block h-12 w-12 object-contain object-left",
+      textClassName: "text-lg sm:text-xl",
+      gapClassName: "gap-3",
+    };
+  }
+
+  return {
+    imageWidth: 40,
+    imageHeight: 40,
+    imageClassName: "block h-9 w-9 object-contain object-left sm:h-10 sm:w-10",
+    textClassName: "text-sm sm:text-base",
+    gapClassName: "gap-2.5",
+  };
 }
 
 function LogoWrapper({
@@ -112,84 +138,46 @@ export function QnLogoStatic({
   size = "md",
   layout,
   priority = false,
+  showText = true,
+  textClassName = "",
 }: QnLogoBaseProps) {
   const resolved = resolveLayout(layout, size);
-  const dims =
-    resolved === "navbar"
-      ? { width: LOGO_HEIGHT_DESKTOP, height: LOGO_HEIGHT_DESKTOP }
-      : layout
-        ? markDimensions(resolved)
-        : legacyDimensions(size);
-
-  const markClass =
-    resolved === "navbar"
-      ? NAVBAR_MARK_CLASS
-      : LAYOUT_MARK_CLASS[resolved as keyof typeof LAYOUT_MARK_CLASS];
-
-  const img = (
-    <Image
-      src={LOGO_STATIC_SRC}
-      alt="QRNetra"
-      width={dims.width}
-      height={dims.height}
-      priority={priority}
-      quality={95}
-      sizes={
-        resolved === "navbar"
-          ? `(max-width: 767px) ${LOGO_HEIGHT_MOBILE}px, (max-width: 1023px) ${LOGO_HEIGHT_TABLET}px, ${LOGO_HEIGHT_DESKTOP}px`
-          : `${dims.width}px`
-      }
-      className={markClass}
-    />
-  );
+  const sizing = getLayoutSizing(resolved, size);
 
   return (
     <LogoWrapper href={href} layout={resolved} className={className}>
-      {img}
+      <span className={`inline-flex items-center ${sizing.gapClassName}`}>
+        <Image
+          src={LOGO_STATIC_SRC}
+          alt="QRNetra logo"
+          width={LOGO_INTRINSIC_WIDTH}
+          height={LOGO_INTRINSIC_HEIGHT}
+          priority={priority}
+          sizes={
+            resolved === "navbar"
+              ? `(max-width: 767px) ${LOGO_HEIGHT_MOBILE}px, (max-width: 1023px) ${LOGO_HEIGHT_TABLET}px, ${LOGO_HEIGHT_DESKTOP}px`
+              : `${sizing.imageWidth}px`
+          }
+          className={sizing.imageClassName}
+        />
+        {showText ? (
+          <span
+            className={`whitespace-nowrap font-bold leading-none tracking-tight ${
+              textClassName || "text-white"
+            } ${sizing.textClassName}`}
+          >
+            QR Netra
+          </span>
+        ) : null}
+      </span>
     </LogoWrapper>
   );
 }
 
 export function QnLogoAnimated({
-  className = "",
-  href = "/",
-  size = "md",
-  layout,
+  ...props
 }: QnLogoBaseProps) {
-  const resolved = resolveLayout(layout, size);
-  const dims =
-    resolved === "navbar"
-      ? { width: LOGO_HEIGHT_DESKTOP, height: LOGO_HEIGHT_DESKTOP }
-      : layout
-        ? markDimensions(resolved)
-        : legacyDimensions(size);
-
-  const markClass =
-    resolved === "navbar"
-      ? NAVBAR_MARK_CLASS
-      : LAYOUT_MARK_CLASS[resolved as keyof typeof LAYOUT_MARK_CLASS];
-
-  const video = (
-    <video
-      autoPlay
-      loop
-      muted
-      playsInline
-      preload="metadata"
-      aria-label="QRNetra"
-      width={dims.width}
-      height={dims.height}
-      className={`pointer-events-none ${markClass}`}
-    >
-      <source src={LOGO_ANIMATED_SRC} type="video/mp4" />
-    </video>
-  );
-
-  return (
-    <LogoWrapper href={href} layout={resolved} className={className}>
-      {video}
-    </LogoWrapper>
-  );
+  return <QnLogoStatic {...props} />;
 }
 
 type QnLogoProps = QnLogoBaseProps & {
@@ -197,16 +185,17 @@ type QnLogoProps = QnLogoBaseProps & {
 };
 
 export function QnLogoText({ size = "md" }: { size?: LogoSize }) {
-  const textSizes: Record<LogoSize, string> = {
+  const normalized = normalizeSize(size);
+  const textSizes: Record<"sm" | "md" | "lg" | "xl", string> = {
     sm: "text-base",
-    md: "text-lg sm:text-xl",
+    md: "text-lg",
     lg: "text-2xl",
     xl: "text-3xl",
   };
+
   return (
-    <span className={`font-extrabold tracking-tight ${textSizes[size]}`}>
-      <span className="text-white">QR</span>
-      <span className="text-qn-accent">Netra</span>
+    <span className={`font-bold tracking-tight text-white ${textSizes[normalized]}`}>
+      QR Netra
     </span>
   );
 }

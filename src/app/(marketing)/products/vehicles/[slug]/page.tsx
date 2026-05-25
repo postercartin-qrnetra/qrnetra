@@ -13,7 +13,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const product = getProduct(slug);
   return product
-    ? { title: `${product.title} · QRNetra`, description: product.description }
+    ? { title: `${product.title} · QR Netra`, description: product.description }
     : { title: "Product not found" };
 }
 

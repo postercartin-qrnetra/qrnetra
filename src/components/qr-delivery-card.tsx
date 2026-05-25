@@ -1,5 +1,6 @@
 "use client";
 
+import { QnLogoStatic } from "@/components/ui/logo";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import QRCode from "qrcode";
@@ -130,8 +131,11 @@ export function QrDeliveryCard({
               <div className="h-[200px] w-[200px] animate-pulse rounded-lg bg-qn-surface" />
             )}
           </div>
-          <p className="mt-4 text-xs font-semibold uppercase tracking-[0.18em] text-qn-accent">
-            QRNetra · {kindLabel}
+          <div className="mt-4 flex justify-center">
+            <QnLogoStatic layout="compact" size="small" />
+          </div>
+          <p className="mt-3 text-xs font-semibold uppercase tracking-[0.18em] text-qn-accent">
+            {kindLabel}
           </p>
           <p className="mt-1 text-lg font-bold text-white">{title}</p>
           {vehicleReg && (

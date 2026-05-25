@@ -7,7 +7,7 @@ import { safeNextPath } from "@/lib/onboarding/safe-next";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Continue · QRNetra",
+  title: "Continue · QR Netra",
 };
 
 function LeftPanel() {
@@ -54,7 +54,7 @@ function LeftPanel() {
       </div>
 
       <p className="relative text-xs text-qn-muted">
-        © {new Date().getFullYear()} QRNetra
+        © {new Date().getFullYear()} QR Netra
       </p>
     </div>
   );

@@ -17,8 +17,8 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "QRNetra — Privacy-first QR safety tags",
-    template: "%s · QRNetra",
+    default: "QR Netra — Privacy-first QR safety tags",
+    template: "%s · QR Netra",
   },
   description:
     "Privacy-first emergency contact for vehicles, kids, and pets — dynamic QR codes without exposing your phone number.",

@@ -1,16 +1,20 @@
+import { QnLogoStatic } from "@/components/ui/logo";
 import { CheckCircle2, LayoutDashboard, Package } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Order Confirmed · QRNetra",
+  title: "Order Confirmed · QR Netra",
 };
 
 export default function OrderSuccessPage() {
   return (
     <div className="flex min-h-[80vh] items-center justify-center px-4 py-16">
       <div className="mx-auto w-full max-w-lg text-center">
-        <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full border border-qn-success/30 bg-qn-success/10">
+        <div className="flex justify-center">
+          <QnLogoStatic layout="compact" />
+        </div>
+        <div className="mx-auto mt-6 flex h-20 w-20 items-center justify-center rounded-full border border-qn-success/30 bg-qn-success/10">
           <CheckCircle2 className="h-10 w-10 text-qn-success" strokeWidth={1.5} />
         </div>
 

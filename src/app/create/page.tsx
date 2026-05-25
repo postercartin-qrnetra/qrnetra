@@ -5,7 +5,7 @@ import { isQrKind } from "@/lib/qr/types";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Create Free QR · QRNetra",
+  title: "Create Free QR · QR Netra",
   description:
     "Create a free privacy-first QR profile for your vehicle, child, pet, personal asset, or business in under 2 minutes.",
 };

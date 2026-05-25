@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import { CheckoutPageClient } from "@/components/checkout/checkout-page-client";
 
 export const metadata = {
-  title: "Checkout · QRNetra",
+  title: "Checkout · QR Netra",
 };
 
 export default function CheckoutPage() {

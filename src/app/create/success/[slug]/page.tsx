@@ -10,7 +10,7 @@ type Props = { params: Promise<{ slug: string }> };
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   return {
-    title: `QR Ready · ${slug} · QRNetra`,
+    title: `QR Ready · ${slug} · QR Netra`,
   };
 }
 
