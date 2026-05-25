@@ -118,10 +118,10 @@ export default async function DashboardHomePage() {
         <Link href="/dashboard/tags" className="qn-btn-primary px-6">
           My QR tags
         </Link>
-        <Link href="/create/type" className="qn-btn-secondary px-6">
+        <Link href="/create" className="qn-btn-secondary px-6">
           Create another QR
         </Link>
-        <Link href="/shop" className="qn-btn-secondary px-6">
+        <Link href="/products" className="qn-btn-secondary px-6">
           Shop tags
         </Link>
       </div>

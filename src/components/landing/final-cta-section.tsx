@@ -17,21 +17,21 @@ export function FinalCtaSection() {
           aria-hidden
         />
         <h2 className="relative qn-section-title text-white">
-          The Emergency Will Not Wait. Are You Ready?
+          Start free today. Add physical QR products when you&apos;re ready.
         </h2>
         <p className="relative mx-auto mt-4 max-w-xl text-sm text-white/90 sm:text-base">
-          Privacy-first QR safety for vehicles, families, and emergencies.
-          Physical stickers from ₹249.
+          QRNetra works without a purchase. Create a live QR profile first, then
+          shop stickers, tags, or NFC upgrades whenever you need them.
         </p>
         <div className="relative mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row sm:flex-wrap">
-          <Link href="/products" className="qn-btn-inverse min-w-[200px]">
-            Shop QR Products →
+          <Link href="/create" className="qn-btn-inverse min-w-[200px]">
+            Create Free QR →
           </Link>
           <Link
-            href="/create/type"
+            href="/products"
             className="inline-flex h-12 min-w-[200px] items-center justify-center rounded-full border-2 border-white/80 px-8 text-sm font-semibold text-white transition-colors hover:bg-white/10"
           >
-            Create Free Profile
+            Shop QR Products
           </Link>
         </div>
         <div className="relative mt-8 flex flex-wrap items-center justify-center gap-6 text-xs text-white/90">

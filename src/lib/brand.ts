@@ -23,31 +23,28 @@ export const PRODUCT_NAV_ITEMS: {
   kind?: QrKind;
 }[] = [
   {
-    label: "Vehicle QR Sticker",
-    href: "/create/type",
-    description: "Wrong parking & emergencies",
-    kind: "vehicle",
+    label: "Vehicles",
+    href: "/products/vehicles",
+    description: "Cars, bikes, helmets, and parking stickers",
   },
   {
-    label: "Pet QR Tag",
-    href: "/create/type",
-    description: "Lost pet recovery",
-    kind: "pet",
+    label: "Pets",
+    href: "/products/pets",
+    description: "Dog, cat, and general pet recovery tags",
   },
   {
-    label: "Child Safety Wristband",
-    href: "/create/type",
-    description: "School-safe ID",
-    kind: "child",
+    label: "Kids",
+    href: "/products/kids",
+    description: "School bag tags, emergency tags, and wristbands",
   },
   {
-    label: "QR Keychain",
-    href: "/shop",
-    description: "Keys, bags & everyday carry",
+    label: "Assets",
+    href: "/products/assets",
+    description: "Keys, wallets, luggage, laptops, and essentials",
   },
   {
     label: "Digital QR Profile",
-    href: "/create/type",
+    href: "/create",
     description: "Free — no sticker required",
   },
   {

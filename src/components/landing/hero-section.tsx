@@ -13,9 +13,9 @@ const TRUST_PILLS = [
 
 const FEATURES = [
   "Number stays private",
-  "Delivered in 3-5 days",
-  "Weatherproof",
-  "Instant scan",
+  "Physical safety products",
+  "Fast QR activation",
+  "Instant scan support",
 ];
 
 export function HeroSection() {
@@ -37,26 +37,29 @@ export function HeroSection() {
         <FadeIn>
           <span className="qn-badge">
             <Shield className="h-3.5 w-3.5" strokeWidth={2} />
-            India&apos;s #1 smart QR safety tag
+            QR identity, safety, and recovery platform
           </span>
           <h1 className="qn-hero-title mt-6 text-white">
-            They Can&apos;t Reach You.
+            Protect What Matters Most.
             <br />
-            <span className="qn-gradient-headline">Your QR Sticker Can.</span>
+            <span className="qn-gradient-headline">
+              Kids • Pets • Vehicles • Belongings
+            </span>
           </h1>
           <p className="mt-6 max-w-xl text-base leading-relaxed text-qn-muted sm:text-lg">
-            Smart QR stickers and safety tags for vehicles, kids, pets, and
-            emergencies — without exposing your phone number publicly.
+            Smart QR safety stickers and tags for vehicles, pets, kids, and
+            personal assets. Shop physical products first, then activate each
+            one with QRNetra’s privacy-first recovery profile.
           </p>
           <p className="mt-4 text-sm text-qn-muted-2">
             {TRUST_PILLS.join(" • ")}
           </p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
             <Link href="/products" className="qn-btn-primary px-8">
-              Get Your Sticker — Starting ₹249 →
+              Shop QR Products →
             </Link>
-            <Link href="/create/type" className="qn-btn-secondary px-8">
-              Try Free (Digital QR)
+            <Link href="/create" className="qn-btn-secondary px-8">
+              Create Free QR
             </Link>
           </div>
           <div className="mt-10 flex flex-wrap gap-x-6 gap-y-2">

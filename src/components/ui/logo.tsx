@@ -144,7 +144,7 @@ export function QnLogoStatic({
   );
 
   return (
-    <LogoWrapper href={href} layout={resolved}>
+    <LogoWrapper href={href} layout={resolved} className={className}>
       {img}
     </LogoWrapper>
   );
@@ -179,14 +179,14 @@ export function QnLogoAnimated({
       aria-label="QRNetra"
       width={dims.width}
       height={dims.height}
-      className={`pointer-events-none ${markClass} ${className}`}
+      className={`pointer-events-none ${markClass}`}
     >
       <source src={LOGO_ANIMATED_SRC} type="video/mp4" />
     </video>
   );
 
   return (
-    <LogoWrapper href={href} layout={resolved}>
+    <LogoWrapper href={href} layout={resolved} className={className}>
       {video}
     </LogoWrapper>
   );

@@ -2,10 +2,11 @@ import { QnLogo } from "@/components/ui/logo";
 import Link from "next/link";
 
 const PRODUCT_LINKS = [
-  { href: "/create/type", label: "Vehicle QR Sticker" },
-  { href: "/create/type", label: "Pet QR Tag" },
-  { href: "/create/type", label: "Child Wristband" },
-  { href: "/shop", label: "QR Keychain" },
+  { href: "/products/vehicles", label: "Vehicle Products" },
+  { href: "/products/pets", label: "Pet Products" },
+  { href: "/products/kids", label: "Kid Safety Products" },
+  { href: "/products/assets", label: "Asset Recovery Products" },
+  { href: "/create", label: "Create Free QR" },
   { href: "/business-fleet", label: "Business & Fleet" },
 ];
 
@@ -43,8 +44,8 @@ export function MainFooter() {
           <div className="lg:col-span-2">
             <QnLogo variant="static" layout="footer" href="/" />
             <p className="mt-4 max-w-sm text-sm leading-relaxed text-qn-muted">
-              Privacy-first smart QR safety for vehicles, families, and
-              emergencies. Built for India.
+              Privacy-first QR identity, safety, and recovery for vehicles,
+              families, pets, and everyday belongings. Built for India.
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
               <AppStoreBadge store="apple" />

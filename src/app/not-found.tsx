@@ -20,10 +20,10 @@ export default function NotFound() {
             Go home
           </Link>
           <Link
-            href="/shop"
+            href="/products"
             className="inline-flex h-11 items-center justify-center rounded-full border border-white/[0.08] bg-qn-card px-6 text-sm font-semibold text-white"
           >
-            Shop tags
+            Shop QR products
           </Link>
         </div>
       </div>

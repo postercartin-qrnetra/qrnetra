@@ -2,7 +2,7 @@
 
 import { QnLogoStatic } from "@/components/ui/logo";
 import type { Product } from "@/lib/products";
-import { PRODUCTS } from "@/lib/products";
+import { PRODUCTS, getCategoryLabel } from "@/lib/products";
 import {
   Check,
   ChevronRight,
@@ -12,9 +12,8 @@ import {
   Package,
   Smartphone,
 } from "lucide-react";
-import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 /* ── Order summary data derived from query params ── */
 type LineItem = {
@@ -107,7 +106,7 @@ function StepBar({ current }: { current: Step }) {
 /* ── Order summary sidebar ── */
 function OrderSummary({ items, step }: { items: LineItem[]; step: Step }) {
   const subtotal = items.reduce(
-    (sum, li) => sum + li.product.price * li.qty,
+    (sum, li) => sum + (li.product.salePrice ?? li.product.price) * li.qty,
     0,
   );
   const shipping = subtotal >= SHIPPING_THRESHOLD ? 0 : SHIPPING_COST;
@@ -119,15 +118,15 @@ function OrderSummary({ items, step }: { items: LineItem[]; step: Step }) {
       <ul className="mt-4 space-y-3">
         {items.map((li) => (
           <li key={li.product.slug} className="flex items-start gap-3">
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-qn-surface text-2xl">
-              {li.product.emoji}
+            <span className="flex h-10 min-w-10 shrink-0 items-center justify-center rounded-xl bg-qn-surface px-2 text-[10px] font-semibold uppercase tracking-wide text-qn-accent">
+              {getCategoryLabel(li.product.category)}
             </span>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-white">{li.product.name}</p>
+              <p className="text-sm font-medium text-white">{li.product.title}</p>
               <p className="text-xs text-qn-muted">Qty: {li.qty}</p>
             </div>
             <p className="text-sm font-semibold text-white">
-              ₹{(li.product.price * li.qty).toLocaleString("en-IN")}
+              ₹{((li.product.salePrice ?? li.product.price) * li.qty).toLocaleString("en-IN")}
             </p>
           </li>
         ))}

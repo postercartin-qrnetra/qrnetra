@@ -420,7 +420,7 @@ export function AuthLoginForm() {
 
         <p className="mt-8 text-center text-sm text-qn-muted-2">
           <Link
-            href="/create/type"
+            href="/create"
             className="font-semibold text-white hover:underline"
           >
             ← Back to tag type

@@ -131,6 +131,8 @@ export default async function PublicScanPage({ params }: Props) {
         ? "Child Safety"
         : kind === "pet"
           ? "Pet Tag"
+          : kind === "asset"
+            ? "Personal Asset"
           : kind === "business"
             ? "Business / Fleet"
             : "Safety Tag";
@@ -144,6 +146,8 @@ export default async function PublicScanPage({ params }: Props) {
           : "Child safety"
         : kind === "pet"
           ? data.title ?? "Pet tag"
+          : kind === "asset"
+            ? data.title ?? "Personal asset"
           : kind === "business"
             ? data.title ?? "Fleet contact"
             : data.title ?? "Safety tag";
@@ -162,6 +166,7 @@ export default async function PublicScanPage({ params }: Props) {
             {kind === "vehicle" && "🚗"}
             {kind === "child" && "👶"}
             {kind === "pet" && "🐾"}
+            {kind === "asset" && "🎒"}
             {kind === "business" && "🏢"}
             {kindBadge}
           </div>
@@ -299,6 +304,36 @@ export default async function PublicScanPage({ params }: Props) {
                     )}
                   </div>
                 </details>
+              )}
+            </>
+          )}
+
+          {/* ── Asset ── */}
+          {kind === "asset" && (
+            <>
+              {ch.call && data.owner_phone && (
+                <ActionLink
+                  href={`tel:${data.owner_phone.replace(/\s/g, "")}`}
+                  label="📞  Contact owner"
+                  primary
+                />
+              )}
+              {waHref && (
+                <ActionLink href={waHref} label="💬  WhatsApp owner" variant="green" />
+              )}
+              {data.alternate_contact && (
+                <ActionLink
+                  href={`tel:${data.alternate_contact.replace(/\s/g, "")}`}
+                  label="📞  Alternate contact"
+                />
+              )}
+              {data.asset_id && (
+                <div className="rounded-2xl border border-white/[0.08] bg-qn-card p-4 shadow-sm">
+                  <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-qn-muted-2">
+                    Asset info
+                  </p>
+                  <InfoRow label="Asset / ID" value={data.asset_id} />
+                </div>
               )}
             </>
           )}

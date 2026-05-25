@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import QRCode from "qrcode";
 import { QrAssetDownloads } from "@/components/qr-asset-downloads";
@@ -79,6 +80,8 @@ export function QrDeliveryCard({
         ? "Child Safety"
         : kind === "pet"
           ? "Pet"
+          : kind === "asset"
+            ? "Personal Asset"
           : "Business";
 
   return (
@@ -207,18 +210,18 @@ export function QrDeliveryCard({
       )}
 
       <div className="mt-8 space-y-3">
-        <a
+        <Link
           href="/dashboard/tags"
           className="flex h-12 w-full items-center justify-center rounded-2xl bg-qn-card-2 text-sm font-semibold text-white shadow-lg transition hover:bg-zinc-800"
         >
           View all my QR tags →
-        </a>
-        <a
+        </Link>
+        <Link
           href="/create"
           className="flex h-12 w-full items-center justify-center rounded-2xl border border-white/[0.08] bg-qn-card text-sm font-semibold text-white transition hover:bg-white/[0.05]"
         >
           Create another QR
-        </a>
+        </Link>
       </div>
 
       <p className="mt-6 text-center text-xs leading-relaxed text-qn-muted-2">

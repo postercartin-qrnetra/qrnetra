@@ -42,6 +42,16 @@ const STICKER_BY_KIND: Record<QrKind, StickerAssetMeta> = {
       "Reward note and medical info appear on the scan page.",
     ],
   },
+  asset: {
+    assetKey: "asset-recovery-sticker",
+    title: "Personal Asset Sticker",
+    categoryLabel: "Asset Recovery QR",
+    instructions: [
+      "Attach to bags, wallets, laptops, luggage, or keys.",
+      "Scan helps the finder contact the owner without exposing personal details.",
+      "Update instructions anytime from your dashboard.",
+    ],
+  },
   business: {
     assetKey: "business-asset-sticker",
     title: "Business Asset Sticker",
@@ -61,4 +71,10 @@ export function getStickerAssetMeta(kind: string): StickerAssetMeta {
   return STICKER_BY_KIND.vehicle;
 }
 
-export const STICKER_KINDS: QrKind[] = ["vehicle", "child", "pet", "business"];
+export const STICKER_KINDS: QrKind[] = [
+  "vehicle",
+  "child",
+  "pet",
+  "asset",
+  "business",
+];

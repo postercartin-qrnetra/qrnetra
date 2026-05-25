@@ -19,6 +19,7 @@ const TYPES: { id: QrKind; label: string; emoji: string }[] = [
   { id: "vehicle", label: "Vehicle", emoji: "🚗" },
   { id: "child", label: "Child", emoji: "👶" },
   { id: "pet", label: "Pet", emoji: "🐾" },
+  { id: "asset", label: "Asset", emoji: "🎒" },
   { id: "business", label: "Business", emoji: "🏢" },
 ];
 
@@ -446,6 +447,74 @@ export function BusinessFields({
   );
 }
 
+export function AssetFields({
+  values,
+  set,
+  showOptional,
+}: {
+  values: Values;
+  set: (k: string) => (v: string) => void;
+  showOptional: boolean;
+}) {
+  return (
+    <>
+      <InputField
+        label="Asset name"
+        name="asset_name"
+        value={values.asset_name ?? ""}
+        onChange={set("asset_name")}
+        required
+        placeholder="e.g. Office laptop, Keychain, School bag"
+      />
+      <InputField
+        label="Owner contact"
+        name="owner_contact"
+        type="tel"
+        value={values.owner_contact ?? ""}
+        onChange={set("owner_contact")}
+        required
+        placeholder="10-digit mobile"
+        autoComplete="tel"
+      />
+      {showOptional && (
+        <>
+          <InputField
+            label="Asset ID / label"
+            name="asset_id"
+            value={values.asset_id ?? ""}
+            onChange={set("asset_id")}
+            placeholder="e.g. LAP-114, Blue backpack, Key set #2"
+            hint="Helps the finder confirm they found the right belonging."
+          />
+          <InputField
+            label="WhatsApp contact"
+            name="whatsapp"
+            type="tel"
+            value={values.whatsapp ?? ""}
+            onChange={set("whatsapp")}
+            placeholder="Optional"
+          />
+          <InputField
+            label="Alternate contact"
+            name="alternate_contact"
+            type="tel"
+            value={values.alternate_contact ?? ""}
+            onChange={set("alternate_contact")}
+            placeholder="Backup number"
+          />
+          <TextAreaField
+            label="Recovery instructions"
+            name="emergency_note"
+            value={values.emergency_note ?? ""}
+            onChange={set("emergency_note")}
+            placeholder="e.g. Please call before handing over. Reward on safe return."
+          />
+        </>
+      )}
+    </>
+  );
+}
+
 // ─── Main component ──────────────────────────────────────────────────────────
 
 export function CreateProfileForm({
@@ -515,6 +584,9 @@ export function CreateProfileForm({
       if (!values.parent_contact?.trim()) return "Parent contact is required.";
     } else if (type === "pet") {
       if (!values.pet_name?.trim()) return "Pet's name is required.";
+      if (!values.owner_contact?.trim()) return "Owner contact is required.";
+    } else if (type === "asset") {
+      if (!values.asset_name?.trim()) return "Asset name is required.";
       if (!values.owner_contact?.trim()) return "Owner contact is required.";
     } else if (type === "business") {
       if (!values.company_name?.trim()) return "Company name is required.";
@@ -676,14 +748,14 @@ export function CreateProfileForm({
       {/* Header */}
       <div className="mb-8">
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-qn-muted-2">
-          QRNetra · Emergency QR
+          QRNetra · Free QR profile
         </p>
         <h1 className="mt-2 text-3xl font-bold tracking-tight text-white">
-          Create your safety QR
+          Create your free QR profile
         </h1>
         <p className="mt-2 text-sm leading-relaxed text-qn-muted">
-          Takes 2 minutes. The QR links to an emergency contact page — your
-          private details stay with you.
+          Generate a privacy-first QR for your vehicle, child, pet, asset, or
+          business in under 2 minutes. No purchase required.
         </p>
       </div>
 
@@ -719,6 +791,7 @@ export function CreateProfileForm({
             {type === "vehicle" && "Vehicle details"}
             {type === "child" && "Child details"}
             {type === "pet" && "Pet details"}
+            {type === "asset" && "Asset details"}
             {type === "business" && "Business details"}
           </p>
 
@@ -730,6 +803,9 @@ export function CreateProfileForm({
           )}
           {type === "pet" && (
             <PetFields values={values} set={set} showOptional={showOptional} />
+          )}
+          {type === "asset" && (
+            <AssetFields values={values} set={set} showOptional={showOptional} />
           )}
           {type === "business" && (
             <BusinessFields values={values} set={set} showOptional={showOptional} />

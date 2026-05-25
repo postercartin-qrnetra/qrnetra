@@ -51,6 +51,16 @@ const petSchema = z.object({
   emergency_note: optionalText,
 });
 
+const assetSchema = z.object({
+  type: z.literal("asset"),
+  asset_name: z.string().min(1, "Asset name is required."),
+  owner_contact: phoneField,
+  asset_id: optionalText,
+  whatsapp: optionalPhone,
+  alternate_contact: optionalPhone,
+  emergency_note: optionalText,
+});
+
 const businessSchema = z.object({
   type: z.literal("business"),
   company_name: z.string().min(1, "Company name is required."),
@@ -67,6 +77,7 @@ const createFormSchema = z.discriminatedUnion("type", [
   vehicleSchema,
   childSchema,
   petSchema,
+  assetSchema,
   businessSchema,
 ]);
 
@@ -125,6 +136,17 @@ function formDataToRaw(fd: FormData): Record<string, string> {
       whatsapp: str(fd, "whatsapp"),
       medical_notes: str(fd, "medical_notes"),
       reward_note: str(fd, "reward_note"),
+      emergency_note: str(fd, "emergency_note"),
+    };
+  }
+  if (type === "asset") {
+    return {
+      ...base,
+      asset_name: str(fd, "asset_name"),
+      owner_contact: str(fd, "owner_contact"),
+      asset_id: str(fd, "asset_id"),
+      whatsapp: str(fd, "whatsapp"),
+      alternate_contact: str(fd, "alternate_contact"),
       emergency_note: str(fd, "emergency_note"),
     };
   }
@@ -196,6 +218,19 @@ export function validatedFormToProfile(
       phone: data.owner_contact,
       dataJson,
       vehicleNumber: null,
+      whatsapp: data.whatsapp || null,
+      emergencyNote: data.emergency_note || null,
+    };
+  }
+
+  if (data.type === "asset") {
+    if (data.asset_id) dataJson.asset_id = data.asset_id;
+    return {
+      profileType: "asset",
+      name: data.asset_name,
+      phone: data.owner_contact,
+      dataJson,
+      vehicleNumber: data.asset_id || null,
       whatsapp: data.whatsapp || null,
       emergencyNote: data.emergency_note || null,
     };

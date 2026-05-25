@@ -1,6 +1,7 @@
 "use client";
 
 import { isQrKind } from "@/lib/qr/types";
+import Link from "next/link";
 import { ProfileTypeContinueButton } from "./profile-type-continue-button";
 
 type Props = {
@@ -23,9 +24,9 @@ export function ContinueToLoginLink({
 
   if (!isQrKind(rawType)) {
     return (
-      <a href="/create/type" className={className}>
+      <Link href="/create" className={className}>
         {children}
-      </a>
+      </Link>
     );
   }
 

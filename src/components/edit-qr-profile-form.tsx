@@ -4,6 +4,7 @@ import { useCallback, useState } from "react";
 import { useRouter } from "next/navigation";
 import { updateQrProfileAction } from "@/app/actions/update-qr-profile";
 import {
+  AssetFields,
   BusinessFields,
   ChildFields,
   PetFields,
@@ -51,6 +52,16 @@ function profileToFormValues(
       whatsapp: data.whatsapp ?? "",
       medical_notes: data.medical_notes ?? "",
       reward_note: data.reward_note ?? "",
+      emergency_note: data.emergency_note ?? "",
+    };
+  }
+  if (kind === "asset") {
+    return {
+      asset_name: name,
+      owner_contact: phone,
+      asset_id: data.asset_id ?? "",
+      whatsapp: data.whatsapp ?? "",
+      alternate_contact: data.alternate_contact ?? "",
       emergency_note: data.emergency_note ?? "",
     };
   }
@@ -132,6 +143,9 @@ export function EditQrProfileForm({
       )}
       {kind === "pet" && (
         <PetFields values={values} set={set} showOptional={showOptional} />
+      )}
+      {kind === "asset" && (
+        <AssetFields values={values} set={set} showOptional={showOptional} />
       )}
       {kind === "business" && (
         <BusinessFields values={values} set={set} showOptional={showOptional} />

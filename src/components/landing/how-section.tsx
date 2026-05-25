@@ -83,8 +83,8 @@ export function HowSection() {
       </div>
 
       <FadeIn delay={0.2} className="mt-12 text-center">
-        <Link href="/products" className="qn-btn-primary px-10">
-          Browse Products →
+        <Link href="/create" className="qn-btn-primary px-10">
+          Create Your Free QR →
         </Link>
       </FadeIn>
     </Section>

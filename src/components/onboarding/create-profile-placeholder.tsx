@@ -9,6 +9,7 @@ const TYPE_LABELS: Record<QrKind, string> = {
   vehicle: "Vehicle QR",
   child: "Child Safety QR",
   pet: "Pet QR",
+  asset: "Personal Asset QR",
   business: "Business / Fleet QR",
 };
 
@@ -58,7 +59,7 @@ export function CreateProfilePlaceholder({ type, userEmail }: Props) {
 
       <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
         <Link
-          href="/create/type"
+          href="/create"
           className="inline-flex h-11 items-center justify-center rounded-full border border-white/[0.08] bg-qn-card px-6 text-sm font-semibold text-white hover:bg-white/[0.05]"
         >
           Change tag type

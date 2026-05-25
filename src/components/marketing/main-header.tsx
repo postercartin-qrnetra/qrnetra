@@ -11,9 +11,8 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 
 const NAV_LINKS_AFTER_PRODUCTS = [
-  { href: "/how-it-works", label: "How It Works" },
-  { href: "/#features", label: "Features" },
-  { href: "/business-fleet", label: "Business & Fleet" },
+  { href: "/track-order", label: "Track Order" },
+  { href: "/about", label: "About" },
 ];
 
 export function MainHeader() {
@@ -73,16 +72,16 @@ export function MainHeader() {
             <ShoppingCart className="h-5 w-5" strokeWidth={1.75} />
           </Link>
           <Link
-            href="/create/type"
+            href="/products"
+            className="qn-btn-primary hidden h-11 px-5 lg:inline-flex"
+          >
+            Shop QR Products
+          </Link>
+          <Link
+            href="/create"
             className="qn-btn-secondary hidden h-11 px-4 text-sm lg:inline-flex"
           >
             Create Free QR
-          </Link>
-          <Link
-            href="/shop"
-            className="qn-btn-primary hidden h-11 px-5 lg:inline-flex"
-          >
-            Shop Now
           </Link>
         </div>
       </div>
@@ -136,14 +135,14 @@ export function MainHeader() {
           ) : null}
           <div className="mt-3 flex flex-col gap-2">
             <Link
-              href="/create/type"
-              className="qn-btn-secondary"
+              href="/products"
+              className="qn-btn-primary"
               onClick={closeMobile}
             >
-              Create Free QR
+              Shop QR Products
             </Link>
-            <Link href="/shop" className="qn-btn-primary" onClick={closeMobile}>
-              Shop Now
+            <Link href="/create" className="qn-btn-secondary" onClick={closeMobile}>
+              Create Free QR
             </Link>
           </div>
         </nav>

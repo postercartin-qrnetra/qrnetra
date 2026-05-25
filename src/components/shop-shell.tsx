@@ -8,8 +8,8 @@ export function ShopShell({ children }: { children: React.ReactNode }) {
         <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4">
           <QnLogoStatic layout="compact" />
           <div className="flex items-center gap-4 text-sm font-medium">
-            <Link href="/shop" className="text-white">
-              Shop
+            <Link href="/products" className="text-white">
+              Products
             </Link>
             <Link href="/cart" className="text-qn-muted hover:text-white">
               Cart
