@@ -1,0 +1,21 @@
+<svg width="1200" height="1200" viewBox="0 0 1200 1200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="1200" rx="48" fill="#07111E"/>
+  <rect x="110" y="170" width="980" height="860" rx="46" fill="#111827"/>
+  <rect x="180" y="270" width="420" height="520" rx="210" fill="#182235"/>
+  <rect x="250" y="340" width="280" height="380" rx="140" fill="#FF6B2C" fill-opacity="0.18" stroke="#FF6B2C" stroke-width="6"/>
+  <rect x="302" y="435" width="176" height="176" rx="28" fill="#FFFFFF"/>
+  <rect x="334" y="467" width="32" height="32" fill="#020817"/>
+  <rect x="382" y="467" width="32" height="32" fill="#020817"/>
+  <rect x="430" y="467" width="24" height="24" fill="#020817"/>
+  <rect x="334" y="515" width="32" height="32" fill="#020817"/>
+  <rect x="430" y="515" width="24" height="24" fill="#020817"/>
+  <rect x="334" y="563" width="24" height="24" fill="#020817"/>
+  <rect x="382" y="563" width="24" height="24" fill="#020817"/>
+  <rect x="430" y="563" width="24" height="24" fill="#020817"/>
+  <text x="660" y="340" fill="#FFFFFF" font-size="58" font-family="Arial, sans-serif" font-weight="700">Child Safety Wristband</text>
+  <text x="660" y="404" fill="#94A3B8" font-size="28" font-family="Arial, sans-serif">Travel, outings, and event-ready QR safety</text>
+  <rect x="660" y="468" width="300" height="110" rx="28" fill="#0F172A"/>
+  <text x="700" y="530" fill="#FF6B2C" font-size="34" font-family="Arial, sans-serif" font-weight="700">¹399</text>
+  <text x="700" y="566" fill="#CBD5E1" font-size="24" font-family="Arial, sans-serif">Permanent QR linked to child profile</text>
+  <text x="190" y="910" fill="#CBD5E1" font-size="30" font-family="Arial, sans-serif">Editable guardian and emergency details without replacing the wristband</text>
+</svg>

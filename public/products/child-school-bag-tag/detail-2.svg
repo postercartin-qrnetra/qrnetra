@@ -1,0 +1,20 @@
+<svg width="1200" height="1200" viewBox="0 0 1200 1200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="1200" rx="48" fill="#081122"/>
+  <rect x="120" y="180" width="960" height="840" rx="46" fill="#111827"/>
+  <rect x="190" y="260" width="820" height="320" rx="36" fill="#182235"/>
+  <rect x="260" y="330" width="220" height="220" rx="28" fill="#FFFFFF"/>
+  <rect x="298" y="368" width="36" height="36" fill="#020817"/>
+  <rect x="346" y="368" width="36" height="36" fill="#020817"/>
+  <rect x="394" y="368" width="24" height="24" fill="#020817"/>
+  <rect x="298" y="416" width="36" height="36" fill="#020817"/>
+  <rect x="394" y="416" width="24" height="24" fill="#020817"/>
+  <rect x="298" y="464" width="24" height="24" fill="#020817"/>
+  <rect x="346" y="464" width="24" height="24" fill="#020817"/>
+  <rect x="394" y="464" width="24" height="24" fill="#020817"/>
+  <text x="560" y="382" fill="#FFFFFF" font-size="50" font-family="Arial, sans-serif" font-weight="700">Scan for parent or school contact</text>
+  <text x="560" y="438" fill="#94A3B8" font-size="28" font-family="Arial, sans-serif">Bag tag profile stays current as class information changes</text>
+  <text x="560" y="490" fill="#94A3B8" font-size="28" font-family="Arial, sans-serif">Ideal for everyday commute and school handoff scenarios</text>
+  <rect x="240" y="700" width="720" height="160" rx="30" fill="#0F172A"/>
+  <text x="300" y="770" fill="#FF6B2C" font-size="34" font-family="Arial, sans-serif" font-weight="700">Permanent QR " School profile " Guardian contact</text>
+  <text x="300" y="822" fill="#CBD5E1" font-size="26" font-family="Arial, sans-serif">No reprint required when school, class, or emergency information changes.</text>
+</svg>

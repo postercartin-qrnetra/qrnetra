@@ -11,6 +11,49 @@ export type StickerAssetMeta = {
   categoryLabel: string;
 };
 
+const STICKER_BY_PRODUCT: Record<string, StickerAssetMeta> = {
+  "vehicle-qr-sticker": {
+    assetKey: "vehicle-qr-sticker",
+    title: "Vehicle QR Sticker",
+    categoryLabel: "Scan To Contact Owner",
+    instructions: [
+      "Place on the inside windshield or another visible clean vehicle surface.",
+      "A finder can scan for wrong parking, emergency contact, or urgent help.",
+      "Update your profile anytime from the dashboard without replacing the sticker.",
+    ],
+  },
+  "pet-collar-qr-tag": {
+    assetKey: "pet-collar-qr-tag",
+    title: "Pet Collar QR Tag",
+    categoryLabel: "Scan If Found",
+    instructions: [
+      "Attach to a collar or harness where the QR remains visible.",
+      "A finder can scan to view owner contact and pet recovery details.",
+      "Keep pet, vet, and reward notes updated from your dashboard anytime.",
+    ],
+  },
+  "child-safety-wristband": {
+    assetKey: "child-safety-wristband",
+    title: "Child Safety Wristband",
+    categoryLabel: "Emergency Contact QR",
+    instructions: [
+      "Use during travel, outings, events, and crowded public spaces.",
+      "A scan opens the linked child safety profile with guardian details.",
+      "Update emergency notes and contacts from your dashboard without reprinting.",
+    ],
+  },
+  "child-school-bag-tag": {
+    assetKey: "child-school-bag-tag",
+    title: "Child School Bag Tag",
+    categoryLabel: "School Safety QR",
+    instructions: [
+      "Attach to a school bag, zipper loop, or ID holder.",
+      "A scan can reveal parent, school, and emergency contact information.",
+      "Keep school and class details current from your dashboard without changing the tag.",
+    ],
+  },
+};
+
 const STICKER_BY_KIND: Record<QrKind, StickerAssetMeta> = {
   vehicle: {
     assetKey: "vehicle-sticker",
@@ -64,7 +107,13 @@ const STICKER_BY_KIND: Record<QrKind, StickerAssetMeta> = {
   },
 };
 
-export function getStickerAssetMeta(kind: string): StickerAssetMeta {
+export function getStickerAssetMeta(
+  kind: string,
+  productSlug?: string | null,
+): StickerAssetMeta {
+  if (productSlug && productSlug in STICKER_BY_PRODUCT) {
+    return STICKER_BY_PRODUCT[productSlug];
+  }
   if (kind in STICKER_BY_KIND) {
     return STICKER_BY_KIND[kind as QrKind];
   }

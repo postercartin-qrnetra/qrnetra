@@ -57,13 +57,28 @@ export function StoreCategoryPage({
       </section>
 
       <section className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8 lg:py-16">
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {products.map((product, index) => (
-            <FadeIn key={product.slug} delay={index * 0.04}>
-              <ProductCard product={product} />
-            </FadeIn>
-          ))}
-        </div>
+        {products.length ? (
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {products.map((product, index) => (
+              <FadeIn key={product.slug} delay={index * 0.04}>
+                <ProductCard product={product} />
+              </FadeIn>
+            ))}
+          </div>
+        ) : (
+          <div className="qn-card p-8 text-center">
+            <p className="text-lg font-semibold text-white">
+              This category is not active in the current storefront.
+            </p>
+            <p className="mt-2 text-sm text-qn-muted">
+              QRNetra&apos;s physical store currently focuses on vehicles, pets,
+              and child safety products.
+            </p>
+            <Link href="/products" className="qn-btn-primary mt-6 px-6">
+              Browse active products
+            </Link>
+          </div>
+        )}
       </section>
 
       <section className="border-t border-white/[0.08] bg-qn-bg-elevated py-14">

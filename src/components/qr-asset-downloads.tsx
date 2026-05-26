@@ -14,6 +14,7 @@ type Props = {
   scanUrl: string;
   slug: string;
   kind: QrKind | string;
+  productSlug?: string | null;
   title: string;
   subtitle?: string | null;
   compact?: boolean;
@@ -23,13 +24,14 @@ export function QrAssetDownloads({
   scanUrl,
   slug,
   kind,
+  productSlug,
   title,
   subtitle,
   compact = false,
 }: Props) {
   const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
-  const meta = getStickerAssetMeta(kind);
+  const meta = getStickerAssetMeta(kind, productSlug);
 
   useEffect(() => {
     let active = true;
@@ -53,6 +55,7 @@ export function QrAssetDownloads({
     scanUrl,
     slug,
     kind,
+    productSlug,
     title,
     subtitle,
   };

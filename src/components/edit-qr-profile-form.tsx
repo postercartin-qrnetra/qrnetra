@@ -27,6 +27,8 @@ function profileToFormValues(
       vehicle_number: data.vehicle_number ?? "",
       whatsapp: data.whatsapp ?? "",
       alternate_contact: data.alternate_contact ?? "",
+      blood_group: data.blood_group ?? "",
+      medical_notes: data.medical_notes ?? "",
       emergency_note: data.emergency_note ?? "",
     };
   }
@@ -38,7 +40,10 @@ function profileToFormValues(
       emergency_contact: data.emergency_contact ?? "",
       blood_group: data.blood_group ?? "",
       allergies: data.allergies ?? "",
+      medical_notes: data.medical_notes ?? "",
       school_name: data.school_name ?? "",
+      class_name: data.class_name ?? "",
+      teacher_contact: data.teacher_contact ?? "",
       emergency_instructions: data.emergency_instructions ?? "",
       emergency_note: data.emergency_note ?? "",
     };
@@ -47,6 +52,7 @@ function profileToFormValues(
     return {
       pet_name: name,
       owner_contact: phone,
+      owner_name: data.owner_name ?? "",
       breed: data.breed ?? "",
       vet_contact: data.vet_contact ?? "",
       whatsapp: data.whatsapp ?? "",

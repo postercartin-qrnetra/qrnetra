@@ -11,6 +11,7 @@ import {
 export type CreateQrResult = {
   error: string | null;
   slug: string | null;
+  qrId: string | null;
 };
 
 const AUTH_DEBUG =
@@ -30,7 +31,7 @@ export async function createQrAction(
   const validation = validateCreateForm(formData);
   if (!validation.ok) {
     console.log("RETURNING VALIDATION ERROR", validation.error);
-    return { error: validation.error, slug: null };
+    return { error: validation.error, slug: null, qrId: null };
   }
 
   const supabase = await createClient();
@@ -39,6 +40,7 @@ export async function createQrAction(
     return {
       error: "Server is missing Supabase configuration. Contact support.",
       slug: null,
+      qrId: null,
     };
   }
 
@@ -121,6 +123,7 @@ export async function createQrAction(
     return {
       error: "Not authenticated. Please sign in and try again.",
       slug: null,
+      qrId: null,
     };
   }
 
@@ -139,7 +142,7 @@ export async function createQrAction(
 
   if (!pipeline.ok) {
     console.log("RETURNING INSERT ERROR", pipeline.error);
-    return { error: pipeline.error, slug: null };
+    return { error: pipeline.error, slug: null, qrId: null };
   }
 
   console.log("[AUTH FIX VERIFIED] Profile insert success");
@@ -175,12 +178,13 @@ export async function createQrAction(
           activationPayload?.error ??
           "Could not activate this physical tag.",
         slug: null,
+        qrId: null,
       };
     }
   }
 
   console.log("RETURNING SUCCESS", { slug: pipeline.result.slug });
-  return { error: null, slug: pipeline.result.slug };
+  return { error: null, slug: pipeline.result.slug, qrId: pipeline.result.qrId };
 }
 
 export type QrStatus = "active" | "paused" | "disabled";

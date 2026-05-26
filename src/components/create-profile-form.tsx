@@ -7,12 +7,19 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { createQrAction } from "@/app/actions/create-qr";
 import { clearOnboardingDraftMarker } from "@/lib/onboarding/client-storage";
+import type { ProductProfileVariant } from "@/lib/products";
 import type { QrKind } from "@/lib/qr/types";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
 type Values = Record<string, string>;
 type AuthPhase = "idle" | "needs-auth" | "sent-otp" | "submitting";
+type FlowMode = "create" | "activate" | "order";
+
+export type CreateProfileFormCreatedResult = {
+  slug: string;
+  qrId: string | null;
+};
 
 // ─── Constants ──────────────────────────────────────────────────────────────
 
@@ -139,11 +146,15 @@ export function VehicleFields({
   values,
   set,
   showOptional,
+  variant,
 }: {
   values: Values;
   set: (k: string) => (v: string) => void;
   showOptional: boolean;
+  variant?: ProductProfileVariant;
 }) {
+  const isProductOrder = variant === "vehicle";
+
   return (
     <>
       <InputField
@@ -159,6 +170,7 @@ export function VehicleFields({
         name="vehicle_number"
         value={values.vehicle_number ?? ""}
         onChange={set("vehicle_number")}
+        required={isProductOrder}
         placeholder="e.g. MH 01 AB 1234"
         hint="Shown to finder — helps identify the vehicle"
       />
@@ -184,12 +196,26 @@ export function VehicleFields({
             placeholder="Leave blank if same as contact number"
           />
           <InputField
-            label="Alternate / emergency contact"
+            label={isProductOrder ? "Emergency contact" : "Alternate / emergency contact"}
             name="alternate_contact"
             type="tel"
             value={values.alternate_contact ?? ""}
             onChange={set("alternate_contact")}
             placeholder="Backup number shown on scan"
+          />
+          <InputField
+            label="Blood group"
+            name="blood_group"
+            value={values.blood_group ?? ""}
+            onChange={set("blood_group")}
+            placeholder="Optional"
+          />
+          <TextAreaField
+            label="Medical notes"
+            name="medical_notes"
+            value={values.medical_notes ?? ""}
+            onChange={set("medical_notes")}
+            placeholder="Optional medical details or responder notes"
           />
           <TextAreaField
             label="Emergency note"
@@ -209,11 +235,17 @@ export function ChildFields({
   values,
   set,
   showOptional,
+  variant,
 }: {
   values: Values;
   set: (k: string) => (v: string) => void;
   showOptional: boolean;
+  variant?: ProductProfileVariant;
 }) {
+  const isWristbandVariant = variant === "child_wristband";
+  const isSchoolBagVariant = variant === "child_school_bag";
+  const requiresParentName = isWristbandVariant || isSchoolBagVariant;
+
   return (
     <>
       <InputField
@@ -224,6 +256,16 @@ export function ChildFields({
         required
         placeholder="e.g. Arya"
       />
+      {requiresParentName ? (
+        <InputField
+          label="Parent / guardian name"
+          name="parent_name"
+          value={values.parent_name ?? ""}
+          onChange={set("parent_name")}
+          required
+          placeholder="e.g. Priya Sharma"
+        />
+      ) : null}
       <InputField
         label="Parent / guardian contact"
         name="parent_contact"
@@ -234,15 +276,37 @@ export function ChildFields({
         placeholder="10-digit mobile"
         autoComplete="tel"
       />
-      {showOptional && (
+      {isSchoolBagVariant ? (
         <>
           <InputField
-            label="Parent / guardian name"
-            name="parent_name"
-            value={values.parent_name ?? ""}
-            onChange={set("parent_name")}
-            placeholder="e.g. Priya Sharma"
+            label="School name"
+            name="school_name"
+            value={values.school_name ?? ""}
+            onChange={set("school_name")}
+            required
+            placeholder="e.g. Delhi Public School, Noida"
           />
+          <InputField
+            label="Class / section"
+            name="class_name"
+            value={values.class_name ?? ""}
+            onChange={set("class_name")}
+            required
+            placeholder="e.g. Class 3 - A"
+          />
+        </>
+      ) : null}
+      {showOptional && (
+        <>
+          {!requiresParentName ? (
+            <InputField
+              label="Parent / guardian name"
+              name="parent_name"
+              value={values.parent_name ?? ""}
+              onChange={set("parent_name")}
+              placeholder="e.g. Priya Sharma"
+            />
+          ) : null}
           <InputField
             label="Emergency contact (secondary)"
             name="emergency_contact"
@@ -265,13 +329,41 @@ export function ChildFields({
             onChange={set("allergies")}
             placeholder="e.g. Peanuts, penicillin"
           />
-          <InputField
-            label="School name"
-            name="school_name"
-            value={values.school_name ?? ""}
-            onChange={set("school_name")}
-            placeholder="e.g. Delhi Public School, Noida"
+          <TextAreaField
+            label="Medical notes"
+            name="medical_notes"
+            value={values.medical_notes ?? ""}
+            onChange={set("medical_notes")}
+            placeholder="Medications, conditions, or care reminders"
           />
+          {!isSchoolBagVariant ? (
+            <InputField
+              label="School name"
+              name="school_name"
+              value={values.school_name ?? ""}
+              onChange={set("school_name")}
+              placeholder="e.g. Delhi Public School, Noida"
+            />
+          ) : null}
+          {!isSchoolBagVariant ? (
+            <InputField
+              label="Class / section"
+              name="class_name"
+              value={values.class_name ?? ""}
+              onChange={set("class_name")}
+              placeholder="Optional"
+            />
+          ) : null}
+          {isSchoolBagVariant ? (
+            <InputField
+              label="Teacher contact"
+              name="teacher_contact"
+              type="tel"
+              value={values.teacher_contact ?? ""}
+              onChange={set("teacher_contact")}
+              placeholder="Optional"
+            />
+          ) : null}
           <TextAreaField
             label="Emergency instructions"
             name="emergency_instructions"
@@ -296,11 +388,15 @@ export function PetFields({
   values,
   set,
   showOptional,
+  variant,
 }: {
   values: Values;
   set: (k: string) => (v: string) => void;
   showOptional: boolean;
+  variant?: ProductProfileVariant;
 }) {
+  const requiresOwnerName = variant === "pet";
+
   return (
     <>
       <InputField
@@ -311,6 +407,16 @@ export function PetFields({
         required
         placeholder="e.g. Bruno"
       />
+      {requiresOwnerName ? (
+        <InputField
+          label="Owner name"
+          name="owner_name"
+          value={values.owner_name ?? ""}
+          onChange={set("owner_name")}
+          required
+          placeholder="e.g. Nisha Patel"
+        />
+      ) : null}
       <InputField
         label="Owner contact"
         name="owner_contact"
@@ -323,6 +429,15 @@ export function PetFields({
       />
       {showOptional && (
         <>
+          {!requiresOwnerName ? (
+            <InputField
+              label="Owner name"
+              name="owner_name"
+              value={values.owner_name ?? ""}
+              onChange={set("owner_name")}
+              placeholder="Optional"
+            />
+          ) : null}
           <InputField
             label="Breed"
             name="breed"
@@ -359,6 +474,13 @@ export function PetFields({
             value={values.reward_note ?? ""}
             onChange={set("reward_note")}
             placeholder="e.g. Reward on safe return. Friendly, doesn't bite."
+          />
+          <TextAreaField
+            label="Message for finder"
+            name="emergency_note"
+            value={values.emergency_note ?? ""}
+            onChange={set("emergency_note")}
+            placeholder="Optional short note for anyone who scans"
           />
         </>
       )}
@@ -518,17 +640,31 @@ export function AssetFields({
 
 // ─── Main component ──────────────────────────────────────────────────────────
 
+type CreateProfileFormProps = {
+  initialType?: QrKind;
+  initialEmail?: string | null;
+  activationCode?: string | null;
+  flow?: FlowMode;
+  productVariant?: ProductProfileVariant;
+  lockType?: boolean;
+  headerBadge?: string;
+  headerTitle?: string;
+  headerDescription?: string;
+  onCreated?: (result: CreateProfileFormCreatedResult) => void | Promise<void>;
+};
+
 export function CreateProfileForm({
   initialType,
   initialEmail,
   activationCode,
   flow = "create",
-}: {
-  initialType?: QrKind;
-  initialEmail?: string | null;
-  activationCode?: string | null;
-  flow?: "create" | "activate";
-}) {
+  productVariant,
+  lockType = false,
+  headerBadge,
+  headerTitle,
+  headerDescription,
+  onCreated,
+}: CreateProfileFormProps) {
   const router = useRouter();
   const { user } = useAuth();
   const isLoggedIn = Boolean(user);
@@ -551,6 +687,7 @@ export function CreateProfileForm({
 
   const accountEmail = user?.email ?? email;
   const isActivationFlow = flow === "activate";
+  const isOrderFlow = flow === "order";
 
   useEffect(() => {
     clearOnboardingDraftMarker();
@@ -567,6 +704,7 @@ export function CreateProfileForm({
 
   // Switch type — load the draft for the new type
   function handleTypeChange(newType: QrKind) {
+    if (lockType) return;
     if (newType === type) return;
     setType(newType);
     setShowOptional(false);
@@ -585,12 +723,31 @@ export function CreateProfileForm({
     if (type === "vehicle") {
       if (!values.full_name?.trim()) return "Full name is required.";
       if (!values.phone?.trim()) return "Contact number is required.";
+      if (productVariant === "vehicle" && !values.vehicle_number?.trim()) {
+        return "Vehicle number is required for this product.";
+      }
     } else if (type === "child") {
       if (!values.child_name?.trim()) return "Child's name is required.";
       if (!values.parent_contact?.trim()) return "Parent contact is required.";
+      if (
+        (productVariant === "child_wristband" ||
+          productVariant === "child_school_bag") &&
+        !values.parent_name?.trim()
+      ) {
+        return "Parent / guardian name is required.";
+      }
+      if (productVariant === "child_school_bag" && !values.school_name?.trim()) {
+        return "School name is required for this product.";
+      }
+      if (productVariant === "child_school_bag" && !values.class_name?.trim()) {
+        return "Class / section is required for this product.";
+      }
     } else if (type === "pet") {
       if (!values.pet_name?.trim()) return "Pet's name is required.";
       if (!values.owner_contact?.trim()) return "Owner contact is required.";
+      if (productVariant === "pet" && !values.owner_name?.trim()) {
+        return "Owner name is required for this product.";
+      }
     } else if (type === "asset") {
       if (!values.asset_name?.trim()) return "Asset name is required.";
       if (!values.owner_contact?.trim()) return "Owner contact is required.";
@@ -651,6 +808,10 @@ export function CreateProfileForm({
       }
       if (result.slug) {
         clearDraft(type);
+        if (onCreated) {
+          await onCreated({ slug: result.slug, qrId: result.qrId });
+          return;
+        }
         const redirectTarget = `/create/success/${result.slug}`;
         console.log("[QR CLIENT] redirect target", redirectTarget);
         router.push(redirectTarget);
@@ -754,6 +915,9 @@ export function CreateProfileForm({
     if (isActivationFlow) {
       return isLoggedIn ? "Activate Tag →" : "Create Account & Activate Tag →";
     }
+    if (isOrderFlow) {
+      return isLoggedIn ? "Generate QR & Continue →" : "Create Account & Generate QR →";
+    }
     return isLoggedIn ? "Generate Emergency QR →" : "Create Account & Generate QR →";
   })();
 
@@ -763,17 +927,28 @@ export function CreateProfileForm({
       <div className="mb-8">
         <QnLogoStatic layout="compact" />
         <p className="mt-3 text-xs font-semibold uppercase tracking-[0.18em] text-qn-muted-2">
-          {isActivationFlow ? "Activate physical tag" : "Free QR profile"}
+          {headerBadge ??
+            (isActivationFlow
+              ? "Activate physical tag"
+              : isOrderFlow
+                ? "Physical product setup"
+                : "Free QR profile")}
         </p>
         <h1 className="mt-2 text-3xl font-bold tracking-tight text-white">
-          {isActivationFlow
-            ? "Complete your profile to activate this tag"
-            : "Create your free QR profile"}
+          {headerTitle ??
+            (isActivationFlow
+              ? "Complete your profile to activate this tag"
+              : isOrderFlow
+                ? "Create the QR profile for your product"
+                : "Create your free QR profile")}
         </h1>
         <p className="mt-2 text-sm leading-relaxed text-qn-muted">
-          {isActivationFlow
-            ? "Set up the profile that should open when someone scans your purchased QRNetra sticker or tag."
-            : "Generate a privacy-first QR for your vehicle, child, pet, asset, or business in under 2 minutes. No purchase required."}
+          {headerDescription ??
+            (isActivationFlow
+              ? "Set up the profile that should open when someone scans your purchased QRNetra sticker or tag."
+              : isOrderFlow
+                ? "Generate the permanent QR first. It will appear in your dashboard immediately and the same QR will be printed on your purchased product after payment."
+                : "Generate a privacy-first QR for your vehicle, child, pet, asset, or business in under 2 minutes. No purchase required.")}
         </p>
         {activationCode ? (
           <p className="mt-3 inline-flex items-center rounded-full bg-qn-surface px-3 py-1.5 font-mono text-xs font-semibold text-qn-muted">
@@ -783,28 +958,30 @@ export function CreateProfileForm({
       </div>
 
       {/* Type selector */}
-      <div className="mb-8">
-        <p className="mb-3 text-xs font-semibold uppercase tracking-[0.12em] text-qn-muted-2">
-          What are you protecting?
-        </p>
-        <div className="flex gap-2 flex-wrap">
-          {TYPES.map((t) => (
-            <button
-              key={t.id}
-              type="button"
-              onClick={() => handleTypeChange(t.id)}
-              className={`flex items-center gap-1.5 rounded-full border px-4 py-2 text-sm font-semibold transition-all ${
-                type === t.id
-                  ? "border-qn-accent bg-qn-card-2 text-white"
-                  : "border-white/[0.08] bg-qn-card text-qn-muted hover:border-zinc-400"
-              }`}
-            >
-              <span className="text-base leading-none">{t.emoji}</span>
-              {t.label}
-            </button>
-          ))}
+      {!lockType ? (
+        <div className="mb-8">
+          <p className="mb-3 text-xs font-semibold uppercase tracking-[0.12em] text-qn-muted-2">
+            What are you protecting?
+          </p>
+          <div className="flex gap-2 flex-wrap">
+            {TYPES.map((t) => (
+              <button
+                key={t.id}
+                type="button"
+                onClick={() => handleTypeChange(t.id)}
+                className={`flex items-center gap-1.5 rounded-full border px-4 py-2 text-sm font-semibold transition-all ${
+                  type === t.id
+                    ? "border-qn-accent bg-qn-card-2 text-white"
+                    : "border-white/[0.08] bg-qn-card text-qn-muted hover:border-zinc-400"
+                }`}
+              >
+                <span className="text-base leading-none">{t.emoji}</span>
+                {t.label}
+              </button>
+            ))}
+          </div>
         </div>
-      </div>
+      ) : null}
 
       {/* Form card */}
       <div className="rounded-3xl border border-white/[0.08] bg-qn-card shadow-[0_20px_60px_-12px_rgba(0,0,0,0.1)]">
@@ -819,13 +996,28 @@ export function CreateProfileForm({
           </p>
 
           {type === "vehicle" && (
-            <VehicleFields values={values} set={set} showOptional={showOptional} />
+            <VehicleFields
+              values={values}
+              set={set}
+              showOptional={showOptional}
+              variant={productVariant}
+            />
           )}
           {type === "child" && (
-            <ChildFields values={values} set={set} showOptional={showOptional} />
+            <ChildFields
+              values={values}
+              set={set}
+              showOptional={showOptional}
+              variant={productVariant}
+            />
           )}
           {type === "pet" && (
-            <PetFields values={values} set={set} showOptional={showOptional} />
+            <PetFields
+              values={values}
+              set={set}
+              showOptional={showOptional}
+              variant={productVariant}
+            />
           )}
           {type === "asset" && (
             <AssetFields values={values} set={set} showOptional={showOptional} />

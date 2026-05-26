@@ -18,8 +18,8 @@ type Props = {
 };
 
 /**
- * Persists selected product + profile type, then routes to profile creation.
- * After profile creation the user continues to checkout.
+ * Persists selected product + profile type, then routes to the paid order setup
+ * flow where QR creation happens before address and payment.
  */
 export function BuyNowButton({ qrKind, productSlug, className, children }: Props) {
   const router = useRouter();
@@ -28,7 +28,7 @@ export function BuyNowButton({ qrKind, productSlug, className, children }: Props
   async function handleClick() {
     setLoading(true);
     persistSelectedProfileType(qrKind);
-    const profilePath = `/create/profile?type=${qrKind}&product=${productSlug}`;
+    const profilePath = `/order/setup?product=${productSlug}`;
     persistOnboardingPath(profilePath);
 
     try {

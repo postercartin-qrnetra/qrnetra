@@ -1,0 +1,19 @@
+<svg width="1200" height="1200" viewBox="0 0 1200 1200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="1200" rx="48" fill="#081122"/>
+  <rect x="140" y="170" width="920" height="860" rx="46" fill="#0F172A"/>
+  <circle cx="360" cy="560" r="190" fill="#1E293B"/>
+  <rect x="250" y="640" width="220" height="46" rx="23" fill="#FF6B2C"/>
+  <circle cx="360" cy="520" r="90" fill="#334155"/>
+  <rect x="650" y="320" width="260" height="260" rx="28" fill="#FFFFFF"/>
+  <rect x="690" y="360" width="42" height="42" fill="#020817"/>
+  <rect x="744" y="360" width="42" height="42" fill="#020817"/>
+  <rect x="798" y="360" width="30" height="30" fill="#020817"/>
+  <rect x="690" y="414" width="42" height="42" fill="#020817"/>
+  <rect x="798" y="414" width="30" height="30" fill="#020817"/>
+  <rect x="690" y="468" width="30" height="30" fill="#020817"/>
+  <rect x="744" y="468" width="30" height="30" fill="#020817"/>
+  <rect x="798" y="468" width="30" height="30" fill="#020817"/>
+  <text x="650" y="650" fill="#FFFFFF" font-size="54" font-family="Arial, sans-serif" font-weight="700">Collar-ready design</text>
+  <text x="650" y="706" fill="#94A3B8" font-size="28" font-family="Arial, sans-serif">Daily wear with a dashboard-linked QR</text>
+  <text x="220" y="910" fill="#CBD5E1" font-size="30" font-family="Arial, sans-serif">Owner contact and vet notes stay editable later</text>
+</svg>

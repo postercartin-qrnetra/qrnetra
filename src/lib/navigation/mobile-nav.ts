@@ -45,10 +45,11 @@ const HOME_PREFIXES = [
 ];
 
 const SHOP_PREFIXES = [
+  "/order",
+  "/order-success",
   "/products",
   "/cart",
   "/checkout",
-  "/order-success",
   "/track-order",
   "/payment-success",
   "/payment-failed",
@@ -107,6 +108,10 @@ export function isMobileNavItemActive(
 }
 
 export function shouldShowMobileBottomNav(pathname: string): boolean {
+  if (pathname === "/order" || pathname.startsWith("/order/")) {
+    return false;
+  }
+
   if (pathname === "/checkout" || pathname.startsWith("/checkout/")) {
     return false;
   }

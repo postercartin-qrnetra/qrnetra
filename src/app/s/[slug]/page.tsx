@@ -228,7 +228,13 @@ export default async function PublicScanPage({ params }: Props) {
                   label="📞  Emergency contact"
                 />
               )}
-              {(data.blood_group || data.allergies || data.school_name || data.emergency_instructions) && (
+              {(data.blood_group ||
+                data.allergies ||
+                data.medical_notes ||
+                data.school_name ||
+                data.class_name ||
+                data.teacher_contact ||
+                data.emergency_instructions) && (
                 <details className="rounded-2xl border border-white/[0.08] bg-qn-card p-4 shadow-sm open:shadow-md">
                   <summary className="cursor-pointer text-sm font-semibold text-white">
                     Medical &amp; safety info
@@ -240,8 +246,22 @@ export default async function PublicScanPage({ params }: Props) {
                     {data.allergies && (
                       <InfoRow label="Allergies" value={data.allergies} />
                     )}
+                    {data.medical_notes && (
+                      <div className="rounded-xl border border-white/[0.08] bg-qn-surface px-3 py-2.5 text-sm leading-relaxed text-qn-muted">
+                        <p className="mb-1 text-xs font-semibold text-qn-muted-2">
+                          Medical notes
+                        </p>
+                        {data.medical_notes}
+                      </div>
+                    )}
                     {data.school_name && (
                       <InfoRow label="School" value={data.school_name} />
+                    )}
+                    {data.class_name && (
+                      <InfoRow label="Class / section" value={data.class_name} />
+                    )}
+                    {data.teacher_contact && (
+                      <InfoRow label="Teacher contact" value={data.teacher_contact} />
                     )}
                     {data.emergency_instructions && (
                       <div className="mt-2 rounded-xl border border-white/[0.08] bg-qn-surface px-3 py-2.5 text-sm leading-relaxed text-qn-muted">
@@ -284,12 +304,15 @@ export default async function PublicScanPage({ params }: Props) {
                   {data.reward_note}
                 </div>
               )}
-              {(data.breed || data.medical_notes) && (
+              {(data.owner_name || data.breed || data.medical_notes) && (
                 <details className="rounded-2xl border border-white/[0.08] bg-qn-card p-4 shadow-sm">
                   <summary className="cursor-pointer text-sm font-semibold text-white">
                     Pet details
                   </summary>
                   <div className="mt-4 space-y-2.5">
+                    {data.owner_name && (
+                      <InfoRow label="Owner" value={data.owner_name} />
+                    )}
                     {data.breed && <InfoRow label="Breed" value={data.breed} />}
                     {data.medical_notes && (
                       <div className="rounded-xl border border-white/[0.08] bg-qn-surface px-3 py-2.5 text-sm leading-relaxed text-qn-muted">

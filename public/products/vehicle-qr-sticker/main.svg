@@ -1,0 +1,29 @@
+<svg width="1200" height="1200" viewBox="0 0 1200 1200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="1200" rx="48" fill="#081122"/>
+  <circle cx="950" cy="220" r="170" fill="#FF6B2C" fill-opacity="0.18"/>
+  <rect x="120" y="170" width="960" height="700" rx="40" fill="#111827" stroke="#334155" stroke-width="4"/>
+  <rect x="180" y="240" width="840" height="220" rx="28" fill="#020817" stroke="#FF6B2C" stroke-width="4"/>
+  <text x="220" y="325" fill="#FF6B2C" font-size="42" font-family="Arial, sans-serif" font-weight="700">QRNetra</text>
+  <text x="220" y="385" fill="#FFFFFF" font-size="58" font-family="Arial, sans-serif" font-weight="700">Vehicle QR Sticker</text>
+  <text x="220" y="435" fill="#94A3B8" font-size="28" font-family="Arial, sans-serif">Wrong parking and emergency contact</text>
+  <rect x="770" y="275" width="180" height="180" rx="24" fill="#FFFFFF"/>
+  <rect x="800" y="305" width="32" height="32" fill="#020817"/>
+  <rect x="848" y="305" width="32" height="32" fill="#020817"/>
+  <rect x="896" y="305" width="24" height="24" fill="#020817"/>
+  <rect x="800" y="353" width="32" height="32" fill="#020817"/>
+  <rect x="896" y="353" width="24" height="24" fill="#020817"/>
+  <rect x="800" y="401" width="24" height="24" fill="#020817"/>
+  <rect x="848" y="401" width="24" height="24" fill="#020817"/>
+  <rect x="896" y="401" width="24" height="24" fill="#020817"/>
+  <rect x="180" y="540" width="520" height="240" rx="28" fill="#0F172A"/>
+  <text x="220" y="615" fill="#FFFFFF" font-size="34" font-family="Arial, sans-serif" font-weight="700">Key benefits</text>
+  <text x="220" y="670" fill="#CBD5E1" font-size="26" font-family="Arial, sans-serif">" Permanent dashboard-linked QR</text>
+  <text x="220" y="715" fill="#CBD5E1" font-size="26" font-family="Arial, sans-serif">" Parking and urgent contact ready</text>
+  <text x="220" y="760" fill="#CBD5E1" font-size="26" font-family="Arial, sans-serif">" Editable profile, same printed QR</text>
+  <g transform="translate(760 540)">
+    <rect width="250" height="240" rx="28" fill="#0F172A"/>
+    <rect x="28" y="124" width="194" height="54" rx="18" fill="#FF6B2C"/>
+    <text x="125" y="159" text-anchor="middle" fill="#FFFFFF" font-size="28" font-family="Arial, sans-serif" font-weight="700">¹299</text>
+    <text x="125" y="92" text-anchor="middle" fill="#FFFFFF" font-size="30" font-family="Arial, sans-serif" font-weight="700">Ready to ship</text>
+  </g>
+</svg>

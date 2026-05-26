@@ -1,0 +1,24 @@
+<svg width="1200" height="1200" viewBox="0 0 1200 1200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="1200" rx="48" fill="#06111D"/>
+  <circle cx="250" cy="220" r="150" fill="#FF6B2C" fill-opacity="0.15"/>
+  <rect x="130" y="170" width="940" height="860" rx="44" fill="#111827"/>
+  <circle cx="360" cy="530" r="170" fill="#182235"/>
+  <circle cx="360" cy="480" r="80" fill="#334155"/>
+  <circle cx="305" cy="450" r="12" fill="#020817"/>
+  <circle cx="415" cy="450" r="12" fill="#020817"/>
+  <path d="M300 565C324 610 396 610 420 565" stroke="#FF6B2C" stroke-width="14" stroke-linecap="round"/>
+  <rect x="610" y="260" width="300" height="300" rx="28" fill="#FFFFFF"/>
+  <rect x="655" y="305" width="46" height="46" fill="#020817"/>
+  <rect x="713" y="305" width="46" height="46" fill="#020817"/>
+  <rect x="771" y="305" width="34" height="34" fill="#020817"/>
+  <rect x="655" y="363" width="46" height="46" fill="#020817"/>
+  <rect x="771" y="363" width="34" height="34" fill="#020817"/>
+  <rect x="655" y="421" width="34" height="34" fill="#020817"/>
+  <rect x="713" y="421" width="34" height="34" fill="#020817"/>
+  <rect x="771" y="421" width="34" height="34" fill="#020817"/>
+  <text x="610" y="650" fill="#FFFFFF" font-size="58" font-family="Arial, sans-serif" font-weight="700">Pet Collar QR Tag</text>
+  <text x="610" y="705" fill="#94A3B8" font-size="28" font-family="Arial, sans-serif">Finder-friendly recovery contact flow</text>
+  <rect x="220" y="770" width="760" height="140" rx="28" fill="#0F172A"/>
+  <text x="260" y="835" fill="#FFFFFF" font-size="34" font-family="Arial, sans-serif" font-weight="700">¹499</text>
+  <text x="410" y="835" fill="#CBD5E1" font-size="28" font-family="Arial, sans-serif">Permanent QR " Vet notes " Owner contact</text>
+</svg>

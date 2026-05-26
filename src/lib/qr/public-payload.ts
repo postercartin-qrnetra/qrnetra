@@ -22,13 +22,16 @@ export type PublicQrScanPayload = {
   emergency_phone: string | null;
   blood_group: string | null;
   allergies: string | null;
+  medical_notes: string | null;
   parent_name: string | null;
   school_name: string | null;
+  class_name: string | null;
+  teacher_contact: string | null;
   emergency_instructions: string | null;
   // pet
+  owner_name: string | null;
   breed: string | null;
   vet_phone: string | null;
-  medical_notes: string | null;
   reward_note: string | null;
   // business / fleet
   fleet_size: string | null;

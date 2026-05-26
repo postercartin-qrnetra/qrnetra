@@ -36,7 +36,7 @@ export function clearSelectedProfileType() {
 export function persistOnboardingPath(profilePath: string) {
   try {
     const safe = safeNextPath(profilePath);
-    if (safe.startsWith("/create/profile")) {
+    if (safe.startsWith("/create/profile") || safe.startsWith("/order/setup")) {
       localStorage.setItem(ONBOARDING_NEXT_KEY, safe);
     }
   } catch {
@@ -50,7 +50,9 @@ export function consumeStoredOnboardingPath(): string | null {
     if (!raw) return null;
     localStorage.removeItem(ONBOARDING_NEXT_KEY);
     const safe = safeNextPath(raw);
-    return safe.startsWith("/create/profile") ? safe : null;
+    return safe.startsWith("/create/profile") || safe.startsWith("/order/setup")
+      ? safe
+      : null;
   } catch {
     return null;
   }
@@ -95,7 +97,7 @@ export function getOAuthReturnPath(searchNext: string | null): string {
     const raw = localStorage.getItem(ONBOARDING_NEXT_KEY);
     if (raw) {
       const safe = safeNextPath(raw);
-      if (safe.startsWith("/create/profile")) {
+      if (safe.startsWith("/create/profile") || safe.startsWith("/order/setup")) {
         persistProfileTypeFromPath(safe);
         return safe;
       }

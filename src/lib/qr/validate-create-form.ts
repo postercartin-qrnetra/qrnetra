@@ -23,6 +23,8 @@ const vehicleSchema = z.object({
   vehicle_number: optionalText,
   whatsapp: optionalPhone,
   alternate_contact: optionalPhone,
+  blood_group: optionalText,
+  medical_notes: optionalText,
   emergency_note: optionalText,
 });
 
@@ -34,7 +36,10 @@ const childSchema = z.object({
   emergency_contact: optionalPhone,
   blood_group: optionalText,
   allergies: optionalText,
+  medical_notes: optionalText,
   school_name: optionalText,
+  class_name: optionalText,
+  teacher_contact: optionalPhone,
   emergency_instructions: optionalText,
   emergency_note: optionalText,
 });
@@ -43,6 +48,7 @@ const petSchema = z.object({
   type: z.literal("pet"),
   pet_name: z.string().min(1, "Pet name is required."),
   owner_contact: phoneField,
+  owner_name: optionalText,
   breed: optionalText,
   vet_contact: optionalPhone,
   whatsapp: optionalPhone,
@@ -109,6 +115,8 @@ function formDataToRaw(fd: FormData): Record<string, string> {
       vehicle_number: str(fd, "vehicle_number"),
       whatsapp: str(fd, "whatsapp"),
       alternate_contact: str(fd, "alternate_contact"),
+      blood_group: str(fd, "blood_group"),
+      medical_notes: str(fd, "medical_notes"),
       emergency_note: str(fd, "emergency_note"),
     };
   }
@@ -121,7 +129,10 @@ function formDataToRaw(fd: FormData): Record<string, string> {
       emergency_contact: str(fd, "emergency_contact"),
       blood_group: str(fd, "blood_group"),
       allergies: str(fd, "allergies"),
+      medical_notes: str(fd, "medical_notes"),
       school_name: str(fd, "school_name"),
+      class_name: str(fd, "class_name"),
+      teacher_contact: str(fd, "teacher_contact"),
       emergency_instructions: str(fd, "emergency_instructions"),
       emergency_note: str(fd, "emergency_note"),
     };
@@ -131,6 +142,7 @@ function formDataToRaw(fd: FormData): Record<string, string> {
       ...base,
       pet_name: str(fd, "pet_name"),
       owner_contact: str(fd, "owner_contact"),
+      owner_name: str(fd, "owner_name"),
       breed: str(fd, "breed"),
       vet_contact: str(fd, "vet_contact"),
       whatsapp: str(fd, "whatsapp"),

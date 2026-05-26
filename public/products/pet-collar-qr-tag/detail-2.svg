@@ -1,0 +1,21 @@
+<svg width="1200" height="1200" viewBox="0 0 1200 1200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="1200" rx="48" fill="#06111D"/>
+  <rect x="120" y="180" width="960" height="840" rx="44" fill="#111827"/>
+  <rect x="190" y="260" width="820" height="320" rx="34" fill="#182235"/>
+  <rect x="260" y="330" width="230" height="230" rx="26" fill="#FFFFFF"/>
+  <rect x="298" y="368" width="40" height="40" fill="#020817"/>
+  <rect x="350" y="368" width="40" height="40" fill="#020817"/>
+  <rect x="402" y="368" width="28" height="28" fill="#020817"/>
+  <rect x="298" y="420" width="40" height="40" fill="#020817"/>
+  <rect x="402" y="420" width="28" height="28" fill="#020817"/>
+  <rect x="298" y="472" width="28" height="28" fill="#020817"/>
+  <rect x="350" y="472" width="28" height="28" fill="#020817"/>
+  <rect x="402" y="472" width="28" height="28" fill="#020817"/>
+  <text x="560" y="382" fill="#FFFFFF" font-size="50" font-family="Arial, sans-serif" font-weight="700">Scan if found</text>
+  <text x="560" y="440" fill="#94A3B8" font-size="28" font-family="Arial, sans-serif">Owner and pet details update without reprinting</text>
+  <text x="560" y="492" fill="#94A3B8" font-size="28" font-family="Arial, sans-serif">Perfect for collars, harnesses, and walks</text>
+  <circle cx="330" cy="770" r="95" fill="#334155"/>
+  <circle cx="870" cy="770" r="95" fill="#334155"/>
+  <rect x="450" y="720" width="300" height="120" rx="30" fill="#0F172A" stroke="#FF6B2C" stroke-width="4"/>
+  <text x="600" y="790" text-anchor="middle" fill="#FF6B2C" font-size="36" font-family="Arial, sans-serif" font-weight="700">Dashboard-linked pet recovery</text>
+</svg>

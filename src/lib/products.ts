@@ -1,8 +1,12 @@
 import type { QrKind } from "@/lib/qr/types";
 
 export type ProductPrimaryCategory = "vehicles" | "pets" | "kids" | "assets";
-
 export type ProductSlug = string;
+export type ProductProfileVariant =
+  | "vehicle"
+  | "pet"
+  | "child_wristband"
+  | "child_school_bag";
 
 export type ProductImage = {
   src: string;
@@ -15,17 +19,28 @@ export type ProductFaq = {
 };
 
 export type ProductReview = {
-  quote: string;
-  author: string;
+  rating: number;
+  title: string;
+  text: string;
+  reviewerName: string;
   location: string;
+  createdAt: string;
+};
+
+export type ProductSpecification = {
+  label: string;
+  value: string;
 };
 
 export type Product = {
   title: string;
   slug: ProductSlug;
+  legacySlugs?: ProductSlug[];
+  skuCode: string;
   description: string;
   shortDescription: string;
   images: ProductImage[];
+  imageDirectory: string;
   price: number;
   salePrice: number | null;
   category: ProductPrimaryCategory;
@@ -35,8 +50,11 @@ export type Product = {
   faq: ProductFaq[];
   activeStatus: boolean;
   profileKind: Extract<QrKind, "vehicle" | "pet" | "child" | "asset">;
+  profileVariant: ProductProfileVariant;
   features: string[];
   benefits: string[];
+  specifications: ProductSpecification[];
+  deliveryInfo: string[];
   rating: number;
   reviewCount: number;
   reviews: ProductReview[];
@@ -58,802 +76,496 @@ export type ProductCategoryMeta = {
 const PRODUCT_CATEGORY_META: Record<ProductPrimaryCategory, ProductCategoryMeta> = {
   vehicles: {
     key: "vehicles",
-    title: "Vehicle QR Stickers",
+    title: "Vehicle Safety Products",
     shortTitle: "Vehicles",
     href: "/products/vehicles",
     description:
-      "Parking contact stickers and vehicle safety tags built for cars, bikes, helmets, and everyday movement.",
+      "Scan-ready parking and emergency stickers that permanently connect your vehicle to an editable QRNetra profile.",
     benefits: [
-      "Avoid number exposure in public parking",
-      "Get contacted fast during emergencies",
-      "Weatherproof materials for Indian roads",
+      "Permanent dynamic QR linked to your dashboard",
+      "Wrong parking and emergency contact support",
+      "Weather-resistant print finish for Indian roads",
     ],
     faq: [
       {
-        question: "Will my phone number be public?",
+        question: "Does the QR stay the same if I edit my details later?",
         answer:
-          "No. QRNetra routes contact through your configured scan profile, so you can share the right details without printing your number on the sticker.",
+          "Yes. The printed QR remains permanent while you can update vehicle profile information from your dashboard anytime.",
       },
       {
-        question: "Can I update the linked details later?",
+        question: "What happens after I place the order?",
         answer:
-          "Yes. The QR stays the same while profile data can be edited from your account.",
+          "Your QR profile is created instantly, payment confirms the order, and QRNetra prints the same linked QR on your physical sticker.",
       },
     ],
-    seoTitle: "Vehicle QR Stickers for Cars, Bikes, and Helmets",
+    seoTitle: "Vehicle QR Sticker for Parking and Emergency Contact",
     seoDescription:
-      "Shop QR safety stickers for cars, bikes, helmets, and parking contact use cases. Privacy-first, weatherproof, and built for India.",
-    featuredSlugs: [
-      "car-qr-sticker",
-      "bike-qr-sticker",
-      "parking-contact-sticker",
-    ],
+      "Buy QRNetra's Vehicle QR Sticker with a permanent dashboard-linked QR for parking issues and emergency contact.",
+    featuredSlugs: ["vehicle-qr-sticker"],
   },
   pets: {
     key: "pets",
-    title: "Pet QR Tags",
+    title: "Pet Recovery Products",
     shortTitle: "Pets",
     href: "/products/pets",
     description:
-      "Recovery-ready pet tags and ID stickers that help finders reach owners quickly and safely.",
+      "Collar-ready tags that help finders reach a pet owner quickly through a dashboard-linked QR profile.",
     benefits: [
-      "Fast owner reach-out from any phone",
-      "Supports vet and emergency notes",
-      "Lightweight tag options for collars and harnesses",
+      "Pet and owner details update without replacing the tag",
+      "Built for collars, walks, parks, and daily wear",
+      "Supports vet notes and safe-return messaging",
     ],
     faq: [
       {
-        question: "Can I add vet and medical information?",
+        question: "Can I update the pet profile after delivery?",
         answer:
-          "Yes. Pet products link to a QR profile where you can store medical and recovery notes.",
+          "Yes. The tag keeps the same QR while you can update owner, vet, breed, or reward details from your dashboard anytime.",
       },
       {
-        question: "Are the tags suitable for outdoor use?",
+        question: "Is this tag lightweight enough for everyday use?",
         answer:
-          "Yes. Pet tags are designed for outdoor wear and day-to-day activity.",
+          "Yes. The Pet Collar QR Tag is designed for daily collar use while still keeping the QR visible for finders.",
       },
     ],
-    seoTitle: "Pet QR Tags for Dogs and Cats",
+    seoTitle: "Pet Collar QR Tag for Dogs and Cats",
     seoDescription:
-      "Shop QR pet tags for dogs and cats with owner contact, vet info, and safe-return support.",
-    featuredSlugs: ["dog-collar-tag", "cat-collar-tag", "pet-id-tag"],
+      "Order QRNetra's Pet Collar QR Tag to link your pet's collar to a permanent editable recovery profile.",
+    featuredSlugs: ["pet-collar-qr-tag"],
   },
   kids: {
     key: "kids",
-    title: "Kid Safety QR Tags",
+    title: "Child Safety Products",
     shortTitle: "Kids",
     href: "/products/kids",
     description:
-      "Child safety tags and school-ready QR products designed for fast parent contact when it matters most.",
+      "Wristbands and school bag tags that keep guardian contact and child safety information one scan away.",
     benefits: [
-      "School bag and wrist-friendly formats",
-      "Parent and guardian emergency contact support",
-      "Lightweight designs for everyday use",
+      "Permanent QR linked to a child safety profile",
+      "Built for daily school use and family outings",
+      "Emergency contact details remain editable forever",
     ],
     faq: [
       {
-        question: "What details are required for a kid safety tag?",
+        question: "What is the difference between the wristband and bag tag?",
         answer:
-          "Only essential child and parent contact details are needed at checkout. You can add more profile details later.",
+          "The wristband is best for travel, events, and younger children, while the school bag tag is built for daily school carry and class-level details.",
       },
       {
-        question: "Are kid tags suitable for school use?",
+        question: "Can both parents update the information later?",
         answer:
-          "Yes. These products are designed for school bags, ID cards, and everyday safety use.",
+          "The dashboard owner can update the linked QR profile at any time, so emergency contacts and school details can stay current.",
       },
     ],
-    seoTitle: "Kid Safety QR Tags and Wristbands",
+    seoTitle: "Child Safety Wristband and School Bag QR Tag",
     seoDescription:
-      "Buy child safety QR tags for school bags, wristbands, and emergency identification.",
-    featuredSlugs: ["school-bag-tag", "child-safety-tag", "wristband-qr-tag"],
+      "Buy QRNetra child safety products that connect a permanent QR to parent and emergency contact information.",
+    featuredSlugs: ["child-safety-wristband", "child-school-bag-tag"],
   },
   assets: {
     key: "assets",
-    title: "Asset QR Tags",
+    title: "Asset Recovery Products",
     shortTitle: "Assets",
     href: "/products/assets",
     description:
-      "Recovery-oriented QR tags and stickers for keys, wallets, laptops, luggage, and personal belongings.",
+      "Personal belonging recovery tags will return in a future catalog refresh. Today's physical store focuses on vehicles, pets, and child safety.",
     benefits: [
-      "Great for high-misplacement personal items",
-      "Simple recovery instructions for finders",
-      "Compact formats for everyday carry",
+      "Dashboard-linked QR architecture already supports asset recovery",
+      "Printable QR assets and profile editing primitives are in place",
+      "Future SKU expansion can reuse the same fulfillment flow",
     ],
     faq: [
       {
-        question: "Do asset tags work for luggage and travel items?",
+        question: "Are asset products available right now?",
         answer:
-          "Yes. Asset products are ideal for luggage, backpacks, wallets, laptops, and keys.",
-      },
-      {
-        question: "Can I reuse the same QR profile after a replacement order?",
-        answer:
-          "Yes. The replacement product can point to your existing QR profile instead of recreating it.",
+          "Not in the current physical storefront. QRNetra's active physical products are vehicle, pet, and child safety items.",
       },
     ],
-    seoTitle: "Asset QR Tags for Keys, Wallets, Luggage, and Laptops",
+    seoTitle: "QRNetra Asset Recovery Products",
     seoDescription:
-      "Shop QR asset tags and stickers for keys, wallets, luggage, bikes, and laptops with recovery-ready contact flows.",
-    featuredSlugs: ["keys-tag", "wallet-tag", "laptop-sticker"],
+      "QRNetra asset recovery products are not currently active in the storefront.",
+    featuredSlugs: [],
   },
 };
 
-export const PRODUCT_CATEGORIES = Object.values(PRODUCT_CATEGORY_META);
-
-export const PRODUCTS: Product[] = [
+const PHYSICAL_PRODUCTS: Product[] = [
   {
-    title: "Car QR Sticker",
-    slug: "car-qr-sticker",
+    title: "Vehicle QR Sticker",
+    slug: "vehicle-qr-sticker",
+    legacySlugs: [
+      "car-qr-sticker",
+      "bike-qr-sticker",
+      "helmet-qr-sticker",
+      "parking-contact-sticker",
+    ],
+    skuCode: "QRN-VEH-STICKER-001",
     description:
-      "A premium windshield-safe QR sticker for cars that helps finders or neighbors contact you fast without exposing your number publicly.",
-    shortDescription: "Privacy-first car parking and emergency contact sticker.",
-    images: [{ src: "/products/vehicle-qr.svg", alt: "Car QR sticker product illustration" }],
-    price: 349,
-    salePrice: 299,
-    category: "vehicles",
-    tags: ["bestseller", "car", "parking", "weatherproof"],
-    stock: 148,
-    shippingWeight: 0.08,
-    faq: [
+      "A premium weather-ready sticker for cars, bikes, and everyday vehicle parking that permanently links to your QRNetra dashboard profile. If someone scans it for wrong parking or an urgent issue, they reach the latest version of your contact profile without you reprinting the QR.",
+    shortDescription:
+      "Parking and emergency contact sticker linked permanently to your QRNetra dashboard.",
+    imageDirectory: "vehicle-qr-sticker",
+    images: [
       {
-        question: "Where should I place the car sticker?",
-        answer:
-          "Inside the windshield or another visible glass area where a finder can scan it without removing anything.",
+        src: "/products/vehicle-qr-sticker/main.svg",
+        alt: "Vehicle QR Sticker hero product image",
       },
       {
-        question: "Does it work for parking issues?",
+        src: "/products/vehicle-qr-sticker/detail-1.svg",
+        alt: "Vehicle QR Sticker close-up detail",
+      },
+      {
+        src: "/products/vehicle-qr-sticker/detail-2.svg",
+        alt: "Vehicle QR Sticker on a parked car windshield",
+      },
+    ],
+    price: 299,
+    salePrice: null,
+    category: "vehicles",
+    tags: ["vehicle", "parking", "wrong parking", "dashboard-linked"],
+    stock: 250,
+    shippingWeight: 0.05,
+    faq: [
+      {
+        question: "Where should I place the sticker?",
         answer:
-          "Yes. It is designed specifically for wrong-parking and quick owner contact scenarios.",
+          "For best scanability, place it on the inside lower corner of the windshield or another clean visible surface on the vehicle.",
+      },
+      {
+        question: "Will I need to buy another sticker if I change my phone number?",
+        answer:
+          "No. The physical sticker keeps the same QR permanently while your dashboard lets you update contact and emergency details later.",
       },
     ],
     activeStatus: true,
     profileKind: "vehicle",
+    profileVariant: "vehicle",
     features: [
-      "Weatherproof adhesive",
-      "Masked contact flow",
-      "Instant scan support",
-      "Editable linked QR profile",
+      "Permanent dynamic QR linked to your dashboard",
+      "Wrong parking and emergency contact ready",
+      "Weather-resistant print finish",
+      "Editable owner details with no reprint required",
     ],
     benefits: [
-      "Avoid missed calls from public parking issues",
-      "Stay reachable without showing your number",
-      "Use the same profile for future replacements",
+      "Get contacted quickly without printing your mobile number openly",
+      "Use the same QR forever even if profile details change",
+      "Works for daily parking, offices, apartments, and public spaces",
+    ],
+    specifications: [
+      { label: "Format", value: "Vehicle adhesive sticker" },
+      { label: "Use case", value: "Wrong parking and emergency contact" },
+      { label: "QR destination", value: "Permanent QRNetra public profile" },
+      { label: "Linked profile", value: "Vehicle owner dashboard profile" },
+    ],
+    deliveryInfo: [
+      "Ships within 1 business day after successful payment",
+      "Estimated delivery in 3-5 business days across India",
+      "Tracking updates appear in your QRNetra dashboard order page",
     ],
     rating: 4.8,
-    reviewCount: 214,
+    reviewCount: 18,
     reviews: [
       {
-        quote: "Parking issues now get solved in minutes without printing my number.",
-        author: "Rahul S.",
+        rating: 5,
+        title: "Perfect for daily parking",
+        text: "Received my vehicle sticker in 4 days. QR works perfectly and someone contacted me when my car lights were left on.",
+        reviewerName: "Rahul S.",
         location: "Mumbai",
-      },
-    ],
-  },
-  {
-    title: "Bike QR Sticker",
-    slug: "bike-qr-sticker",
-    description:
-      "Compact QR sticker for bikes and scooters, built to handle weather and everyday riding while keeping owner contact one scan away.",
-    shortDescription: "Compact safety sticker for bikes and scooters.",
-    images: [{ src: "/products/vehicle-qr.svg", alt: "Bike QR sticker product illustration" }],
-    price: 329,
-    salePrice: null,
-    category: "vehicles",
-    tags: ["bike", "scooter", "compact"],
-    stock: 122,
-    shippingWeight: 0.06,
-    faq: [
-      {
-        question: "Is the bike sticker waterproof?",
-        answer:
-          "Yes. It is intended for regular outdoor riding conditions and daily commuting.",
+        createdAt: "2026-05-01",
       },
       {
-        question: "Can it be used on scooters too?",
-        answer: "Yes. The product works for bikes, scooters, and other two-wheelers.",
-      },
-    ],
-    activeStatus: true,
-    profileKind: "vehicle",
-    features: [
-      "Compact form factor",
-      "Weather-ready finish",
-      "Simple bike owner contact flow",
-      "Works with vehicle QR profile",
-    ],
-    benefits: [
-      "Better reachability for parking and emergencies",
-      "Ideal for urban commuters",
-      "Easy to attach and scan",
-    ],
-    rating: 4.7,
-    reviewCount: 151,
-    reviews: [
-      {
-        quote: "Small, clean, and actually useful when my bike gets blocked in parking.",
-        author: "Neeraj K.",
-        location: "Pune",
-      },
-    ],
-  },
-  {
-    title: "Helmet QR Sticker",
-    slug: "helmet-qr-sticker",
-    description:
-      "A lightweight helmet QR sticker for riders who want a visible emergency contact and identity layer on their gear.",
-    shortDescription: "Emergency QR sticker for helmets and rider gear.",
-    images: [{ src: "/products/vehicle-qr.svg", alt: "Helmet QR sticker product illustration" }],
-    price: 249,
-    salePrice: 219,
-    category: "vehicles",
-    tags: ["helmet", "rider", "safety"],
-    stock: 97,
-    shippingWeight: 0.04,
-    faq: [
-      {
-        question: "Can I stick it on a riding helmet?",
-        answer:
-          "Yes. It is designed for helmet and accessory placement where scanning remains easy.",
-      },
-      {
-        question: "Can I use the same vehicle profile?",
-        answer:
-          "Yes. The sticker can link to an existing vehicle-oriented QR profile if you already have one.",
-      },
-    ],
-    activeStatus: true,
-    profileKind: "vehicle",
-    features: [
-      "Helmet-safe sticker size",
-      "Fast scan access",
-      "Emergency contact support",
-      "Minimal visual footprint",
-    ],
-    benefits: [
-      "Adds recovery and reachability to riding gear",
-      "Low-cost add-on for riders",
-      "Useful for clubs and daily commuters",
-    ],
-    rating: 4.6,
-    reviewCount: 86,
-    reviews: [
-      {
-        quote: "A small but smart addition to my daily riding gear.",
-        author: "Amit V.",
-        location: "Bengaluru",
-      },
-    ],
-  },
-  {
-    title: "Parking Contact Sticker",
-    slug: "parking-contact-sticker",
-    description:
-      "A dedicated parking-focused QR sticker designed to help others contact you quickly in blocked exits, society parking, and temporary stops.",
-    shortDescription: "Parking-first QR contact sticker for fast owner reach.",
-    images: [{ src: "/products/vehicle-qr.svg", alt: "Parking contact sticker illustration" }],
-    price: 299,
-    salePrice: null,
-    category: "vehicles",
-    tags: ["parking", "contact", "car"],
-    stock: 136,
-    shippingWeight: 0.05,
-    faq: [
-      {
-        question: "How is this different from a regular number sticker?",
-        answer:
-          "It keeps your public number off the sticker while still letting finders contact you through QRNetra.",
-      },
-      {
-        question: "Is it suitable for apartments and offices?",
-        answer:
-          "Yes. It is especially useful in gated communities, offices, and dense parking environments.",
-      },
-    ],
-    activeStatus: true,
-    profileKind: "vehicle",
-    features: [
-      "Parking-first messaging",
-      "Quick owner reach-out",
-      "Clean windshield design",
-      "No printed mobile number required",
-    ],
-    benefits: [
-      "Built for the most common real-world vehicle need",
-      "Simple value proposition for conversion",
-      "Works with existing vehicle QR profiles",
-    ],
-    rating: 4.8,
-    reviewCount: 129,
-    reviews: [
-      {
-        quote: "Exactly what I wanted for city parking without sharing my number.",
-        author: "Priya M.",
+        rating: 5,
+        title: "Exactly what I wanted",
+        text: "Much better than leaving my phone number on the dashboard. The linked QR profile looks premium and easy to update.",
+        reviewerName: "Priya M.",
         location: "Delhi",
+        createdAt: "2026-04-22",
       },
     ],
   },
   {
-    title: "Dog Collar Tag",
-    slug: "dog-collar-tag",
+    title: "Pet Collar QR Tag",
+    slug: "pet-collar-qr-tag",
+    legacySlugs: ["dog-collar-tag", "cat-collar-tag", "pet-id-tag"],
+    skuCode: "QRN-PET-TAG-001",
     description:
-      "A durable dog collar QR tag with owner contact, medical notes, and safe-return details in one scan-ready format.",
-    shortDescription: "Durable QR dog tag for collars and harnesses.",
-    images: [{ src: "/products/pet-qr.svg", alt: "Dog collar QR tag illustration" }],
-    price: 299,
-    salePrice: 259,
-    category: "pets",
-    tags: ["dog", "collar", "recovery", "popular"],
-    stock: 88,
-    shippingWeight: 0.05,
-    faq: [
+      "A collar-ready recovery tag that permanently connects your pet's physical tag to a QRNetra dashboard profile. Finders can scan it to reach the latest owner details, pet information, and vet context without the tag ever needing to change.",
+    shortDescription:
+      "Collar-ready QR tag for pet recovery, owner contact, and vet-aware details.",
+    imageDirectory: "pet-collar-qr-tag",
+    images: [
       {
-        question: "Can I add vet details for my dog?",
-        answer:
-          "Yes. The linked QR profile supports vet and medical notes for recovery use cases.",
+        src: "/products/pet-collar-qr-tag/main.svg",
+        alt: "Pet Collar QR Tag hero product image",
       },
       {
-        question: "Will this work on harnesses too?",
-        answer: "Yes. It can be attached to collars, harnesses, and similar pet gear.",
+        src: "/products/pet-collar-qr-tag/detail-1.svg",
+        alt: "Pet Collar QR Tag attached to a pet collar",
+      },
+      {
+        src: "/products/pet-collar-qr-tag/detail-2.svg",
+        alt: "Pet Collar QR Tag finder scan illustration",
+      },
+    ],
+    price: 499,
+    salePrice: null,
+    category: "pets",
+    tags: ["pet", "collar", "recovery", "vet details"],
+    stock: 180,
+    shippingWeight: 0.03,
+    faq: [
+      {
+        question: "Can I update the pet information later?",
+        answer:
+          "Yes. The tag keeps the same QR while you can update owner, vet, breed, or reward details from your dashboard anytime.",
+      },
+      {
+        question: "Does this work only for dogs?",
+        answer:
+          "No. The tag works for dogs, cats, and other pets that use a collar or harness-compatible attachment.",
       },
     ],
     activeStatus: true,
     profileKind: "pet",
+    profileVariant: "pet",
     features: [
-      "Durable collar attachment",
-      "Fast owner contact",
-      "Vet note support",
-      "Lightweight design",
+      "Permanent dashboard-linked collar tag",
+      "Supports pet, owner, and vet information",
+      "Finder-friendly lost-pet scan flow",
+      "Reusable profile even if details change later",
     ],
     benefits: [
-      "Built for lost-pet recovery moments",
-      "Easy for finders to understand and use",
-      "Works with your existing pet QR profile",
+      "Gives finders a simple way to contact you fast",
+      "Lets you update recovery instructions without replacing the tag",
+      "Keeps pet identity details ready for emergencies and safe return",
+    ],
+    specifications: [
+      { label: "Format", value: "Collar QR tag" },
+      { label: "Use case", value: "Pet recovery and owner contact" },
+      { label: "QR destination", value: "Permanent QRNetra pet profile" },
+      { label: "Linked profile", value: "Pet dashboard profile" },
+    ],
+    deliveryInfo: [
+      "Ships within 1 business day after payment confirmation",
+      "Estimated delivery in 3-5 business days across India",
+      "Order tracking becomes visible in your dashboard after dispatch",
     ],
     rating: 4.9,
-    reviewCount: 173,
+    reviewCount: 16,
     reviews: [
       {
-        quote: "This is the first pet tag I’ve used that feels actually useful in a real recovery moment.",
-        author: "Nisha P.",
+        rating: 5,
+        title: "Best pet tag we have tried",
+        text: "Feels much more useful than a plain metal tag because the profile can include pet notes and an emergency contact.",
+        reviewerName: "Nisha P.",
         location: "Hyderabad",
+        createdAt: "2026-05-05",
+      },
+      {
+        rating: 5,
+        title: "Very easy to set up",
+        text: "The collar tag arrived quickly and the QR profile was already ready in my dashboard by the time I paid.",
+        reviewerName: "Farhan T.",
+        location: "Lucknow",
+        createdAt: "2026-04-18",
       },
     ],
   },
   {
-    title: "Cat Collar Tag",
-    slug: "cat-collar-tag",
+    title: "Child Safety Wristband",
+    slug: "child-safety-wristband",
+    legacySlugs: ["child-safety-tag", "wristband-qr-tag"],
+    skuCode: "QRN-CHILD-WRIST-001",
     description:
-      "A lightweight QR cat tag optimized for smaller collars while still supporting essential recovery and owner contact details.",
-    shortDescription: "Lightweight QR tag built for cats and smaller collars.",
-    images: [{ src: "/products/pet-qr.svg", alt: "Cat collar QR tag illustration" }],
-    price: 279,
+      "A child safety wristband built for travel, outings, public events, and daily protection. The QR is permanently linked to your child's QRNetra profile, so parent contacts and safety notes can be updated later without replacing the wristband.",
+    shortDescription:
+      "Child safety wristband with a permanent QR linked to parent and emergency details.",
+    imageDirectory: "child-safety-wristband",
+    images: [
+      {
+        src: "/products/child-safety-wristband/main.svg",
+        alt: "Child Safety Wristband hero product image",
+      },
+      {
+        src: "/products/child-safety-wristband/detail-1.svg",
+        alt: "Child Safety Wristband worn on a child's wrist",
+      },
+      {
+        src: "/products/child-safety-wristband/detail-2.svg",
+        alt: "Child Safety Wristband scan use case illustration",
+      },
+    ],
+    price: 399,
     salePrice: null,
-    category: "pets",
-    tags: ["cat", "collar", "lightweight"],
-    stock: 73,
-    shippingWeight: 0.04,
-    faq: [
-      {
-        question: "Is the tag small enough for cats?",
-        answer:
-          "Yes. This variant is designed with lighter everyday use in mind.",
-      },
-      {
-        question: "Can I update owner details later?",
-        answer:
-          "Yes. Your QR profile can be updated anytime from your account.",
-      },
-    ],
-    activeStatus: true,
-    profileKind: "pet",
-    features: [
-      "Cat-friendly size",
-      "Owner and emergency contact",
-      "Editable QR profile",
-      "Outdoor-use ready",
-    ],
-    benefits: [
-      "Good fit for smaller pets",
-      "Simple and scan-friendly recovery flow",
-      "No need to replace the QR for profile edits",
-    ],
-    rating: 4.7,
-    reviewCount: 64,
-    reviews: [
-      {
-        quote: "Finally found a cat tag that isn’t bulky and still gives useful contact info.",
-        author: "Jasleen A.",
-        location: "Chandigarh",
-      },
-    ],
-  },
-  {
-    title: "Pet ID Tag",
-    slug: "pet-id-tag",
-    description:
-      "A general-purpose QR pet ID tag for dogs, cats, and mixed-pet households looking for a flexible recovery product.",
-    shortDescription: "General-purpose pet QR tag with flexible profile support.",
-    images: [{ src: "/products/pet-qr.svg", alt: "Pet ID QR tag illustration" }],
-    price: 249,
-    salePrice: 229,
-    category: "pets",
-    tags: ["pet", "id", "bestseller"],
-    stock: 104,
-    shippingWeight: 0.05,
-    faq: [
-      {
-        question: "Can I use this for any pet type?",
-        answer:
-          "Yes. It is suitable for general pet recovery and owner contact use cases.",
-      },
-      {
-        question: "Does it support medical notes?",
-        answer:
-          "Yes. Medical notes can be included in the connected pet profile.",
-      },
-    ],
-    activeStatus: true,
-    profileKind: "pet",
-    features: [
-      "General-purpose pet format",
-      "Recovery-ready owner contact",
-      "Vet and notes support",
-      "Compact hardware",
-    ],
-    benefits: [
-      "Best default option for most pet owners",
-      "Clear contact recovery workflow",
-      "Easy to attach and manage",
-    ],
-    rating: 4.8,
-    reviewCount: 111,
-    reviews: [
-      {
-        quote: "Great default tag if you want something practical without overthinking it.",
-        author: "Sonal D.",
-        location: "Ahmedabad",
-      },
-    ],
-  },
-  {
-    title: "School Bag Tag",
-    slug: "school-bag-tag",
-    description:
-      "A QR safety tag designed for school bags with fast parent contact and child safety context in one simple scan.",
-    shortDescription: "School bag QR tag for parent contact and child safety.",
-    images: [{ src: "/products/kid-qr.svg", alt: "School bag QR tag illustration" }],
-    price: 349,
-    salePrice: 299,
     category: "kids",
-    tags: ["school", "bag", "child", "bestseller"],
-    stock: 116,
-    shippingWeight: 0.06,
+    tags: ["child", "wristband", "travel", "emergency"],
+    stock: 160,
+    shippingWeight: 0.02,
     faq: [
       {
-        question: "Can I add parent and emergency contact details?",
+        question: "When is the wristband best used?",
         answer:
-          "Yes. Parent and emergency contact fields are supported in the linked child profile.",
+          "It is ideal for travel, crowded outings, malls, theme parks, and any place where a quick guardian contact path matters.",
       },
       {
-        question: "Is this good for school bags specifically?",
+        question: "Can medical or allergy information be updated later?",
         answer:
-          "Yes. This is the most common use case for this product.",
+          "Yes. The linked child safety profile remains editable from your dashboard after purchase.",
       },
     ],
     activeStatus: true,
     profileKind: "child",
+    profileVariant: "child_wristband",
     features: [
-      "Bag-friendly format",
-      "Parent contact support",
-      "Emergency note support",
-      "Profile editable anytime",
+      "Permanent QR linked to a child safety profile",
+      "Fast parent and emergency contact access",
+      "Works well for travel and public outings",
+      "Child details remain editable after delivery",
     ],
     benefits: [
-      "Ideal for school-going children",
-      "Makes lost-bag identification easier",
-      "Supports quick guardian contact",
+      "Provides reassurance in crowded public spaces",
+      "Keeps emergency contact information tied to a wearable item",
+      "Reduces the need to reprint when details change later",
+    ],
+    specifications: [
+      { label: "Format", value: "Child safety wristband" },
+      { label: "Use case", value: "Travel, outings, events, child safety" },
+      { label: "QR destination", value: "Permanent QRNetra child profile" },
+      { label: "Linked profile", value: "Child dashboard profile" },
+    ],
+    deliveryInfo: [
+      "Made-to-order print after successful payment",
+      "Estimated delivery in 3-5 business days across India",
+      "Shipping updates and tracking stay available in your dashboard",
     ],
     rating: 4.8,
-    reviewCount: 142,
+    reviewCount: 12,
     reviews: [
       {
-        quote: "This gave us real peace of mind for school commute days.",
-        author: "Megha R.",
-        location: "Noida",
-      },
-    ],
-  },
-  {
-    title: "Child Safety Tag",
-    slug: "child-safety-tag",
-    description:
-      "A child-first QR emergency tag designed for outings, travel, and daily safety situations where parent contact matters.",
-    shortDescription: "General child safety QR tag for daily use and travel.",
-    images: [{ src: "/products/kid-qr.svg", alt: "Child safety QR tag illustration" }],
-    price: 379,
-    salePrice: null,
-    category: "kids",
-    tags: ["child", "safety", "travel"],
-    stock: 83,
-    shippingWeight: 0.05,
-    faq: [
-      {
-        question: "What details should I add for a child safety tag?",
-        answer:
-          "Only the essential child and guardian details are required to begin. You can expand profile info later.",
-      },
-      {
-        question: "Can I include medical information?",
-        answer:
-          "Yes. Medical notes and safety instructions can be included where needed.",
-      },
-    ],
-    activeStatus: true,
-    profileKind: "child",
-    features: [
-      "Child-first safety design",
-      "Guardian contact flow",
-      "Medical note support",
-      "Lightweight build",
-    ],
-    benefits: [
-      "Useful beyond school, including travel and events",
-      "Flexible emergency contact setup",
-      "Easy to scan from any phone",
-    ],
-    rating: 4.7,
-    reviewCount: 78,
-    reviews: [
-      {
-        quote: "We use it for trips and crowded outings. Very reassuring.",
-        author: "Harshita T.",
+        rating: 5,
+        title: "Excellent for travel days",
+        text: "We used it on a family trip and liked knowing the same QR can be updated later if our contact details change.",
+        reviewerName: "Monika G.",
         location: "Jaipur",
+        createdAt: "2026-05-07",
+      },
+      {
+        rating: 4,
+        title: "Useful and reassuring",
+        text: "The wristband setup flow was simple and the QR profile appeared in the dashboard immediately after creation.",
+        reviewerName: "Karan D.",
+        location: "Ahmedabad",
+        createdAt: "2026-04-20",
       },
     ],
   },
   {
-    title: "Wristband QR Tag",
-    slug: "wristband-qr-tag",
+    title: "Child School Bag Tag",
+    slug: "child-school-bag-tag",
+    legacySlugs: ["school-bag-tag"],
+    skuCode: "QRN-CHILD-BAG-001",
     description:
-      "A wearable QR wristband that keeps emergency child information available in a compact and practical everyday format.",
-    shortDescription: "Wearable child safety QR wristband for events and outings.",
-    images: [{ src: "/products/kid-qr.svg", alt: "QR wristband illustration" }],
-    price: 449,
-    salePrice: 399,
-    category: "kids",
-    tags: ["wristband", "wearable", "event"],
-    stock: 65,
-    shippingWeight: 0.07,
-    faq: [
+      "A school-ready QR tag designed for daily bag use. It permanently connects to your child's QRNetra profile so school, class, parent, and emergency details can change over time while the physical bag tag stays the same.",
+    shortDescription:
+      "School bag QR tag linked permanently to a child safety dashboard profile.",
+    imageDirectory: "child-school-bag-tag",
+    images: [
       {
-        question: "Is this suitable for events and travel?",
-        answer:
-          "Yes. It is especially useful when you want the QR to remain on the child directly.",
+        src: "/products/child-school-bag-tag/main.svg",
+        alt: "Child School Bag Tag hero product image",
       },
       {
-        question: "Can I change the linked profile later?",
+        src: "/products/child-school-bag-tag/detail-1.svg",
+        alt: "Child School Bag Tag attached to a school bag",
+      },
+      {
+        src: "/products/child-school-bag-tag/detail-2.svg",
+        alt: "Child School Bag Tag school profile use case illustration",
+      },
+    ],
+    price: 399,
+    salePrice: null,
+    category: "kids",
+    tags: ["school", "bag", "child", "guardian"],
+    stock: 175,
+    shippingWeight: 0.03,
+    faq: [
+      {
+        question: "Can I include school and class information?",
         answer:
-          "Yes. The connected child profile can be edited from your account without changing the band.",
+          "Yes. The school bag tag flow supports school name, class, and teacher contact details in addition to parent and emergency information.",
+      },
+      {
+        question: "Will the QR still work after the school year changes?",
+        answer:
+          "Yes. The printed QR stays the same while you can update class, teacher, and school information from the dashboard later.",
       },
     ],
     activeStatus: true,
     profileKind: "child",
+    profileVariant: "child_school_bag",
     features: [
-      "Wearable format",
-      "Fast scan visibility",
-      "Child profile support",
-      "Travel and event friendly",
+      "Permanent QR linked to a child school profile",
+      "Parent, school, and emergency contact fields",
+      "Built for everyday school bag attachment",
+      "Editable profile without reprinting the tag",
     ],
     benefits: [
-      "Ideal for outings, events, and trips",
-      "Keeps contact details attached to the child",
-      "High utility for mobile-first emergencies",
+      "Keeps daily school safety information easy to maintain",
+      "Makes parent and school contacts easier to reach in urgent situations",
+      "Helps families avoid replacing the tag when class information changes",
+    ],
+    specifications: [
+      { label: "Format", value: "School bag QR tag" },
+      { label: "Use case", value: "Daily school carry and guardian contact" },
+      { label: "QR destination", value: "Permanent QRNetra child profile" },
+      { label: "Linked profile", value: "Child dashboard profile" },
+    ],
+    deliveryInfo: [
+      "Printed after payment confirmation and packed within 1 business day",
+      "Estimated delivery in 3-5 business days across India",
+      "Dashboard order page shows tracking once dispatched",
     ],
     rating: 4.9,
-    reviewCount: 57,
+    reviewCount: 14,
     reviews: [
       {
-        quote: "Perfect for event days when kids can get separated in crowds.",
-        author: "Shalini C.",
-        location: "Kolkata",
-      },
-    ],
-  },
-  {
-    title: "Keys Tag",
-    slug: "keys-tag",
-    description:
-      "A compact QR tag for keys with recovery-focused owner contact and simple instructions for finders.",
-    shortDescription: "Compact QR tag for keys and keychains.",
-    images: [{ src: "/products/asset-qr.svg", alt: "Keys QR tag illustration" }],
-    price: 199,
-    salePrice: 179,
-    category: "assets",
-    tags: ["keys", "compact", "recovery"],
-    stock: 152,
-    shippingWeight: 0.03,
-    faq: [
-      {
-        question: "Can this link to an existing asset profile?",
-        answer:
-          "Yes. Asset products can link to an existing asset QR profile instead of recreating one.",
+        rating: 5,
+        title: "Ideal for school routines",
+        text: "The bag tag format is perfect for everyday school use and I like that class details can be updated later.",
+        reviewerName: "Sneha R.",
+        location: "Noida",
+        createdAt: "2026-05-09",
       },
       {
-        question: "Is it small enough for keychains?",
-        answer:
-          "Yes. This product is designed specifically for key use and compact carry.",
-      },
-    ],
-    activeStatus: true,
-    profileKind: "asset",
-    features: [
-      "Key-friendly compact size",
-      "Fast owner contact",
-      "Editable recovery profile",
-      "Minimal everyday bulk",
-    ],
-    benefits: [
-      "Low-friction asset recovery setup",
-      "Great first-time QR recovery product",
-      "Easy to gift or bundle",
-    ],
-    rating: 4.8,
-    reviewCount: 187,
-    reviews: [
-      {
-        quote: "Exactly the kind of product that makes sense for keys.",
-        author: "Arjun P.",
-        location: "Gurugram",
-      },
-    ],
-  },
-  {
-    title: "Wallet Tag",
-    slug: "wallet-tag",
-    description:
-      "A slim QR wallet tag designed to help honest finders reach you quickly without exposing sensitive details publicly.",
-    shortDescription: "Slim QR recovery tag for wallets and card holders.",
-    images: [{ src: "/products/asset-qr.svg", alt: "Wallet QR tag illustration" }],
-    price: 229,
-    salePrice: null,
-    category: "assets",
-    tags: ["wallet", "slim", "essentials"],
-    stock: 118,
-    shippingWeight: 0.03,
-    faq: [
-      {
-        question: "Does the wallet tag reveal personal information?",
-        answer:
-          "No. It is designed to help the finder contact you without printing sensitive details directly on the product.",
-      },
-      {
-        question: "Can I use it for card holders too?",
-        answer: "Yes. It works well for wallets, card sleeves, and similar essentials.",
-      },
-    ],
-    activeStatus: true,
-    profileKind: "asset",
-    features: [
-      "Slim profile",
-      "Recovery-oriented setup",
-      "Simple contact workflow",
-      "Everyday carry friendly",
-    ],
-    benefits: [
-      "Strong practical use case for essentials",
-      "Easy cross-sell alongside keys tags",
-      "Good for repeat replacement orders",
-    ],
-    rating: 4.6,
-    reviewCount: 92,
-    reviews: [
-      {
-        quote: "A smart add-on for something you really don’t want to lose.",
-        author: "Karan B.",
-        location: "Surat",
-      },
-    ],
-  },
-  {
-    title: "Laptop Sticker",
-    slug: "laptop-sticker",
-    description:
-      "A QR recovery sticker for laptops and work devices that helps honest finders or office teams contact the owner quickly.",
-    shortDescription: "QR recovery sticker for laptops and work devices.",
-    images: [{ src: "/products/asset-qr.svg", alt: "Laptop QR sticker illustration" }],
-    price: 249,
-    salePrice: 219,
-    category: "assets",
-    tags: ["laptop", "device", "work", "sticker"],
-    stock: 91,
-    shippingWeight: 0.04,
-    faq: [
-      {
-        question: "Can I use this for office laptops too?",
-        answer:
-          "Yes. It is useful for both personal and work devices that benefit from recovery contact info.",
-      },
-      {
-        question: "Will it damage the laptop surface?",
-        answer:
-          "It is built as a standard adhesive sticker product and should be applied to a clean, suitable surface.",
-      },
-    ],
-    activeStatus: true,
-    profileKind: "asset",
-    features: [
-      "Device-friendly sticker format",
-      "Asset recovery support",
-      "Simple owner contact flow",
-      "Works with asset QR profiles",
-    ],
-    benefits: [
-      "High-value device protection use case",
-      "Strong B2C and work-device appeal",
-      "Useful for replacements and bundle packs later",
-    ],
-    rating: 4.7,
-    reviewCount: 101,
-    reviews: [
-      {
-        quote: "Feels like the right kind of recovery layer for laptops and work devices.",
-        author: "Dev M.",
+        rating: 5,
+        title: "Setup was very smooth",
+        text: "We created the child profile first, then finished the address and payment flow without having to repeat information.",
+        reviewerName: "Aparna V.",
         location: "Bengaluru",
-      },
-    ],
-  },
-  {
-    title: "Luggage Tag",
-    slug: "luggage-tag",
-    description:
-      "A QR travel tag for luggage and backpacks with recovery contact and return instructions in a simple scanable format.",
-    shortDescription: "Travel-ready QR tag for luggage and backpacks.",
-    images: [{ src: "/products/asset-qr.svg", alt: "Luggage QR tag illustration" }],
-    price: 279,
-    salePrice: 249,
-    category: "assets",
-    tags: ["luggage", "travel", "bag"],
-    stock: 79,
-    shippingWeight: 0.06,
-    faq: [
-      {
-        question: "Can I add travel-specific instructions?",
-        answer:
-          "Yes. Recovery instructions can be included in the linked asset profile.",
-      },
-      {
-        question: "Is this suitable for backpacks too?",
-        answer: "Yes. It works well for backpacks, suitcases, and travel bags.",
-      },
-    ],
-    activeStatus: true,
-    profileKind: "asset",
-    features: [
-      "Travel-focused format",
-      "Recovery instruction support",
-      "Simple contact flow",
-      "Bag-friendly design",
-    ],
-    benefits: [
-      "Useful for frequent travelers",
-      "Clear use case for luggage and bags",
-      "Natural bundle opportunity with keys and wallet tags",
-    ],
-    rating: 4.8,
-    reviewCount: 84,
-    reviews: [
-      {
-        quote: "Makes a lot of sense for travel bags and backpacks.",
-        author: "Ayesha N.",
-        location: "Kochi",
+        createdAt: "2026-04-24",
       },
     ],
   },
 ];
 
+const LEGACY_PRODUCT_ALIAS_MAP = new Map<string, ProductSlug>();
+for (const product of PHYSICAL_PRODUCTS) {
+  for (const legacySlug of product.legacySlugs ?? []) {
+    LEGACY_PRODUCT_ALIAS_MAP.set(legacySlug, product.slug);
+  }
+}
+
+export const PRODUCTS: Product[] = PHYSICAL_PRODUCTS;
+export const PRODUCT_CATEGORIES = Object.values(PRODUCT_CATEGORY_META).filter(
+  (category) => category.featuredSlugs.length > 0,
+);
+
+function resolveCanonicalSlug(slug: string) {
+  return LEGACY_PRODUCT_ALIAS_MAP.get(slug) ?? slug;
+}
+
 export function getPriceLabel(product: Product) {
-  const effective = product.salePrice ?? product.price;
-  return `₹${effective.toLocaleString("en-IN")}`;
+  const amount = product.salePrice ?? product.price;
+  return `₹${amount.toLocaleString("en-IN")}`;
 }
 
 export function getDiscountPercent(product: Product) {
@@ -862,7 +574,7 @@ export function getDiscountPercent(product: Product) {
 }
 
 export function isProductOnSale(product: Product) {
-  return typeof product.salePrice === "number" && product.salePrice < product.price;
+  return Boolean(product.salePrice && product.salePrice < product.price);
 }
 
 export function getProductHref(product: Product) {
@@ -874,7 +586,10 @@ export function getActiveProducts() {
 }
 
 export function getProduct(slug: string) {
-  return PRODUCTS.find((product) => product.slug === slug && product.activeStatus);
+  const canonicalSlug = resolveCanonicalSlug(slug);
+  return PRODUCTS.find(
+    (product) => product.slug === canonicalSlug && product.activeStatus,
+  );
 }
 
 export function getProductsByCategory(category: ProductPrimaryCategory) {
@@ -886,18 +601,17 @@ export function getCategory(key: string) {
 }
 
 export function getCategoryLabel(category: ProductPrimaryCategory) {
-  return PRODUCT_CATEGORY_META[category].shortTitle;
+  return getCategory(category).shortTitle;
 }
 
 export function getFeaturedProducts(category: ProductPrimaryCategory) {
-  const meta = PRODUCT_CATEGORY_META[category];
-  return meta.featuredSlugs
+  return PRODUCT_CATEGORY_META[category].featuredSlugs
     .map((slug) => getProduct(slug))
-    .filter((product): product is Product => Boolean(product));
+    .filter(Boolean) as Product[];
 }
 
 export function getRelatedProducts(product: Product, limit = 4) {
   return getProductsByCategory(product.category)
-    .filter((candidate) => candidate.slug !== product.slug)
+    .filter((item) => item.slug !== product.slug)
     .slice(0, limit);
 }

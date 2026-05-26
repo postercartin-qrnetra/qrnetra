@@ -6,6 +6,7 @@ export type StickerDownloadInput = {
   scanUrl: string;
   slug: string;
   kind: QrKind | string;
+  productSlug?: string | null;
   title: string;
   subtitle?: string | null;
 };
@@ -55,7 +56,7 @@ function wrapCanvasText(
 export async function renderStickerPng(
   input: StickerDownloadInput,
 ): Promise<string> {
-  const meta = getStickerAssetMeta(input.kind);
+  const meta = getStickerAssetMeta(input.kind, input.productSlug);
   const W = 900;
   const H = 1200;
   const canvas = document.createElement("canvas");
@@ -133,7 +134,7 @@ function triggerDownload(dataUrl: string, filename: string) {
 }
 
 export async function downloadStickerPng(input: StickerDownloadInput): Promise<void> {
-  const meta = getStickerAssetMeta(input.kind);
+  const meta = getStickerAssetMeta(input.kind, input.productSlug);
   const png = await renderStickerPng(input);
   triggerDownload(png, `qrnetra-${meta.assetKey}-${input.slug}.png`);
 }
@@ -152,7 +153,7 @@ export async function downloadStickerPdf(
   input: StickerDownloadInput,
 ): Promise<void> {
   const { jsPDF } = await import("jspdf");
-  const meta = getStickerAssetMeta(input.kind);
+  const meta = getStickerAssetMeta(input.kind, input.productSlug);
 
   const doc = new jsPDF({
     orientation: "portrait",
