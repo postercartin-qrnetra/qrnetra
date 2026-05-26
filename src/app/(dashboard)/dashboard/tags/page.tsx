@@ -100,23 +100,55 @@ export default async function DashboardTagsPage({ searchParams }: Props) {
   }
 
   const site = getPublicSiteUrl();
+  const activeCount = tags.filter((tag) => tag.status === "active").length;
+  const disabledCount = tags.filter((tag) => tag.status === "disabled").length;
+  const totalScans = tags.reduce((sum, tag) => sum + tag.scans, 0);
 
   return (
     <div>
-      <div className="flex items-start justify-between gap-4">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-qn-accent">
+            My Tags
+          </p>
           <h1 className="qn-page-title text-white">My QR tags</h1>
           <p className="mt-1 text-sm text-qn-muted">
             Dynamic emergency QRs — edit profile data anytime; the printed code
             stays the same.
           </p>
         </div>
-        <Link
-          href="/create"
-          className="qn-btn-primary mt-1 h-10 shrink-0 px-5"
-        >
-          + New QR
-        </Link>
+        <div className="flex flex-col gap-2 sm:flex-row">
+          <Link href="/scan" className="qn-btn-secondary h-10 shrink-0 px-5">
+            Scan a tag
+          </Link>
+          <Link href="/create" className="qn-btn-primary h-10 shrink-0 px-5">
+            + New QR
+          </Link>
+        </div>
+      </div>
+
+      <div className="mt-6 grid gap-3 sm:grid-cols-3">
+        <div className="rounded-2xl border border-white/[0.08] bg-qn-card-2 p-4">
+          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-qn-muted-2">
+            Total tags
+          </p>
+          <p className="mt-2 text-2xl font-extrabold text-white">{tags.length}</p>
+        </div>
+        <div className="rounded-2xl border border-white/[0.08] bg-qn-card-2 p-4">
+          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-qn-muted-2">
+            Active
+          </p>
+          <p className="mt-2 text-2xl font-extrabold text-white">{activeCount}</p>
+          <p className="mt-1 text-xs text-qn-muted-2">
+            {disabledCount} disabled
+          </p>
+        </div>
+        <div className="rounded-2xl border border-white/[0.08] bg-qn-card-2 p-4">
+          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-qn-muted-2">
+            Total scans
+          </p>
+          <p className="mt-2 text-2xl font-extrabold text-white">{totalScans}</p>
+        </div>
       </div>
 
       {!tags.length ? (
@@ -130,7 +162,7 @@ export default async function DashboardTagsPage({ searchParams }: Props) {
           </Link>
         </div>
       ) : (
-        <ul className="mt-8 grid gap-6 lg:grid-cols-2">
+        <ul className="mt-8 grid gap-5 lg:grid-cols-2">
           {tags.map((tag) => {
             const url = buildPublicScanUrl(site, tag.slug);
             const isNew = newSlug === tag.slug;
@@ -156,9 +188,12 @@ export default async function DashboardTagsPage({ searchParams }: Props) {
                 <div className="flex flex-col gap-5 sm:flex-row sm:items-start">
                   <QrPreview url={url} slug={tag.slug} />
                   <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs font-semibold uppercase tracking-wide text-qn-muted-2">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="text-xs font-semibold uppercase tracking-wide text-qn-accent">
                         {tag.kind}
+                      </span>
+                      <span className="rounded-full bg-qn-surface px-2 py-0.5 text-xs font-semibold text-qn-muted">
+                        {tag.scans} scan{tag.scans !== 1 ? "s" : ""}
                       </span>
                       {isPaused && (
                         <span className="rounded-full bg-qn-warning/15 px-2 py-0.5 text-xs font-semibold text-qn-warning">
@@ -179,13 +214,9 @@ export default async function DashboardTagsPage({ searchParams }: Props) {
                         {tag.vehicle_registration}
                       </p>
                     )}
-                    <div className="mt-2 flex items-center gap-3">
+                    <div className="mt-2 flex flex-wrap items-center gap-3">
                       <p className="font-mono text-xs text-qn-muted-2">
                         {tag.slug}
-                      </p>
-                      <span className="text-qn-muted-2">·</span>
-                      <p className="text-xs font-semibold text-qn-muted-2">
-                        {tag.scans} scan{tag.scans !== 1 ? "s" : ""}
                       </p>
                     </div>
                     <Link

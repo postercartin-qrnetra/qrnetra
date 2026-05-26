@@ -521,9 +521,13 @@ export function AssetFields({
 export function CreateProfileForm({
   initialType,
   initialEmail,
+  activationCode,
+  flow = "create",
 }: {
   initialType?: QrKind;
   initialEmail?: string | null;
+  activationCode?: string | null;
+  flow?: "create" | "activate";
 }) {
   const router = useRouter();
   const { user } = useAuth();
@@ -546,6 +550,7 @@ export function CreateProfileForm({
   const [error, setError] = useState<string | null>(null);
 
   const accountEmail = user?.email ?? email;
+  const isActivationFlow = flow === "activate";
 
   useEffect(() => {
     clearOnboardingDraftMarker();
@@ -599,6 +604,9 @@ export function CreateProfileForm({
   function buildFormData(): FormData {
     const fd = new FormData();
     fd.set("type", type);
+    if (activationCode) {
+      fd.set("activation_code", activationCode);
+    }
     for (const [k, v] of Object.entries(values)) {
       if (v) fd.set(k, v);
     }
@@ -739,8 +747,13 @@ export function CreateProfileForm({
   }
 
   const submitLabel = (() => {
-    if (authPhase === "submitting") return "Generating…";
+    if (authPhase === "submitting") {
+      return isActivationFlow ? "Activating…" : "Generating…";
+    }
     if (loading) return "Please wait…";
+    if (isActivationFlow) {
+      return isLoggedIn ? "Activate Tag →" : "Create Account & Activate Tag →";
+    }
     return isLoggedIn ? "Generate Emergency QR →" : "Create Account & Generate QR →";
   })();
 
@@ -750,15 +763,23 @@ export function CreateProfileForm({
       <div className="mb-8">
         <QnLogoStatic layout="compact" />
         <p className="mt-3 text-xs font-semibold uppercase tracking-[0.18em] text-qn-muted-2">
-          Free QR profile
+          {isActivationFlow ? "Activate physical tag" : "Free QR profile"}
         </p>
         <h1 className="mt-2 text-3xl font-bold tracking-tight text-white">
-          Create your free QR profile
+          {isActivationFlow
+            ? "Complete your profile to activate this tag"
+            : "Create your free QR profile"}
         </h1>
         <p className="mt-2 text-sm leading-relaxed text-qn-muted">
-          Generate a privacy-first QR for your vehicle, child, pet, asset, or
-          business in under 2 minutes. No purchase required.
+          {isActivationFlow
+            ? "Set up the profile that should open when someone scans your purchased QRNetra sticker or tag."
+            : "Generate a privacy-first QR for your vehicle, child, pet, asset, or business in under 2 minutes. No purchase required."}
         </p>
+        {activationCode ? (
+          <p className="mt-3 inline-flex items-center rounded-full bg-qn-surface px-3 py-1.5 font-mono text-xs font-semibold text-qn-muted">
+            Activation code · {activationCode}
+          </p>
+        ) : null}
       </div>
 
       {/* Type selector */}

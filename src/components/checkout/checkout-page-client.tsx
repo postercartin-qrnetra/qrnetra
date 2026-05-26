@@ -1,6 +1,5 @@
 "use client";
 
-import { QnLogoStatic } from "@/components/ui/logo";
 import type { Product } from "@/lib/products";
 import { PRODUCTS, getCategoryLabel } from "@/lib/products";
 import {
@@ -373,14 +372,6 @@ export function CheckoutPageClient() {
 
   return (
     <div className="min-h-screen bg-qn-bg">
-      {/* Header */}
-      <header className="border-b border-white/[0.08] bg-qn-bg-elevated">
-        <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4 sm:px-6">
-          <QnLogoStatic layout="compact" href="/" />
-          <p className="text-sm font-medium text-qn-muted">Secure checkout</p>
-        </div>
-      </header>
-
       <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:py-12">
         {/* Step indicator */}
         <div className="mb-8">

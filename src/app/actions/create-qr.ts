@@ -128,9 +128,11 @@ export async function createQrAction(
   console.log("[AUTH FIX VERIFIED] Email", user.email ?? "(none)");
 
   const profile = validatedFormToProfile(validation.data);
+  const activationCode = String(formData.get("activation_code") ?? "").trim();
   authLog("[AUTH CHECK] proceeding to pipeline insert", {
     userId: user.id,
     profileType: profile.profileType,
+    activationCodePresent: Boolean(activationCode),
   });
 
   const pipeline = await runQrGenerationPipeline(supabase, user.id, profile);
@@ -143,6 +145,40 @@ export async function createQrAction(
   console.log("[AUTH FIX VERIFIED] Profile insert success");
   console.log("[AUTH FIX VERIFIED] QR insert success");
   console.log("[AUTH FIX VERIFIED] Generated slug", pipeline.result.slug);
+
+  if (activationCode) {
+    const { data: activationResult, error: activationError } = await supabase.rpc(
+      "bind_tag_unit_to_qr",
+      {
+        p_activation_code: activationCode,
+        p_qr_slug: pipeline.result.slug,
+      },
+    );
+
+    const activationPayload =
+      activationResult && typeof activationResult === "object"
+        ? (activationResult as { ok?: boolean; error?: string })
+        : null;
+
+    if (activationError || !activationPayload?.ok) {
+      await supabase.from("qr_codes").delete().eq("id", pipeline.result.qrId);
+      await supabase.from("qr_profiles").delete().eq("id", pipeline.result.profileId);
+      await supabase
+        .from("qrs")
+        .delete()
+        .eq("public_slug", pipeline.result.slug)
+        .eq("owner_user_id", user.id);
+
+      return {
+        error:
+          activationError?.message ??
+          activationPayload?.error ??
+          "Could not activate this physical tag.",
+        slug: null,
+      };
+    }
+  }
+
   console.log("RETURNING SUCCESS", { slug: pipeline.result.slug });
   return { error: null, slug: pipeline.result.slug };
 }

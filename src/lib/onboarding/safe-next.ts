@@ -22,6 +22,8 @@ export function safeNextPath(raw: string | null | undefined): string {
   const [pathname] = path.split("?");
   const allowedExact = new Set([
     "/",
+    "/activate",
+    "/scan",
     "/dashboard",
     "/create",
     "/login",
@@ -33,6 +35,7 @@ export function safeNextPath(raw: string | null | undefined): string {
   }
 
   const allowedPrefixes = [
+    "/activate/",
     "/create/",
     "/dashboard/",
   ];

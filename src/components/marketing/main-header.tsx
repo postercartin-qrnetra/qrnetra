@@ -3,8 +3,10 @@
 import { HeaderAuthActions } from "@/components/auth/header-auth-actions";
 import { useAuth } from "@/components/auth/auth-provider";
 import { UserMenu } from "@/components/auth/user-menu";
+import { MobileHeader } from "@/components/mobile/mobile-header";
 import { ProductsNav } from "@/components/marketing/products-nav";
 import { QnLogo } from "@/components/ui/logo";
+import { MARKETING_MOBILE_MENU_LINKS } from "@/lib/navigation/mobile-nav";
 import { Menu, ShoppingCart, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -24,13 +26,15 @@ export function MainHeader() {
 
   return (
     <header className="qn-header sticky top-0 z-50">
-      <div className="mx-auto flex h-14 max-w-7xl items-center justify-between gap-3 px-4 sm:h-16 sm:px-6 md:gap-4 lg:h-20 lg:max-w-[1440px] lg:gap-6 lg:px-10 xl:max-w-[1600px] xl:px-12">
+      <MobileHeader menuLinks={MARKETING_MOBILE_MENU_LINKS} />
+
+      <div className="mx-auto hidden h-16 max-w-7xl items-center justify-between gap-3 px-4 sm:px-6 md:flex md:gap-4 lg:h-20 lg:max-w-[1440px] lg:gap-6 lg:px-10 xl:max-w-[1600px] xl:px-12">
         <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3 lg:flex-none">
           <button
             type="button"
             className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-white lg:hidden"
             aria-expanded={open}
-            aria-controls="mobile-nav"
+            aria-controls="tablet-nav"
             onClick={() => setOpen((v) => !v)}
           >
             <span className="sr-only">Menu</span>
@@ -86,67 +90,67 @@ export function MainHeader() {
         </div>
       </div>
 
-      <div
-        id="mobile-nav"
-        className={`border-t border-white/[0.08] bg-qn-bg-elevated lg:hidden ${
-          open ? "block" : "hidden"
-        }`}
-      >
-        <nav className="mx-auto flex max-w-7xl flex-col px-4 py-4 sm:px-6">
-          <Link
-            href="/"
-            className="rounded-xl px-4 py-3 text-sm font-medium text-qn-muted transition-colors hover:bg-white/[0.04] hover:text-white"
-            onClick={closeMobile}
-          >
-            Home
-          </Link>
-          <ProductsNav mode="mobile" onNavigate={closeMobile} />
-          {NAV_LINKS_AFTER_PRODUCTS.map((item) => (
+      {open ? (
+        <div
+          id="tablet-nav"
+          className="hidden border-t border-white/[0.08] bg-qn-bg-elevated md:block lg:hidden"
+        >
+          <nav className="mx-auto flex max-w-7xl flex-col px-4 py-4 sm:px-6">
             <Link
-              key={item.href}
-              href={item.href}
+              href="/"
               className="rounded-xl px-4 py-3 text-sm font-medium text-qn-muted transition-colors hover:bg-white/[0.04] hover:text-white"
               onClick={closeMobile}
             >
-              {item.label}
+              Home
             </Link>
-          ))}
-          {!isLoading && user ? (
-            <div className="px-2 py-2">
-              <UserMenu variant="header" />
+            <ProductsNav mode="mobile" onNavigate={closeMobile} />
+            {NAV_LINKS_AFTER_PRODUCTS.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="rounded-xl px-4 py-3 text-sm font-medium text-qn-muted transition-colors hover:bg-white/[0.04] hover:text-white"
+                onClick={closeMobile}
+              >
+                {item.label}
+              </Link>
+            ))}
+            {!isLoading && user ? (
+              <div className="px-2 py-2">
+                <UserMenu variant="header" />
+              </div>
+            ) : !isLoading ? (
+              <Link
+                href="/login"
+                className="rounded-xl px-4 py-3 text-sm font-medium text-qn-muted hover:bg-white/[0.04] hover:text-white"
+                onClick={closeMobile}
+              >
+                Login
+              </Link>
+            ) : null}
+            {!isLoading && user ? (
+              <Link
+                href="/dashboard"
+                className="rounded-xl px-4 py-3 text-sm font-medium text-qn-muted hover:bg-white/[0.04] hover:text-white"
+                onClick={closeMobile}
+              >
+                Dashboard
+              </Link>
+            ) : null}
+            <div className="mt-3 flex flex-col gap-2">
+              <Link
+                href="/products"
+                className="qn-btn-primary"
+                onClick={closeMobile}
+              >
+                Shop QR Products
+              </Link>
+              <Link href="/create" className="qn-btn-secondary" onClick={closeMobile}>
+                Create Free QR
+              </Link>
             </div>
-          ) : !isLoading ? (
-            <Link
-              href="/login"
-              className="rounded-xl px-4 py-3 text-sm font-medium text-qn-muted hover:bg-white/[0.04] hover:text-white"
-              onClick={closeMobile}
-            >
-              Login
-            </Link>
-          ) : null}
-          {!isLoading && user ? (
-            <Link
-              href="/dashboard"
-              className="rounded-xl px-4 py-3 text-sm font-medium text-qn-muted hover:bg-white/[0.04] hover:text-white"
-              onClick={closeMobile}
-            >
-              Dashboard
-            </Link>
-          ) : null}
-          <div className="mt-3 flex flex-col gap-2">
-            <Link
-              href="/products"
-              className="qn-btn-primary"
-              onClick={closeMobile}
-            >
-              Shop QR Products
-            </Link>
-            <Link href="/create" className="qn-btn-secondary" onClick={closeMobile}>
-              Create Free QR
-            </Link>
-          </div>
-        </nav>
-      </div>
+          </nav>
+        </div>
+      ) : null}
     </header>
   );
 }

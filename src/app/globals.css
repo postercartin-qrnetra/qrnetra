@@ -129,6 +129,16 @@ body {
   font-family: var(--font-sans);
 }
 
+.qn-mobile-bottom-nav-padding {
+  padding-bottom: calc(5.75rem + env(safe-area-inset-bottom));
+}
+
+@media (min-width: 768px) {
+  .qn-mobile-bottom-nav-padding {
+    padding-bottom: 0;
+  }
+}
+
 ::selection {
   background: rgba(255, 107, 44, 0.35);
   color: #fff;
