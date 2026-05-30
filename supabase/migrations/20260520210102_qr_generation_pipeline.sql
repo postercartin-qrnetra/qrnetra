@@ -1,0 +1,1 @@
+-- See supabase/migrations/20250522120000_qr_generation_pipeline.sql in repo;
