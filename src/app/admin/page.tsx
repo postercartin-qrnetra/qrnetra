@@ -56,6 +56,9 @@ export default async function AdminHomePage() {
           Review paid orders, move products through fulfillment, attach courier
           details, and open the linked QR from one place.
         </p>
+        <Link href="/admin/inventory" className="qn-btn-secondary mt-4 inline-flex text-sm">
+          Tag inventory
+        </Link>
       </div>
 
       <div className="mt-8 grid gap-4">

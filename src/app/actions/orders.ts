@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { sendOrderConfirmationEmail } from "@/lib/email/order-confirmation";
 import { getProduct } from "@/lib/products";
 import { orderAddressSchema, type OrderAddressInput } from "@/lib/orders/address";
+import { reserveTagForOrder } from "@/lib/inventory/reserve-for-order";
 import {
   getRazorpayInstance,
   getRazorpayKeyId,
@@ -441,24 +442,29 @@ export async function verifyRazorpayPaymentAction(input: {
 
   const { data: paidOrder } = await auth.supabase
     .from("orders")
-    .select("id, order_number, qr_slug, contact_email, product:products(title)")
+    .select(
+      "id, order_number, qr_slug, contact_email, product:products(title, slug)",
+    )
     .eq("id", order.id)
     .single();
 
-  if (paidOrder?.contact_email) {
-    const productRelation = (
-      paidOrder as {
-        product?: { title?: string } | Array<{ title?: string }>;
-      }
-    ).product;
-    const productTitle = Array.isArray(productRelation)
-      ? productRelation[0]?.title
-      : productRelation?.title;
+  const productRelation = paidOrder
+    ? (paidOrder as { product?: { title?: string; slug?: string } | Array<{ title?: string; slug?: string }> })
+        .product
+    : null;
+  const productRow = Array.isArray(productRelation)
+    ? productRelation[0]
+    : productRelation;
 
+  if (productRow?.slug) {
+    await reserveTagForOrder(order.id, productRow.slug).catch(() => null);
+  }
+
+  if (paidOrder?.contact_email) {
     await sendOrderConfirmationEmail({
       to: paidOrder.contact_email,
       orderNumber: paidOrder.order_number ?? order.id,
-      productTitle: productTitle ?? "QRNetra product",
+      productTitle: productRow?.title ?? "QRNetra product",
       qrSlug: paidOrder.qr_slug ?? null,
       orderId: paidOrder.id,
     }).catch(() => undefined);

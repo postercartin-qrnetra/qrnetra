@@ -140,6 +140,7 @@ export const MARKETING_MOBILE_MENU_LINKS: MobileMenuLink[] = [
   { href: "/products/kids", label: "Kids" },
   { href: "/products/assets", label: "Assets" },
   { href: "/create", label: "Create Free QR" },
+  { href: "/activate", label: "Activate Tag" },
   { href: "/track-order", label: "Track Order" },
   { href: "/business-fleet", label: "Business & Fleet" },
   { href: "/about", label: "About" },

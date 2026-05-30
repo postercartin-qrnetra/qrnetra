@@ -29,10 +29,14 @@ export async function runQrGenerationPipeline(
   supabase: SupabaseClient,
   userId: string,
   profile: ParsedProfilePayload,
+  options?: { presetSlug?: string | null },
 ): Promise<{ ok: true; result: QrPipelineResult } | { ok: false; error: string }> {
   audit("[STEP 4] slug allocation started");
 
-  const slug = await allocateUniqueQnrSlug(supabase);
+  const presetSlug = options?.presetSlug?.trim() || null;
+  const slug =
+    presetSlug ??
+    (await allocateUniqueQnrSlug(supabase));
   if (!slug) {
     audit("[STEP 5] slug allocation failed");
     return {

@@ -13,6 +13,7 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 
 const NAV_LINKS_AFTER_PRODUCTS = [
+  { href: "/activate", label: "Activate Tag" },
   { href: "/track-order", label: "Track Order" },
   { href: "/about", label: "About" },
 ];

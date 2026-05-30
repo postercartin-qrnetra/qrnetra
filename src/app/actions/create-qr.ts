@@ -3,6 +3,8 @@
 import { parseCookieHeader } from "@supabase/ssr";
 import { cookies, headers } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
+import { sendTagActivatedEmail } from "@/lib/email/tag-lifecycle";
+import { PRODUCT_TYPE_LABELS, type TagProductType } from "@/lib/inventory/types";
 import { runQrGenerationPipeline } from "@/lib/qr/pipeline";
 import {
   validateCreateForm,
@@ -132,13 +134,43 @@ export async function createQrAction(
 
   const profile = validatedFormToProfile(validation.data);
   const activationCode = String(formData.get("activation_code") ?? "").trim();
+  const publicTagId = String(formData.get("public_tag_id") ?? "").trim();
   authLog("[AUTH CHECK] proceeding to pipeline insert", {
     userId: user.id,
     profileType: profile.profileType,
     activationCodePresent: Boolean(activationCode),
+    publicTagIdPresent: Boolean(publicTagId),
   });
 
-  const pipeline = await runQrGenerationPipeline(supabase, user.id, profile);
+  let presetSlug: string | null = null;
+  if (publicTagId && activationCode) {
+    const { data: verifyRaw, error: verifyError } = await supabase.rpc(
+      "verify_tag_activation",
+      {
+        p_public_tag_id: publicTagId,
+        p_activation_code: activationCode,
+      },
+    );
+    const verifyPayload =
+      verifyRaw && typeof verifyRaw === "object"
+        ? (verifyRaw as { ok?: boolean; error?: string; preset_slug?: string })
+        : null;
+    if (verifyError || !verifyPayload?.ok) {
+      return {
+        error:
+          verifyError?.message ??
+          verifyPayload?.error ??
+          "Activation verification failed.",
+        slug: null,
+        qrId: null,
+      };
+    }
+    presetSlug = verifyPayload.preset_slug?.trim() || null;
+  }
+
+  const pipeline = await runQrGenerationPipeline(supabase, user.id, profile, {
+    presetSlug,
+  });
 
   if (!pipeline.ok) {
     console.log("RETURNING INSERT ERROR", pipeline.error);
@@ -150,12 +182,22 @@ export async function createQrAction(
   console.log("[AUTH FIX VERIFIED] Generated slug", pipeline.result.slug);
 
   if (activationCode) {
+    const bindParams = publicTagId
+      ? {
+          p_public_tag_id: publicTagId,
+          p_activation_code: activationCode,
+          p_qr_slug: pipeline.result.slug,
+        }
+      : {
+          p_activation_code: activationCode,
+          p_qr_slug: pipeline.result.slug,
+        };
+
+    const bindRpc = publicTagId ? "bind_tag_unit_to_qr_code" : "bind_tag_unit_to_qr";
+
     const { data: activationResult, error: activationError } = await supabase.rpc(
-      "bind_tag_unit_to_qr",
-      {
-        p_activation_code: activationCode,
-        p_qr_slug: pipeline.result.slug,
-      },
+      bindRpc,
+      bindParams,
     );
 
     const activationPayload =
@@ -180,6 +222,27 @@ export async function createQrAction(
         slug: null,
         qrId: null,
       };
+    }
+
+    if (user.email && publicTagId) {
+      const { data: tagRow } = await supabase
+        .from("tag_units")
+        .select("product_type")
+        .eq("public_tag_id", publicTagId)
+        .maybeSingle();
+
+      const pt = tagRow?.product_type as TagProductType | undefined;
+      const productTitle =
+        pt && pt in PRODUCT_TYPE_LABELS
+          ? PRODUCT_TYPE_LABELS[pt]
+          : "QRNetra Tag";
+
+      await sendTagActivatedEmail({
+        to: user.email,
+        publicTagId,
+        productTitle,
+        scanSlug: pipeline.result.slug,
+      }).catch(() => undefined);
     }
   }
 

@@ -52,7 +52,19 @@ export default async function DashboardTagsPage({ searchParams }: Props) {
     status: string;
     scans: number;
     vehicle_registration: string | null;
+    publicTagId: string | null;
+    tagUnitStatus: string | null;
+    activatedAt: string | null;
   }> = [];
+
+  const { data: ownedUnits } = await supabase
+    .from("tag_units")
+    .select("qr_code_id, public_tag_id, status, activated_at")
+    .eq("owner_user_id", user.id);
+
+  const unitByQrId = new Map(
+    (ownedUnits ?? []).map((u) => [u.qr_code_id, u]),
+  );
 
   if (!codesError && codes?.length) {
     tags = codes.map((c) => {
@@ -60,6 +72,7 @@ export default async function DashboardTagsPage({ searchParams }: Props) {
         c.qr_profiles as QrProfileEmbed | QrProfileEmbed[] | null,
       );
       const extra = p?.data_json ?? {};
+      const unit = unitByQrId.get(c.id);
       return {
         id: c.id,
         slug: c.slug,
@@ -69,6 +82,9 @@ export default async function DashboardTagsPage({ searchParams }: Props) {
         scans: c.scans ?? 0,
         vehicle_registration:
           extra.vehicle_number ?? extra.asset_id ?? null,
+        publicTagId: unit?.public_tag_id ?? null,
+        tagUnitStatus: unit?.status ?? null,
+        activatedAt: unit?.activated_at ?? null,
       };
     });
   } else {
@@ -96,6 +112,9 @@ export default async function DashboardTagsPage({ searchParams }: Props) {
       status: t.status,
       scans: 0,
       vehicle_registration: t.vehicle_registration,
+      publicTagId: null,
+      tagUnitStatus: null,
+      activatedAt: null,
     }));
   }
 
@@ -111,10 +130,10 @@ export default async function DashboardTagsPage({ searchParams }: Props) {
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-qn-accent">
             My Tags
           </p>
-          <h1 className="qn-page-title text-white">My QR tags</h1>
+          <h1 className="qn-page-title text-white">My Tags</h1>
           <p className="mt-1 text-sm text-qn-muted">
-            Dynamic emergency QRs — edit profile data anytime; the printed code
-            stays the same.
+            Physical tags and digital QRs — edit profile data anytime; your scan
+            link stays the same.
           </p>
         </div>
         <div className="flex flex-col gap-2 sm:flex-row">
@@ -209,6 +228,14 @@ export default async function DashboardTagsPage({ searchParams }: Props) {
                     <h2 className="mt-1 text-lg font-semibold text-white">
                       {tag.title ?? "Untitled tag"}
                     </h2>
+                    {tag.publicTagId && (
+                      <p className="mt-0.5 font-mono text-xs text-qn-muted-2">
+                        {tag.publicTagId}
+                        {tag.activatedAt
+                          ? ` · activated ${new Date(tag.activatedAt).toLocaleDateString()}`
+                          : null}
+                      </p>
+                    )}
                     {tag.vehicle_registration && (
                       <p className="mt-0.5 text-sm text-qn-muted">
                         {tag.vehicle_registration}
@@ -235,6 +262,7 @@ export default async function DashboardTagsPage({ searchParams }: Props) {
                       kind={tag.kind}
                       title={tag.title ?? "Emergency QR"}
                       subtitle={tag.vehicle_registration}
+                      isPhysicalTag={Boolean(tag.publicTagId)}
                     />
                   </div>
                 </div>

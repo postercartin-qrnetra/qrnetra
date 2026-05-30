@@ -1,6 +1,6 @@
 import { QnLogoStatic } from "@/components/ui/logo";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { createPublicServerClient } from "@/lib/supabase/public-server";
 import { ScanLogClient } from "@/components/scan-log-client";
 import type { PublicQrScanPayload } from "@/lib/qr/public-payload";
@@ -74,7 +74,46 @@ export default async function PublicScanPage({ params }: Props) {
     rpcFailed = true;
   }
 
+  const { data: gateRaw } = await supabase.rpc("get_tag_public_gate", {
+    p_slug: slug,
+  });
+  const gate =
+    gateRaw && typeof gateRaw === "object"
+      ? (gateRaw as { blocked?: boolean; message?: string })
+      : null;
+
+  if (gate?.blocked) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center bg-qn-bg px-6 text-center">
+        <QnLogoStatic layout="compact" href="/" />
+        <h1 className="mt-8 text-xl font-bold text-white">
+          {gate.message ?? "This tag is currently unavailable."}
+        </h1>
+        <p className="mt-3 max-w-sm text-sm text-qn-muted">
+          If you are the owner, sign in to your dashboard or contact QRNetra support.
+        </p>
+        <Link
+          href="/contact"
+          className="qn-btn-secondary mt-8 inline-flex px-6"
+        >
+          Contact support
+        </Link>
+      </div>
+    );
+  }
+
   if (rpcFailed || !data?.id) {
+    const { data: unactivatedRaw } = await supabase.rpc(
+      "get_unactivated_tag_for_slug",
+      { p_slug: slug },
+    );
+    const unactivated =
+      unactivatedRaw && typeof unactivatedRaw === "object"
+        ? (unactivatedRaw as { ok?: boolean; public_tag_id?: string })
+        : null;
+    if (unactivated?.ok && unactivated.public_tag_id) {
+      redirect(`/activate/${encodeURIComponent(unactivated.public_tag_id)}`);
+    }
     notFound();
   }
 

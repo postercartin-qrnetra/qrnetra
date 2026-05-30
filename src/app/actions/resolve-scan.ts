@@ -20,10 +20,17 @@ export async function resolveScanDestinationAction(
     };
   }
 
+  if (parsed.kind === "activation_tag") {
+    return {
+      error: null,
+      destination: `/activate/${encodeURIComponent(parsed.tagId)}`,
+    };
+  }
+
   if (parsed.kind === "activation") {
     return {
       error: null,
-      destination: `/activate?code=${encodeURIComponent(parsed.code)}`,
+      destination: `/activate/legacy?code=${encodeURIComponent(parsed.code)}`,
     };
   }
 

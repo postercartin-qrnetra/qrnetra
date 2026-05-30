@@ -644,6 +644,7 @@ type CreateProfileFormProps = {
   initialType?: QrKind;
   initialEmail?: string | null;
   activationCode?: string | null;
+  publicTagId?: string | null;
   flow?: FlowMode;
   productVariant?: ProductProfileVariant;
   lockType?: boolean;
@@ -657,6 +658,7 @@ export function CreateProfileForm({
   initialType,
   initialEmail,
   activationCode,
+  publicTagId,
   flow = "create",
   productVariant,
   lockType = false,
@@ -763,6 +765,9 @@ export function CreateProfileForm({
     fd.set("type", type);
     if (activationCode) {
       fd.set("activation_code", activationCode);
+    }
+    if (publicTagId) {
+      fd.set("public_tag_id", publicTagId);
     }
     for (const [k, v] of Object.entries(values)) {
       if (v) fd.set(k, v);
@@ -950,7 +955,11 @@ export function CreateProfileForm({
                 ? "Generate the permanent QR first. It will appear in your dashboard immediately and the same QR will be printed on your purchased product after payment."
                 : "Generate a privacy-first QR for your vehicle, child, pet, asset, or business in under 2 minutes. No purchase required.")}
         </p>
-        {activationCode ? (
+        {publicTagId ? (
+          <p className="mt-3 inline-flex items-center rounded-full bg-qn-surface px-3 py-1.5 font-mono text-xs font-semibold text-qn-muted">
+            Tag ID · {publicTagId}
+          </p>
+        ) : activationCode ? (
           <p className="mt-3 inline-flex items-center rounded-full bg-qn-surface px-3 py-1.5 font-mono text-xs font-semibold text-qn-muted">
             Activation code · {activationCode}
           </p>

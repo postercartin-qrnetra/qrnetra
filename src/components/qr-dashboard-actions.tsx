@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toggleQrStatusAction } from "@/app/actions/create-qr";
+import { deactivatePhysicalTagAction } from "@/app/actions/tag-lifecycle";
 import { QrAssetDownloads } from "@/components/qr-asset-downloads";
 import type { QrKind } from "@/lib/qr/types";
 
@@ -16,6 +17,7 @@ type Props = {
   title: string;
   subtitle?: string | null;
   hideEdit?: boolean;
+  isPhysicalTag?: boolean;
 };
 
 export function QrDashboardActions({
@@ -27,6 +29,7 @@ export function QrDashboardActions({
   title,
   subtitle,
   hideEdit = false,
+  isPhysicalTag = false,
 }: Props) {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
@@ -45,7 +48,9 @@ export function QrDashboardActions({
 
   async function toggleDisable() {
     setBusy(true);
-    const result = await toggleQrStatusAction(qrId, currentStatus);
+    const result = isPhysicalTag
+      ? await deactivatePhysicalTagAction(qrId)
+      : await toggleQrStatusAction(qrId, currentStatus);
     setBusy(false);
     if (!result.error) {
       setCurrentStatus((s) => (s === "active" ? "disabled" : "active"));
@@ -91,7 +96,7 @@ export function QrDashboardActions({
               : "border-green-200 bg-green-50 text-green-700 hover:bg-green-100"
           }`}
         >
-          {busy ? "…" : isDisabled ? "Re-enable QR" : "Disable QR"}
+          {busy ? "…" : isDisabled ? "Re-enable tag" : "Deactivate tag"}
         </button>
       </div>
       <QrAssetDownloads

@@ -1,6 +1,7 @@
 export type ParsedScanTarget =
   | { kind: "public"; slug: string }
   | { kind: "activation"; code: string }
+  | { kind: "activation_tag"; tagId: string }
   | { kind: "unsupported" };
 
 function parseRelativePath(value: string): URL | null {
@@ -30,9 +31,20 @@ export function parseQrnetraScanTarget(value: string): ParsedScanTarget {
   }
 
   if (parsed.pathname.startsWith("/activate")) {
+    const tagMatch = parsed.pathname.match(/^\/activate\/([^/?#]+)/);
+    if (tagMatch?.[1]) {
+      const tagId = decodeURIComponent(tagMatch[1]).trim();
+      if (/^[VPBC]-QRN-\d{6}$/i.test(tagId)) {
+        return { kind: "activation_tag", tagId: tagId.toUpperCase() };
+      }
+    }
     const code = parsed.searchParams.get("code")?.trim();
     if (code) {
       return { kind: "activation", code };
+    }
+    const tag = parsed.searchParams.get("tag")?.trim();
+    if (tag && /^[VPBC]-QRN-\d{6}$/i.test(tag)) {
+      return { kind: "activation_tag", tagId: tag.toUpperCase() };
     }
   }
 

@@ -47,7 +47,7 @@ export function VehicleUseCaseSection() {
               </li>
             ))}
           </ul>
-          <Link href="/create/type" className="qn-btn-primary mt-8 px-8">
+          <Link href="/activate" className="qn-btn-primary mt-8 px-8">
             Activate Your Tag
           </Link>
         </FadeIn>
