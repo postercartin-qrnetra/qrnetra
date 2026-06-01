@@ -14,7 +14,7 @@ import { usePathname } from "next/navigation";
 const links = [
   { href: "/dashboard", label: "Overview", icon: LayoutDashboard, exact: true },
   { href: "/dashboard/tags", label: "My QR tags", icon: QrCode },
-  { href: "/dashboard/scan-history", label: "Scan history", icon: ScanLine },
+  { href: "/dashboard/scan-activity", label: "Scan Activity", icon: ScanLine },
   { href: "/dashboard/orders", label: "Orders", icon: Package },
   { href: "/dashboard/profile", label: "Profile", icon: User },
   { href: "/dashboard/settings", label: "Settings", icon: Settings },

@@ -175,6 +175,13 @@ export function VehicleFields({
         hint="Shown to finder — helps identify the vehicle"
       />
       <InputField
+        label="Vehicle type"
+        name="vehicle_type"
+        value={values.vehicle_type ?? ""}
+        onChange={set("vehicle_type")}
+        placeholder="e.g. Sedan, SUV, Bike"
+      />
+      <InputField
         label="Contact number"
         name="phone"
         type="tel"
@@ -216,6 +223,14 @@ export function VehicleFields({
             value={values.medical_notes ?? ""}
             onChange={set("medical_notes")}
             placeholder="Optional medical details or responder notes"
+          />
+          <TextAreaField
+            label="Finder instructions"
+            name="finder_instructions"
+            value={values.finder_instructions ?? ""}
+            onChange={set("finder_instructions")}
+            placeholder="Instructions shown to finders before they contact you"
+            hint="Optional — defaults to a standard message if left blank"
           />
           <TextAreaField
             label="Emergency note"
@@ -446,6 +461,13 @@ export function PetFields({
             placeholder="e.g. Labrador / Indie"
           />
           <InputField
+            label="Color"
+            name="pet_color"
+            value={values.pet_color ?? ""}
+            onChange={set("pet_color")}
+            placeholder="e.g. Golden, Black & white"
+          />
+          <InputField
             label="Vet / clinic contact"
             name="vet_contact"
             type="tel"
@@ -535,6 +557,13 @@ export function BusinessFields({
             placeholder="e.g. Ops, Security, Logistics"
           />
           <InputField
+            label="Responsible person"
+            name="responsible_person"
+            value={values.responsible_person ?? ""}
+            onChange={set("responsible_person")}
+            placeholder="Person shown on the public scan page"
+          />
+          <InputField
             label="Escalation / emergency contact"
             name="escalation_contact"
             type="tel"
@@ -608,6 +637,13 @@ export function AssetFields({
             onChange={set("asset_id")}
             placeholder="e.g. LAP-114, Blue backpack, Key set #2"
             hint="Helps the finder confirm they found the right belonging."
+          />
+          <InputField
+            label="Responsible person"
+            name="responsible_person"
+            value={values.responsible_person ?? ""}
+            onChange={set("responsible_person")}
+            placeholder="Person shown on the public scan page"
           />
           <InputField
             label="WhatsApp contact"

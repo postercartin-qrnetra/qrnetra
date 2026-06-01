@@ -8,6 +8,8 @@ export type PublicQrScanPayload = {
   title: string | null;
   message: string | null;
   vehicle_registration: string | null;
+  vehicle_type: string | null;
+  finder_instructions: string | null;
   channels: {
     call?: boolean;
     whatsapp?: boolean;
@@ -31,6 +33,7 @@ export type PublicQrScanPayload = {
   // pet
   owner_name: string | null;
   breed: string | null;
+  pet_color: string | null;
   vet_phone: string | null;
   reward_note: string | null;
   // business / fleet
@@ -39,6 +42,7 @@ export type PublicQrScanPayload = {
   asset_id: string | null;
   department: string | null;
   escalation_contact: string | null;
+  responsible_person: string | null;
 };
 
 export function digitsForWhatsApp(e164: string | null | undefined): string | null {

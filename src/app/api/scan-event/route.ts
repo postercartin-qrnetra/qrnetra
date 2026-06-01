@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { handleScanEvent } from "@/lib/scan/handle-scan-event";
+import type { ScanEventPayload } from "@/lib/scan/events";
 
 export const runtime = "nodejs";
 
-/** @deprecated Use POST /api/scan-event with event_type PROFILE_VIEWED */
 export async function POST(req: NextRequest) {
   let body: unknown;
   try {
@@ -14,20 +14,11 @@ export async function POST(req: NextRequest) {
 
   const b =
     typeof body === "object" && body !== null
-      ? (body as { qr_id?: string; device_type?: string; slug?: string })
+      ? (body as Partial<ScanEventPayload>)
       : {};
 
-  if (!b.qr_id) {
-    return NextResponse.json({ error: "qr_id is required" }, { status: 400 });
-  }
-
   try {
-    const result = await handleScanEvent(req, {
-      qr_id: b.qr_id,
-      slug: typeof b.slug === "string" ? b.slug : "unknown",
-      event_type: "PROFILE_VIEWED",
-      device: b.device_type,
-    });
+    const result = await handleScanEvent(req, b);
     if (!result.ok) {
       return NextResponse.json({ error: result.error }, { status: result.status });
     }

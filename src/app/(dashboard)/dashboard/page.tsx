@@ -23,25 +23,20 @@ export default async function DashboardHomePage() {
     .eq("owner_user_id", user.id)
     .order("created_at", { ascending: false });
 
-  const ids = tags?.map((t) => t.id) ?? [];
   let totalScans = 0;
   let lastScanAt: string | null = null;
 
-  if (ids.length > 0) {
-    const { count } = await supabase
-      .from("scan_events")
-      .select("id", { count: "exact", head: true })
-      .in("qr_id", ids);
-    totalScans = count ?? 0;
+  const { data: statsRaw } = await supabase.rpc("get_owner_scan_stats", {
+    p_user_id: user.id,
+  });
 
-    const { data: lastEv } = await supabase
-      .from("scan_events")
-      .select("created_at")
-      .in("qr_id", ids)
-      .order("created_at", { ascending: false })
-      .limit(1)
-      .maybeSingle();
-    lastScanAt = lastEv?.created_at ?? null;
+  if (statsRaw && typeof statsRaw === "object") {
+    const stats = statsRaw as {
+      total_scans?: number;
+      recent_events?: Array<{ created_at?: string }>;
+    };
+    totalScans = stats.total_scans ?? 0;
+    lastScanAt = stats.recent_events?.[0]?.created_at ?? null;
   }
 
   const activeCount = tags?.filter((t) => t).length ?? 0;
@@ -62,13 +57,13 @@ export default async function DashboardHomePage() {
     {
       label: "Total scans",
       value: String(totalScans),
-      href: "/dashboard/scan-history",
+      href: "/dashboard/scan-activity",
       icon: Activity,
     },
     {
       label: "Last scanned",
       value: lastLabel,
-      href: "/dashboard/scan-history",
+      href: "/dashboard/scan-activity",
       icon: Bell,
     },
     {
