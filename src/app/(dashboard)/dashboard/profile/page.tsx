@@ -1,10 +1,5 @@
-import { StubPage } from "@/components/stub-page";
+import { redirect } from "next/navigation";
 
-export default function AccountProfilePage() {
-  return (
-    <StubPage
-      title="Account profile"
-      description="Account-level name and phone — distinct from per-QR emergency contacts."
-    />
-  );
+export default function ProfileRedirectPage() {
+  redirect("/dashboard/settings");
 }

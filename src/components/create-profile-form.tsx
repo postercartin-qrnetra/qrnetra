@@ -1,14 +1,34 @@
 "use client";
 
 import { useAuth } from "@/components/auth/auth-provider";
+import { FormFieldError } from "@/components/form-field-error";
 import { QnLogoStatic } from "@/components/ui/logo";
-import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { createQrAction } from "@/app/actions/create-qr";
 import { clearOnboardingDraftMarker } from "@/lib/onboarding/client-storage";
 import type { ProductProfileVariant } from "@/lib/products";
+import {
+  validateCreateFormFromValues,
+  valuesToFormData,
+  type FieldErrors,
+  type FieldWarnings,
+} from "@/lib/qr/validate-create-form";
 import type { QrKind } from "@/lib/qr/types";
+import { isValidEmail, EMAIL_ERROR } from "@/lib/validation/email";
+import {
+  fieldNormalizeKind,
+  normalizeFieldValue,
+  type FieldNormalizeKind,
+} from "@/lib/validation/normalize";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -65,6 +85,16 @@ function clearDraft(type: QrKind) {
 
 // ─── Field primitives ────────────────────────────────────────────────────────
 
+type FormValidationCtx = {
+  errors: FieldErrors;
+  warnings: FieldWarnings;
+};
+
+export const FormValidationContext = createContext<FormValidationCtx>({
+  errors: {},
+  warnings: {},
+});
+
 export function InputField({
   label,
   name,
@@ -75,6 +105,7 @@ export function InputField({
   required,
   hint,
   autoComplete,
+  normalize,
 }: {
   label: string;
   name: string;
@@ -85,7 +116,17 @@ export function InputField({
   required?: boolean;
   hint?: string;
   autoComplete?: string;
+  normalize?: FieldNormalizeKind;
 }) {
+  const { errors, warnings } = useContext(FormValidationContext);
+  const kind = normalize ?? fieldNormalizeKind(name);
+
+  function handleBlur() {
+    if (type === "email" || name === "email") return;
+    const next = normalizeFieldValue(name, value, kind);
+    if (next !== value) onChange(next);
+  }
+
   return (
     <div>
       <label className="block text-sm font-medium text-white">
@@ -100,9 +141,11 @@ export function InputField({
         placeholder={placeholder}
         value={value}
         onChange={(e) => onChange(e.target.value)}
+        onBlur={handleBlur}
         autoComplete={autoComplete ?? "off"}
         className="mt-2 w-full rounded-xl border border-white/[0.08] bg-qn-card px-4 py-3 text-base text-white shadow-sm outline-none transition placeholder:text-qn-muted-2 focus:border-qn-accent/50 focus:ring-2 focus:ring-qn-accent/30"
       />
+      <FormFieldError error={errors[name]} warning={warnings[name]} />
     </div>
   );
 }
@@ -170,9 +213,10 @@ export function VehicleFields({
         name="vehicle_number"
         value={values.vehicle_number ?? ""}
         onChange={set("vehicle_number")}
-        required={isProductOrder}
-        placeholder="e.g. MH 01 AB 1234"
+        required
+        placeholder="e.g. TN74AS3933"
         hint="Shown to finder — helps identify the vehicle"
+        normalize="vehicle"
       />
       <InputField
         label="Vehicle type"
@@ -257,9 +301,7 @@ export function ChildFields({
   showOptional: boolean;
   variant?: ProductProfileVariant;
 }) {
-  const isWristbandVariant = variant === "child_wristband";
   const isSchoolBagVariant = variant === "child_school_bag";
-  const requiresParentName = isWristbandVariant || isSchoolBagVariant;
 
   return (
     <>
@@ -269,18 +311,25 @@ export function ChildFields({
         value={values.child_name ?? ""}
         onChange={set("child_name")}
         required
-        placeholder="e.g. Arya"
+        placeholder="e.g. ARYA"
       />
-      {requiresParentName ? (
-        <InputField
-          label="Parent / guardian name"
-          name="parent_name"
-          value={values.parent_name ?? ""}
-          onChange={set("parent_name")}
-          required
-          placeholder="e.g. Priya Sharma"
-        />
-      ) : null}
+      <InputField
+        label="Parent / guardian name"
+        name="parent_name"
+        value={values.parent_name ?? ""}
+        onChange={set("parent_name")}
+        required
+        placeholder="e.g. PRIYA SHARMA"
+      />
+      <InputField
+        label="Child age"
+        name="child_age"
+        value={values.child_age ?? ""}
+        onChange={set("child_age")}
+        required
+        placeholder="e.g. 8"
+        hint="Years (0–18)"
+      />
       <InputField
         label="Parent / guardian contact"
         name="parent_contact"
@@ -313,15 +362,6 @@ export function ChildFields({
       ) : null}
       {showOptional && (
         <>
-          {!requiresParentName ? (
-            <InputField
-              label="Parent / guardian name"
-              name="parent_name"
-              value={values.parent_name ?? ""}
-              onChange={set("parent_name")}
-              placeholder="e.g. Priya Sharma"
-            />
-          ) : null}
           <InputField
             label="Emergency contact (secondary)"
             name="emergency_contact"
@@ -530,6 +570,16 @@ export function BusinessFields({
         placeholder="e.g. Sharma Logistics Pvt Ltd"
       />
       <InputField
+        label="Asset ID"
+        name="asset_id"
+        value={values.asset_id ?? ""}
+        onChange={set("asset_id")}
+        required
+        placeholder="e.g. AB-123"
+        hint="Shown on scan page to help identify asset"
+        normalize="assetId"
+      />
+      <InputField
         label="Admin contact"
         name="admin_contact"
         type="tel"
@@ -541,14 +591,6 @@ export function BusinessFields({
       />
       {showOptional && (
         <>
-          <InputField
-            label="Asset / vehicle ID"
-            name="asset_id"
-            value={values.asset_id ?? ""}
-            onChange={set("asset_id")}
-            placeholder="e.g. TRK-007 or MH 12 AB 9999"
-            hint="Shown on scan page to help identify asset"
-          />
           <InputField
             label="Department"
             name="department"
@@ -619,6 +661,16 @@ export function AssetFields({
         placeholder="e.g. Office laptop, Keychain, School bag"
       />
       <InputField
+        label="Asset ID"
+        name="asset_id"
+        value={values.asset_id ?? ""}
+        onChange={set("asset_id")}
+        required
+        placeholder="e.g. LAP-114"
+        hint="Helps the finder confirm they found the right belonging."
+        normalize="assetId"
+      />
+      <InputField
         label="Owner contact"
         name="owner_contact"
         type="tel"
@@ -630,14 +682,6 @@ export function AssetFields({
       />
       {showOptional && (
         <>
-          <InputField
-            label="Asset ID / label"
-            name="asset_id"
-            value={values.asset_id ?? ""}
-            onChange={set("asset_id")}
-            placeholder="e.g. LAP-114, Blue backpack, Key set #2"
-            hint="Helps the finder confirm they found the right belonging."
-          />
           <InputField
             label="Responsible person"
             name="responsible_person"
@@ -722,6 +766,8 @@ export function CreateProfileForm({
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
+  const [fieldWarnings, setFieldWarnings] = useState<FieldWarnings>({});
 
   const accountEmail = user?.email ?? email;
   const isActivationFlow = flow === "activate";
@@ -757,58 +803,28 @@ export function CreateProfileForm({
     [],
   );
 
-  function validateRequired(): string | null {
-    if (type === "vehicle") {
-      if (!values.full_name?.trim()) return "Full name is required.";
-      if (!values.phone?.trim()) return "Contact number is required.";
-      if (productVariant === "vehicle" && !values.vehicle_number?.trim()) {
-        return "Vehicle number is required for this product.";
-      }
-    } else if (type === "child") {
-      if (!values.child_name?.trim()) return "Child's name is required.";
-      if (!values.parent_contact?.trim()) return "Parent contact is required.";
-      if (
-        (productVariant === "child_wristband" ||
-          productVariant === "child_school_bag") &&
-        !values.parent_name?.trim()
-      ) {
-        return "Parent / guardian name is required.";
-      }
-      if (productVariant === "child_school_bag" && !values.school_name?.trim()) {
-        return "School name is required for this product.";
-      }
-      if (productVariant === "child_school_bag" && !values.class_name?.trim()) {
-        return "Class / section is required for this product.";
-      }
-    } else if (type === "pet") {
-      if (!values.pet_name?.trim()) return "Pet's name is required.";
-      if (!values.owner_contact?.trim()) return "Owner contact is required.";
-      if (productVariant === "pet" && !values.owner_name?.trim()) {
-        return "Owner name is required for this product.";
-      }
-    } else if (type === "asset") {
-      if (!values.asset_name?.trim()) return "Asset name is required.";
-      if (!values.owner_contact?.trim()) return "Owner contact is required.";
-    } else if (type === "business") {
-      if (!values.company_name?.trim()) return "Company name is required.";
-      if (!values.admin_contact?.trim()) return "Admin contact is required.";
+  function runClientValidation(): boolean {
+    const result = validateCreateFormFromValues(type, values, {
+      productVariant,
+    });
+    if (!result.ok) {
+      setFieldErrors(result.fieldErrors);
+      setFieldWarnings(result.fieldWarnings);
+      setError(result.error);
+      return false;
     }
-    return null;
+    setFieldErrors({});
+    setFieldWarnings(result.warnings);
+    setError(null);
+    return true;
   }
 
   function buildFormData(): FormData {
-    const fd = new FormData();
-    fd.set("type", type);
-    if (activationCode) {
-      fd.set("activation_code", activationCode);
-    }
-    if (publicTagId) {
-      fd.set("public_tag_id", publicTagId);
-    }
-    for (const [k, v] of Object.entries(values)) {
-      if (v) fd.set(k, v);
-    }
-    return fd;
+    const extra: Record<string, string> = {};
+    if (activationCode) extra.activation_code = activationCode;
+    if (publicTagId) extra.public_tag_id = publicTagId;
+    if (productVariant) extra.product_variant = productVariant;
+    return valuesToFormData(type, values, extra);
   }
 
   /**
@@ -869,12 +885,7 @@ export function CreateProfileForm({
   }
 
   async function handleSubmit() {
-    const fieldErr = validateRequired();
-    if (fieldErr) {
-      setError(fieldErr);
-      return;
-    }
-    setError(null);
+    if (!runClientValidation()) return;
 
     if (isLoggedIn) {
       await submitQrCreation();
@@ -883,6 +894,11 @@ export function CreateProfileForm({
 
     if (!email.trim()) {
       setError("Enter your email address to continue.");
+      setAuthPhase("needs-auth");
+      return;
+    }
+    if (!isValidEmail(email)) {
+      setError(EMAIL_ERROR);
       setAuthPhase("needs-auth");
       return;
     }
@@ -1031,6 +1047,7 @@ export function CreateProfileForm({
       {/* Form card */}
       <div className="rounded-3xl border border-white/[0.08] bg-qn-card shadow-[0_20px_60px_-12px_rgba(0,0,0,0.1)]">
         {/* Required fields */}
+        <FormValidationContext.Provider value={{ errors: fieldErrors, warnings: fieldWarnings }}>
         <div className="px-6 pt-6 pb-5 space-y-5">
           <p className="text-xs font-semibold uppercase tracking-[0.12em] text-qn-muted-2">
             {type === "vehicle" && "Vehicle details"}
@@ -1087,6 +1104,7 @@ export function CreateProfileForm({
             {showOptional ? "Hide optional fields" : "Add more details (optional)"}
           </button>
         </div>
+        </FormValidationContext.Provider>
 
         {/* Divider */}
         <div className="mx-6 h-px bg-qn-surface" />

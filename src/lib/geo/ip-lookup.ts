@@ -3,6 +3,7 @@ import "server-only";
 export type GeoResult = {
   country: string | null;
   city: string | null;
+  region: string | null;
 };
 
 function countryFromHeaders(headers: Headers): string | null {
@@ -30,7 +31,7 @@ function isPrivateIp(ip: string): boolean {
 
 async function lookupCityFromIp(ip: string): Promise<GeoResult> {
   if (isPrivateIp(ip)) {
-    return { country: null, city: null };
+    return { country: null, city: null, region: null };
   }
 
   const controller = new AbortController();
@@ -38,23 +39,25 @@ async function lookupCityFromIp(ip: string): Promise<GeoResult> {
 
   try {
     const res = await fetch(
-      `http://ip-api.com/json/${encodeURIComponent(ip)}?fields=status,country,countryCode,city`,
+      `http://ip-api.com/json/${encodeURIComponent(ip)}?fields=status,country,countryCode,city,regionName`,
       { signal: controller.signal, cache: "no-store" },
     );
-    if (!res.ok) return { country: null, city: null };
+    if (!res.ok) return { country: null, city: null, region: null };
     const data = (await res.json()) as {
       status?: string;
       country?: string;
       countryCode?: string;
       city?: string;
+      regionName?: string;
     };
-    if (data.status !== "success") return { country: null, city: null };
+    if (data.status !== "success") return { country: null, city: null, region: null };
     return {
       country: data.countryCode?.trim() || data.country?.trim() || null,
       city: data.city?.trim() || null,
+      region: data.regionName?.trim() || null,
     };
   } catch {
-    return { country: null, city: null };
+    return { country: null, city: null, region: null };
   } finally {
     clearTimeout(timeout);
   }
@@ -70,5 +73,6 @@ export async function resolveGeoFromRequest(
   return {
     country: headerCountry ?? lookup.country,
     city: lookup.city,
+    region: lookup.region,
   };
 }

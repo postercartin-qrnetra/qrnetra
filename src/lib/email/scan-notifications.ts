@@ -1,6 +1,8 @@
 import "server-only";
 
 import { Resend } from "resend";
+import { formatScanTimestamp } from "@/lib/datetime/scan-timestamp";
+import { countryLabel, formatEventLocation } from "@/lib/geo/labels";
 import type { FinderEventType } from "@/lib/scan/events";
 import { getPublicSiteUrl } from "@/lib/site-url";
 
@@ -73,18 +75,15 @@ function buildSubject(input: {
   return `Someone scanned your ${label} QR`;
 }
 
-function formatLocation(city: string | null, country: string | null): string {
-  if (city && country) return `${city}, ${country}`;
-  if (city) return city;
-  if (country) return country;
-  return "Unknown";
-}
-
-function formatTimestamp(iso: string): string {
-  return new Date(iso).toLocaleString(undefined, {
-    dateStyle: "medium",
-    timeStyle: "short",
-  });
+function formatLocation(
+  city: string | null,
+  country: string | null,
+  region?: string | null,
+): string {
+  return (
+    formatEventLocation({ city, region, country: countryLabel(country) ?? country }) ??
+    "Unknown"
+  );
 }
 
 export async function sendScanNotificationEmail(input: {
@@ -95,6 +94,8 @@ export async function sendScanNotificationEmail(input: {
   reason?: string | null;
   city?: string | null;
   country?: string | null;
+  region?: string | null;
+  scannerTimezone?: string | null;
   occurredAt?: string;
 }) {
   const resend = getResendClient();
@@ -102,8 +103,17 @@ export async function sendScanNotificationEmail(input: {
 
   const site = getPublicSiteUrl();
   const dashboardUrl = `${site}/dashboard/scan-activity`;
-  const when = input.occurredAt ? formatTimestamp(input.occurredAt) : formatTimestamp(new Date().toISOString());
-  const location = formatLocation(input.city ?? null, input.country ?? null);
+  const iso = input.occurredAt ?? new Date().toISOString();
+  const ts = formatScanTimestamp(iso, {
+    scannerTimezone: input.scannerTimezone,
+    country: input.country,
+  });
+  const when = `${ts.date}, ${ts.time} ${ts.tzLabel}`;
+  const location = formatLocation(
+    input.city ?? null,
+    input.country ?? null,
+    input.region,
+  );
   const subject = buildSubject(input);
 
   const reasonBlock =

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { formatScanTimestamp } from "@/lib/datetime/scan-timestamp";
 import { Activity, Bell, QrCode, User } from "lucide-react";
 
 export const dynamic = "force-dynamic";
@@ -25,6 +26,11 @@ export default async function DashboardHomePage() {
 
   let totalScans = 0;
   let lastScanAt: string | null = null;
+  let lastEv: {
+    created_at?: string;
+    scanner_timezone?: string | null;
+    country?: string | null;
+  } | null = null;
 
   const { data: statsRaw } = await supabase.rpc("get_owner_scan_stats", {
     p_user_id: user.id,
@@ -33,18 +39,26 @@ export default async function DashboardHomePage() {
   if (statsRaw && typeof statsRaw === "object") {
     const stats = statsRaw as {
       total_scans?: number;
-      recent_events?: Array<{ created_at?: string }>;
+      recent_events?: Array<{
+        created_at?: string;
+        scanner_timezone?: string | null;
+        country?: string | null;
+      }>;
     };
     totalScans = stats.total_scans ?? 0;
-    lastScanAt = stats.recent_events?.[0]?.created_at ?? null;
+    lastEv = stats.recent_events?.[0] ?? null;
+    lastScanAt = lastEv?.created_at ?? null;
   }
 
   const activeCount = tags?.filter((t) => t).length ?? 0;
   const lastLabel = lastScanAt
-    ? new Date(lastScanAt).toLocaleString(undefined, {
-        dateStyle: "medium",
-        timeStyle: "short",
-      })
+    ? (() => {
+        const ts = formatScanTimestamp(lastScanAt, {
+          scannerTimezone: lastEv?.scanner_timezone,
+          country: lastEv?.country,
+        });
+        return `${ts.date}, ${ts.time} ${ts.tzLabel}`;
+      })()
     : "—";
 
   const statCards = [

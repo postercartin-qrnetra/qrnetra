@@ -2,6 +2,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { EditQrProfileForm } from "@/components/edit-qr-profile-form";
+import { ProfileCompletenessCard } from "@/components/profile-completeness-card";
+import { computeProfileCompleteness } from "@/lib/qr/profile-completeness";
 import { QrAssetDownloads } from "@/components/qr-asset-downloads";
 import { QrPreview } from "@/components/qr-preview";
 import { QrDashboardActions } from "@/components/qr-dashboard-actions";
@@ -49,6 +51,7 @@ export default async function QrDetailPage({ params }: Props) {
   const site = getPublicSiteUrl();
   const scanUrl = buildPublicScanUrl(site, code.slug);
   const subtitle = dataJson.vehicle_number ?? dataJson.asset_id ?? null;
+  const completeness = computeProfileCompleteness(kind, dataJson);
 
   return (
     <div className="max-w-2xl">
@@ -62,6 +65,10 @@ export default async function QrDetailPage({ params }: Props) {
         Edit emergency profile
       </h1>
       <p className="mt-1 font-mono text-xs text-qn-muted-2">{code.slug}</p>
+
+      <div className="mt-6">
+        <ProfileCompletenessCard completeness={completeness} />
+      </div>
 
       <div className="mt-8 grid gap-8 lg:grid-cols-2">
         <div>

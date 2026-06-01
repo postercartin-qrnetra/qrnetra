@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { sendTagActivatedEmail } from "@/lib/email/tag-lifecycle";
 import { PRODUCT_TYPE_LABELS, type TagProductType } from "@/lib/inventory/types";
 import { runQrGenerationPipeline } from "@/lib/qr/pipeline";
+import type { ProductProfileVariant } from "@/lib/products";
 import {
   validateCreateForm,
   validatedFormToProfile,
@@ -30,7 +31,12 @@ export async function createQrAction(
 ): Promise<CreateQrResult> {
   console.log("[CREATE QR ACTION START]");
 
-  const validation = validateCreateForm(formData);
+  const validation = validateCreateForm(formData, {
+    productVariant:
+      typeof formData.get("product_variant") === "string"
+        ? (formData.get("product_variant") as ProductProfileVariant)
+        : undefined,
+  });
   if (!validation.ok) {
     console.log("RETURNING VALIDATION ERROR", validation.error);
     return { error: validation.error, slug: null, qrId: null };

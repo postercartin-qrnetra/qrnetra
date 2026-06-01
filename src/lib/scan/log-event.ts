@@ -19,6 +19,15 @@ function detectBrowser(): string {
   return "Other";
 }
 
+function detectTimezone(): string {
+  if (typeof Intl === "undefined") return "Asia/Kolkata";
+  try {
+    return Intl.DateTimeFormat().resolvedOptions().timeZone || "Asia/Kolkata";
+  } catch {
+    return "Asia/Kolkata";
+  }
+}
+
 export async function logFinderEvent(input: {
   qrId: string;
   slug: string;
@@ -36,6 +45,7 @@ export async function logFinderEvent(input: {
     browser: detectBrowser(),
     latitude: input.latitude,
     longitude: input.longitude,
+    timezone: detectTimezone(),
   };
 
   try {

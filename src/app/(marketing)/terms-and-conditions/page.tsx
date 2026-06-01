@@ -1,11 +1,20 @@
-import { StubPage } from "@/components/stub-page";
+import { LegalPageLayout } from "@/components/content/legal-page-layout";
+import { termsContent } from "@/content/legal/terms";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Terms and Conditions | QRNetra",
+  description: termsContent.description,
+};
 
 export default function TermsPage() {
   return (
-    <StubPage
-      title="Terms & conditions"
-      description="Terms of sale and service — replace with counsel-reviewed copy."
-      breadcrumb={[{ href: "/", label: "Home" }, { href: "/terms-and-conditions", label: "Terms" }]}
+    <LegalPageLayout
+      content={termsContent}
+      breadcrumb={[
+        { href: "/", label: "Home" },
+        { href: "/terms-and-conditions", label: "Terms" },
+      ]}
     />
   );
 }

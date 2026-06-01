@@ -1,11 +1,20 @@
-import { StubPage } from "@/components/stub-page";
+import { LegalPageLayout } from "@/components/content/legal-page-layout";
+import { cookiePolicyContent } from "@/content/legal/cookies";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Cookie Policy | QRNetra",
+  description: cookiePolicyContent.description,
+};
 
 export default function CookiePolicyPage() {
   return (
-    <StubPage
-      title="Cookie policy"
-      description="Cookies and analytics — minimal footprint for a safety brand."
-      breadcrumb={[{ href: "/", label: "Home" }, { href: "/cookie-policy", label: "Cookies" }]}
+    <LegalPageLayout
+      content={cookiePolicyContent}
+      breadcrumb={[
+        { href: "/", label: "Home" },
+        { href: "/cookie-policy", label: "Cookies" },
+      ]}
     />
   );
 }

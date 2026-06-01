@@ -18,7 +18,7 @@ const ACCOUNT_LINKS: MobileMenuLink[] = [
   { href: "/dashboard", label: "Dashboard" },
   { href: "/dashboard/tags", label: "My Tags" },
   { href: "/dashboard/orders", label: "Orders" },
-  { href: "/dashboard/profile", label: "Profile" },
+  { href: "/dashboard/settings", label: "Settings" },
   { href: "/dashboard/settings", label: "Settings" },
 ];
 

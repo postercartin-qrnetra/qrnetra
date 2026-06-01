@@ -1,11 +1,20 @@
-import { StubPage } from "@/components/stub-page";
+import { LegalPageLayout } from "@/components/content/legal-page-layout";
+import { disclaimerContent } from "@/content/legal/disclaimer";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Disclaimer | QRNetra",
+  description: disclaimerContent.description,
+};
 
 export default function DisclaimerPage() {
   return (
-    <StubPage
-      title="Disclaimer"
-      description="Limits of liability for emergency contact relay — legal review required."
-      breadcrumb={[{ href: "/", label: "Home" }, { href: "/disclaimer", label: "Disclaimer" }]}
+    <LegalPageLayout
+      content={disclaimerContent}
+      breadcrumb={[
+        { href: "/", label: "Home" },
+        { href: "/disclaimer", label: "Disclaimer" },
+      ]}
     />
   );
 }

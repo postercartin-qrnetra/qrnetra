@@ -38,5 +38,15 @@ export default async function DashboardLayout({
     redirect("/login?next=/dashboard");
   }
 
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("account_status")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  if (profile?.account_status === "deactivated") {
+    redirect("/dashboard/settings?account=deactivated");
+  }
+
   return <DashboardShell>{children}</DashboardShell>;
 }

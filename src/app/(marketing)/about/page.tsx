@@ -1,10 +1,16 @@
-import { StubPage } from "@/components/stub-page";
+import { MarketingPageLayout } from "@/components/content/marketing-page-layout";
+import { aboutContent } from "@/content/company/about";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "About Us | QRNetra",
+  description: aboutContent.description,
+};
 
 export default function AboutPage() {
   return (
-    <StubPage
-      title="About QR Netra"
-      description="Mission, safety-first vision, and why we built privacy-preserving QR emergency contact for Indian families and fleets."
+    <MarketingPageLayout
+      content={aboutContent}
       breadcrumb={[{ href: "/", label: "Home" }, { href: "/about", label: "About" }]}
     />
   );

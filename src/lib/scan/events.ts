@@ -36,6 +36,7 @@ export type ScanEventPayload = {
   browser?: string;
   latitude?: number;
   longitude?: number;
+  timezone?: string;
 };
 
 export type OwnerScanStats = {
@@ -44,6 +45,7 @@ export type OwnerScanStats = {
   call_clicks: number;
   whatsapp_clicks: number;
   emergency_clicks: number;
+  top_location: string | null;
   recent_events: FinderEventRow[];
 };
 
@@ -55,6 +57,9 @@ export type FinderEventRow = {
   browser: string | null;
   country: string | null;
   city: string | null;
+  region: string | null;
+  scanner_timezone: string | null;
+  location_source: string | null;
   latitude: number | null;
   longitude: number | null;
   created_at: string;

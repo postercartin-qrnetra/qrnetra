@@ -7,10 +7,17 @@ import {
   AssetFields,
   BusinessFields,
   ChildFields,
+  FormValidationContext,
   PetFields,
   VehicleFields,
 } from "@/components/create-profile-form";
 import type { QrKind } from "@/lib/qr/types";
+import {
+  validateCreateFormFromValues,
+  valuesToFormData,
+  type FieldErrors,
+  type FieldWarnings,
+} from "@/lib/qr/validate-create-form";
 
 type Values = Record<string, string>;
 
@@ -39,6 +46,7 @@ function profileToFormValues(
       child_name: name,
       parent_contact: phone,
       parent_name: data.parent_name ?? "",
+      child_age: data.child_age ?? "",
       emergency_contact: data.emergency_contact ?? "",
       blood_group: data.blood_group ?? "",
       allergies: data.allergies ?? "",
@@ -109,6 +117,8 @@ export function EditQrProfileForm({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
+  const [fieldWarnings, setFieldWarnings] = useState<FieldWarnings>({});
 
   const set = useCallback(
     (key: string) => (val: string) => setValues((s) => ({ ...s, [key]: val })),
@@ -121,12 +131,18 @@ export function EditQrProfileForm({
     setError(null);
     setSaved(false);
 
-    const fd = new FormData();
-    fd.set("type", kind);
-    for (const [k, v] of Object.entries(values)) {
-      if (v) fd.set(k, v);
+    const validation = validateCreateFormFromValues(kind, values);
+    if (!validation.ok) {
+      setFieldErrors(validation.fieldErrors);
+      setFieldWarnings(validation.fieldWarnings);
+      setError(validation.error);
+      setLoading(false);
+      return;
     }
+    setFieldErrors({});
+    setFieldWarnings(validation.warnings);
 
+    const fd = valuesToFormData(kind, values);
     const result = await updateQrProfileAction(qrId, fd);
     setLoading(false);
 
@@ -146,21 +162,23 @@ export function EditQrProfileForm({
         <span className="font-mono font-semibold">/s/…</span>) stay the same.
       </p>
 
-      {kind === "vehicle" && (
-        <VehicleFields values={values} set={set} showOptional={showOptional} />
-      )}
-      {kind === "child" && (
-        <ChildFields values={values} set={set} showOptional={showOptional} />
-      )}
-      {kind === "pet" && (
-        <PetFields values={values} set={set} showOptional={showOptional} />
-      )}
-      {kind === "asset" && (
-        <AssetFields values={values} set={set} showOptional={showOptional} />
-      )}
-      {kind === "business" && (
-        <BusinessFields values={values} set={set} showOptional={showOptional} />
-      )}
+      <FormValidationContext.Provider value={{ errors: fieldErrors, warnings: fieldWarnings }}>
+        {kind === "vehicle" && (
+          <VehicleFields values={values} set={set} showOptional={showOptional} />
+        )}
+        {kind === "child" && (
+          <ChildFields values={values} set={set} showOptional={showOptional} />
+        )}
+        {kind === "pet" && (
+          <PetFields values={values} set={set} showOptional={showOptional} />
+        )}
+        {kind === "asset" && (
+          <AssetFields values={values} set={set} showOptional={showOptional} />
+        )}
+        {kind === "business" && (
+          <BusinessFields values={values} set={set} showOptional={showOptional} />
+        )}
+      </FormValidationContext.Provider>
 
       {!showOptional && (
         <button

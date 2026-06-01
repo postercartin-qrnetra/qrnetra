@@ -1,29 +1,28 @@
 import { QnLogo } from "@/components/ui/logo";
 import Link from "next/link";
+import { SUPPORT_CONTACT } from "@/lib/support/types";
 
 const PRODUCT_LINKS = [
-  { href: "/products/vehicles", label: "Vehicle Products" },
-  { href: "/products/pets", label: "Pet Products" },
-  { href: "/products/kids", label: "Kid Safety Products" },
-  { href: "/products/assets", label: "Asset Recovery Products" },
-  { href: "/create", label: "Create Free QR" },
-  { href: "/business-fleet", label: "Business & Fleet" },
+  { href: "/products/vehicles", label: "Vehicle QR" },
+  { href: "/products/pets", label: "Pet QR" },
+  { href: "/products/kids", label: "Kids QR" },
+  { href: "/business-fleet", label: "Business QR" },
 ];
 
 const COMPANY_LINKS = [
-  { href: "/pricing", label: "Pricing" },
-  { href: "/about", label: "About" },
+  { href: "/about", label: "About Us" },
   { href: "/contact", label: "Contact" },
   { href: "/blog", label: "Blog" },
   { href: "/track-order", label: "Track Order" },
+  { href: "/help", label: "Help Center" },
 ];
 
 const LEGAL_LINKS = [
   { href: "/privacy-policy", label: "Privacy Policy" },
-  { href: "/terms-and-conditions", label: "Terms" },
+  { href: "/terms-and-conditions", label: "Terms & Conditions" },
   { href: "/refund-policy", label: "Refund Policy" },
   { href: "/shipping-policy", label: "Shipping Policy" },
-  { href: "/cookie-policy", label: "Cookies" },
+  { href: "/cookie-policy", label: "Cookie Policy" },
   { href: "/disclaimer", label: "Disclaimer" },
 ];
 
@@ -119,7 +118,7 @@ export function MainFooter() {
               Instagram
             </a>
             <a
-              href="https://wa.me/"
+              href={SUPPORT_CONTACT.whatsappUrl}
               className="text-sm text-qn-muted transition-colors hover:text-qn-accent"
               rel="noopener noreferrer"
               target="_blank"
@@ -127,19 +126,17 @@ export function MainFooter() {
               WhatsApp
             </a>
             <a
-              href="https://linkedin.com"
+              href={`mailto:${SUPPORT_CONTACT.email}`}
               className="text-sm text-qn-muted transition-colors hover:text-qn-accent"
-              rel="noopener noreferrer"
-              target="_blank"
             >
-              LinkedIn
+              Email
             </a>
           </div>
           <div className="flex flex-col gap-1 sm:items-end">
             <p className="text-xs text-qn-muted-2">
               © {new Date().getFullYear()} QR Netra. All rights reserved.
             </p>
-            <p className="text-xs text-qn-muted-2">Built for India 🇮🇳</p>
+            <p className="text-xs text-qn-muted-2">Built for India</p>
           </div>
         </div>
       </div>

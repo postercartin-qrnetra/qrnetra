@@ -20,6 +20,9 @@ async function maybeNotifyOwner(input: {
   reason?: string;
   city: string | null;
   country: string | null;
+  region: string | null;
+  scannerTimezone: string | null;
+  occurredAt: string;
   shouldNotify: boolean;
 }) {
   if (!input.shouldNotify || !shouldSendNotification(input.eventType)) return;
@@ -36,12 +39,18 @@ async function maybeNotifyOwner(input: {
       ? (ctxRaw as {
           owner_email?: string;
           notify_owner?: boolean;
+          scan_alerts?: boolean;
+          emergency_alerts?: boolean;
           kind?: string;
           title?: string;
         })
       : null;
 
   if (!ctx?.owner_email || ctx.notify_owner === false) return;
+
+  const isEmergency = input.eventType === "EMERGENCY_CLICKED";
+  if (isEmergency && ctx.emergency_alerts === false) return;
+  if (!isEmergency && ctx.scan_alerts === false) return;
 
   await sendScanNotificationEmail({
     to: ctx.owner_email,
@@ -51,6 +60,9 @@ async function maybeNotifyOwner(input: {
     reason: input.reason,
     city: input.city,
     country: input.country,
+    region: input.region,
+    scannerTimezone: input.scannerTimezone,
+    occurredAt: input.occurredAt,
   }).catch(() => {
     /* non-blocking */
   });
@@ -87,6 +99,10 @@ export async function handleScanEvent(req: NextRequest, body: Partial<ScanEventP
     typeof body.longitude === "number" && Number.isFinite(body.longitude)
       ? body.longitude
       : null;
+  const scannerTimezone =
+    typeof body.timezone === "string" ? body.timezone.slice(0, 64) || null : null;
+  const locationSource =
+    latitude != null && longitude != null ? "gps" : "ip";
 
   const rawIp = clientIp(req);
   const ip_hash = createHash("sha256").update(rawIp).digest("hex").slice(0, 48);
@@ -109,6 +125,9 @@ export async function handleScanEvent(req: NextRequest, body: Partial<ScanEventP
     p_latitude: latitude,
     p_longitude: longitude,
     p_ip_hash: ip_hash,
+    p_scanner_timezone: scannerTimezone,
+    p_region: geo.region,
+    p_location_source: locationSource,
   });
 
   if (error) {
@@ -139,6 +158,9 @@ export async function handleScanEvent(req: NextRequest, body: Partial<ScanEventP
     reason: reason ?? undefined,
     city: geo.city,
     country: geo.country,
+    region: geo.region,
+    scannerTimezone,
+    occurredAt: new Date().toISOString(),
     shouldNotify: result.should_notify ?? false,
   });
 

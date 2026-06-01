@@ -60,7 +60,6 @@ export function ContactSection({ data, selectedReason }: Props) {
           eventType="EMERGENCY_CLICKED"
           reason={reason}
           variant="emergency"
-          askLocation={false}
         />
       ) : null}
 

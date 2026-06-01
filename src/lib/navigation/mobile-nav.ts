@@ -31,7 +31,7 @@ export const MOBILE_NAV_ITEMS: MobileNavItem[] = [
   { id: "scan", label: "Scan", href: "/scan", icon: ScanLine },
   { id: "shop", label: "Shop", href: "/products", icon: ShoppingBag },
   { id: "my-tags", label: "My Tags", href: "/dashboard/tags", icon: Ticket },
-  { id: "profile", label: "Profile", href: "/dashboard/profile", icon: UserRound },
+  { id: "profile", label: "Settings", href: "/dashboard/settings", icon: UserRound },
 ];
 
 const HOME_PREFIXES = [
@@ -42,6 +42,8 @@ const HOME_PREFIXES = [
   "/pricing",
   "/contact",
   "/blog",
+  "/help",
+  "/faq",
 ];
 
 const SHOP_PREFIXES = [
@@ -64,7 +66,6 @@ const TAG_PREFIXES = [
 ];
 
 const PROFILE_PREFIXES = [
-  "/dashboard/profile",
   "/dashboard/settings",
   "/dashboard/orders",
   "/dashboard/billing",
@@ -124,7 +125,7 @@ export function shouldShowMobileBottomNav(pathname: string): boolean {
 }
 
 export function getProfileTabHref(isSignedIn: boolean) {
-  return isSignedIn ? "/dashboard/profile" : "/login?next=/dashboard/profile";
+  return isSignedIn ? "/dashboard/settings" : "/login?next=/dashboard/settings";
 }
 
 export function getMyTagsTabHref(isSignedIn: boolean) {
@@ -143,15 +144,15 @@ export const MARKETING_MOBILE_MENU_LINKS: MobileMenuLink[] = [
   { href: "/activate", label: "Activate Tag" },
   { href: "/track-order", label: "Track Order" },
   { href: "/business-fleet", label: "Business & Fleet" },
+  { href: "/help", label: "Help Center" },
   { href: "/about", label: "About" },
 ];
 
 export const DASHBOARD_MOBILE_MENU_LINKS: MobileMenuLink[] = [
   { href: "/dashboard", label: "Dashboard" },
   { href: "/dashboard/tags", label: "My Tags" },
-  { href: "/dashboard/scan-history", label: "Scan History" },
+  { href: "/dashboard/scan-activity", label: "Scan Activity" },
   { href: "/dashboard/orders", label: "Orders" },
-  { href: "/dashboard/profile", label: "Profile" },
   { href: "/dashboard/settings", label: "Settings" },
   { href: "/products", label: "Shop Products" },
 ];
@@ -161,7 +162,7 @@ export const SHOP_MOBILE_MENU_LINKS: MobileMenuLink[] = [
   { href: "/cart", label: "Cart" },
   { href: "/track-order", label: "Track Order" },
   { href: "/dashboard/tags", label: "My Tags" },
-  { href: "/dashboard/profile", label: "Profile" },
+  { href: "/dashboard/settings", label: "Settings" },
 ];
 
 export const CREATE_MOBILE_MENU_LINKS: MobileMenuLink[] = [
@@ -169,5 +170,5 @@ export const CREATE_MOBILE_MENU_LINKS: MobileMenuLink[] = [
   { href: "/scan", label: "Scan Tag" },
   { href: "/products", label: "Shop Products" },
   { href: "/dashboard/tags", label: "My Tags" },
-  { href: "/dashboard/profile", label: "Profile" },
+  { href: "/dashboard/settings", label: "Settings" },
 ];

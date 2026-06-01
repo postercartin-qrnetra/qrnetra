@@ -1,11 +1,20 @@
-import { StubPage } from "@/components/stub-page";
+import { LegalPageLayout } from "@/components/content/legal-page-layout";
+import { refundPolicyContent } from "@/content/legal/refund";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Refund Policy | QRNetra",
+  description: refundPolicyContent.description,
+};
 
 export default function RefundPolicyPage() {
   return (
-    <StubPage
-      title="Refund policy"
-      description="Returns and refunds for physical QR products — India ecommerce clarity."
-      breadcrumb={[{ href: "/", label: "Home" }, { href: "/refund-policy", label: "Refunds" }]}
+    <LegalPageLayout
+      content={refundPolicyContent}
+      breadcrumb={[
+        { href: "/", label: "Home" },
+        { href: "/refund-policy", label: "Refund Policy" },
+      ]}
     />
   );
 }

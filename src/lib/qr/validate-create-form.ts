@@ -1,26 +1,137 @@
 import { z } from "zod";
-import { isPlausiblePhone, normalizeIndiaPhone } from "@/lib/qr/slug";
+import type { ProductProfileVariant } from "@/lib/products";
 import { QR_KINDS, type QrKind } from "@/lib/qr/types";
+import { isValidAssetId, normalizeAssetId, ASSET_ID_ERROR } from "@/lib/validation/asset-id";
+import { phonesMatch, DUPLICATE_EMERGENCY_WARNING } from "@/lib/validation/duplicates";
+import { isValidPersonName, normalizeUpperName, NAME_ERROR } from "@/lib/validation/names";
+import {
+  isValidIndianMobile,
+  normalizeIndiaPhone,
+  PHONE_ERROR,
+} from "@/lib/validation/phones";
+import { isValidRewardNote, REWARD_ERROR } from "@/lib/validation/reward";
+import {
+  isValidIndianVehicleNumber,
+  normalizeVehicleNumber,
+  VEHICLE_NUMBER_ERROR,
+} from "@/lib/validation/vehicle";
+
+export type ValidationContext = {
+  productVariant?: ProductProfileVariant;
+};
+
+const nameField = z
+  .string()
+  .min(1, "Name is required.")
+  .transform((v) => normalizeUpperName(v))
+  .refine((v) => isValidPersonName(v), NAME_ERROR);
 
 const phoneField = z
   .string()
   .min(1, "Phone number is required.")
   .transform((v) => normalizeIndiaPhone(v))
-  .refine((v) => isPlausiblePhone(v), "Enter a valid phone number (10+ digits).");
+  .refine((v) => isValidIndianMobile(v), PHONE_ERROR);
 
 const optionalPhone = z
   .string()
   .optional()
   .transform((v) => (v?.trim() ? normalizeIndiaPhone(v) : ""))
-  .refine((v) => !v || isPlausiblePhone(v), "Invalid phone number format.");
+  .refine((v) => !v || isValidIndianMobile(v), PHONE_ERROR);
 
 const optionalText = z.string().optional().transform((v) => v?.trim() ?? "");
 
+const vehicleNumberField = z
+  .string()
+  .min(1, "Vehicle registration number is required.")
+  .transform((v) => normalizeVehicleNumber(v))
+  .refine((v) => isValidIndianVehicleNumber(v), VEHICLE_NUMBER_ERROR);
+
+const assetIdRequired = z
+  .string()
+  .min(1, "Asset ID is required.")
+  .transform((v) => normalizeAssetId(v))
+  .refine((v) => isValidAssetId(v), ASSET_ID_ERROR);
+
+const assetIdOptional = z
+  .string()
+  .optional()
+  .transform((v) => (v?.trim() ? normalizeAssetId(v) : ""))
+  .refine((v) => !v || isValidAssetId(v), ASSET_ID_ERROR);
+
+const childAgeField = z
+  .string()
+  .min(1, "Child age is required.")
+  .transform((v) => v.trim())
+  .refine((v) => /^\d+$/.test(v), "Age must be a number.")
+  .refine((v) => {
+    const n = Number(v);
+    return Number.isInteger(n) && n >= 0 && n <= 18;
+  }, "Age must be between 0 and 18.");
+
+const rewardNoteField = optionalText.refine(
+  (v) => isValidRewardNote(v),
+  REWARD_ERROR,
+);
+
+function collectPhoneWarnings(data: ValidatedCreateForm): FieldWarnings {
+  const warnings: FieldWarnings = {};
+  const add = (fields: { key: string; value: string }[], primary: string) => {
+    for (const { key, value } of fields) {
+      if (value && phonesMatch(primary, value)) {
+        warnings[key] = DUPLICATE_EMERGENCY_WARNING;
+      }
+    }
+  };
+
+  if (data.type === "vehicle") {
+    add(
+      [
+        { key: "alternate_contact", value: data.alternate_contact },
+        { key: "whatsapp", value: data.whatsapp },
+      ],
+      data.phone,
+    );
+  } else if (data.type === "child") {
+    add(
+      [
+        { key: "emergency_contact", value: data.emergency_contact },
+        { key: "teacher_contact", value: data.teacher_contact },
+      ],
+      data.parent_contact,
+    );
+  } else if (data.type === "pet") {
+    add(
+      [
+        { key: "vet_contact", value: data.vet_contact },
+        { key: "whatsapp", value: data.whatsapp },
+      ],
+      data.owner_contact,
+    );
+  } else if (data.type === "asset") {
+    add(
+      [
+        { key: "alternate_contact", value: data.alternate_contact },
+        { key: "whatsapp", value: data.whatsapp },
+      ],
+      data.owner_contact,
+    );
+  } else {
+    add(
+      [
+        { key: "escalation_contact", value: data.escalation_contact },
+        { key: "whatsapp", value: data.whatsapp },
+      ],
+      data.admin_contact,
+    );
+  }
+  return warnings;
+}
+
 const vehicleSchema = z.object({
   type: z.literal("vehicle"),
-  full_name: z.string().min(1, "Owner name is required."),
+  full_name: nameField,
   phone: phoneField,
-  vehicle_number: optionalText,
+  vehicle_number: vehicleNumberField,
   vehicle_type: optionalText,
   whatsapp: optionalPhone,
   alternate_contact: optionalPhone,
@@ -32,9 +143,10 @@ const vehicleSchema = z.object({
 
 const childSchema = z.object({
   type: z.literal("child"),
-  child_name: z.string().min(1, "Child name is required."),
+  child_name: nameField,
   parent_contact: phoneField,
-  parent_name: optionalText,
+  parent_name: nameField,
+  child_age: childAgeField,
   emergency_contact: optionalPhone,
   blood_group: optionalText,
   allergies: optionalText,
@@ -46,25 +158,35 @@ const childSchema = z.object({
   emergency_note: optionalText,
 });
 
-const petSchema = z.object({
-  type: z.literal("pet"),
-  pet_name: z.string().min(1, "Pet name is required."),
-  owner_contact: phoneField,
-  owner_name: optionalText,
-  breed: optionalText,
-  pet_color: optionalText,
-  vet_contact: optionalPhone,
-  whatsapp: optionalPhone,
-  medical_notes: optionalText,
-  reward_note: optionalText,
-  emergency_note: optionalText,
-});
+const petSchema = z
+  .object({
+    type: z.literal("pet"),
+    pet_name: nameField,
+    owner_contact: phoneField,
+    owner_name: optionalText.transform((v) => (v ? normalizeUpperName(v) : "")),
+    breed: optionalText,
+    pet_color: optionalText,
+    vet_contact: optionalPhone,
+    whatsapp: optionalPhone,
+    medical_notes: optionalText,
+    reward_note: rewardNoteField,
+    emergency_note: optionalText,
+  })
+  .superRefine((data, ctx) => {
+    if (data.owner_name && !isValidPersonName(data.owner_name)) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["owner_name"],
+        message: NAME_ERROR,
+      });
+    }
+  });
 
 const assetSchema = z.object({
   type: z.literal("asset"),
-  asset_name: z.string().min(1, "Asset name is required."),
+  asset_name: nameField,
   owner_contact: phoneField,
-  asset_id: optionalText,
+  asset_id: assetIdRequired,
   responsible_person: optionalText,
   whatsapp: optionalPhone,
   alternate_contact: optionalPhone,
@@ -73,9 +195,9 @@ const assetSchema = z.object({
 
 const businessSchema = z.object({
   type: z.literal("business"),
-  company_name: z.string().min(1, "Company name is required."),
+  company_name: nameField,
   admin_contact: phoneField,
-  asset_id: optionalText,
+  asset_id: assetIdRequired,
   department: optionalText,
   responsible_person: optionalText,
   escalation_contact: optionalPhone,
@@ -104,8 +226,29 @@ export type ParsedProfilePayload = {
   emergencyNote: string | null;
 };
 
+export type FieldErrors = Record<string, string>;
+export type FieldWarnings = Record<string, string>;
+
 function str(fd: FormData, key: string): string {
   return String(fd.get(key) ?? "").trim();
+}
+
+export function valuesToFormData(
+  type: QrKind,
+  values: Record<string, string>,
+  extra?: Record<string, string>,
+): FormData {
+  const fd = new FormData();
+  fd.set("type", type);
+  for (const [k, v] of Object.entries(values)) {
+    if (v) fd.set(k, v);
+  }
+  if (extra) {
+    for (const [k, v] of Object.entries(extra)) {
+      if (v) fd.set(k, v);
+    }
+  }
+  return fd;
 }
 
 function formDataToRaw(fd: FormData): Record<string, string> {
@@ -133,6 +276,7 @@ function formDataToRaw(fd: FormData): Record<string, string> {
       child_name: str(fd, "child_name"),
       parent_contact: str(fd, "parent_contact"),
       parent_name: str(fd, "parent_name"),
+      child_age: str(fd, "child_age"),
       emergency_contact: str(fd, "emergency_contact"),
       blood_group: str(fd, "blood_group"),
       allergies: str(fd, "allergies"),
@@ -189,9 +333,53 @@ function formDataToRaw(fd: FormData): Record<string, string> {
   return base;
 }
 
-function pickDataJson(
+function getProductVariantErrors(
   data: ValidatedCreateForm,
-): Record<string, string> {
+  productVariant?: ProductProfileVariant,
+): { path: string; message: string }[] {
+  const errors: { path: string; message: string }[] = [];
+  if (!productVariant) return errors;
+
+  if (productVariant === "child_school_bag" && data.type === "child") {
+    if (!data.school_name) {
+      errors.push({
+        path: "school_name",
+        message: "School name is required for this product.",
+      });
+    }
+    if (!data.class_name) {
+      errors.push({
+        path: "class_name",
+        message: "Class / section is required for this product.",
+      });
+    }
+  }
+
+  if (productVariant === "pet" && data.type === "pet") {
+    if (!data.owner_name) {
+      errors.push({
+        path: "owner_name",
+        message: "Owner name is required for this product.",
+      });
+    } else if (!isValidPersonName(data.owner_name)) {
+      errors.push({ path: "owner_name", message: NAME_ERROR });
+    }
+  }
+
+  return errors;
+}
+
+function issuesToFieldErrors(issues: z.ZodIssue[]): FieldErrors {
+  const errors: FieldErrors = {};
+  for (const issue of issues) {
+    const path = issue.path[0];
+    if (typeof path !== "string") continue;
+    if (!errors[path]) errors[path] = issue.message;
+  }
+  return errors;
+}
+
+function pickDataJson(data: ValidatedCreateForm): Record<string, string> {
   const out: Record<string, string> = {};
   const entries = Object.entries(data) as [string, string][];
   for (const [key, value] of entries) {
@@ -269,28 +457,81 @@ export function validatedFormToProfile(
   };
 }
 
-export function validateCreateForm(formData: FormData): {
+function contextFromFormData(
+  formData: FormData,
+  context?: ValidationContext,
+): ValidationContext {
+  const fromForm = str(formData, "product_variant");
+  return {
+    productVariant:
+      context?.productVariant ??
+      (fromForm ? (fromForm as ValidationContext["productVariant"]) : undefined),
+  };
+}
+
+export function validateCreateForm(
+  formData: FormData,
+  context?: ValidationContext,
+): {
   ok: true;
   data: ValidatedCreateForm;
+  warnings: FieldWarnings;
 } | {
   ok: false;
   error: string;
+  fieldErrors: FieldErrors;
+  fieldWarnings: FieldWarnings;
 } {
   const raw = formDataToRaw(formData);
   const type = raw.type;
 
   if (!type || !QR_KINDS.includes(type as QrKind)) {
-    return { ok: false, error: "Select a valid profile type." };
+    return {
+      ok: false,
+      error: "Select a valid profile type.",
+      fieldErrors: {},
+      fieldWarnings: {},
+    };
   }
 
   const parsed = createFormSchema.safeParse(raw);
   if (!parsed.success) {
+    const fieldErrors = issuesToFieldErrors(parsed.error.issues);
     const first = parsed.error.issues[0];
     return {
       ok: false,
       error: first?.message ?? "Please check the form and try again.",
+      fieldErrors,
+      fieldWarnings: {},
     };
   }
 
-  return { ok: true, data: parsed.data };
+  const ctx = contextFromFormData(formData, context);
+  const variantErrors = getProductVariantErrors(parsed.data, ctx.productVariant);
+  if (variantErrors.length > 0) {
+    const fieldErrors: FieldErrors = {};
+    for (const e of variantErrors) {
+      fieldErrors[e.path] = e.message;
+    }
+    return {
+      ok: false,
+      error: variantErrors[0]?.message ?? "Please check the form and try again.",
+      fieldErrors,
+      fieldWarnings: {},
+    };
+  }
+
+  return {
+    ok: true,
+    data: parsed.data,
+    warnings: collectPhoneWarnings(parsed.data),
+  };
+}
+
+export function validateCreateFormFromValues(
+  type: QrKind,
+  values: Record<string, string>,
+  context?: ValidationContext,
+): ReturnType<typeof validateCreateForm> {
+  return validateCreateForm(valuesToFormData(type, values), context);
 }

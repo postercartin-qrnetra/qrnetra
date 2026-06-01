@@ -61,7 +61,7 @@ export function TrackedContactAction({
 
   function handleClick(e: React.MouseEvent) {
     e.preventDefault();
-    if (askLocation && eventType !== "EMERGENCY_CLICKED") {
+    if (askLocation) {
       setModalOpen(true);
       return;
     }

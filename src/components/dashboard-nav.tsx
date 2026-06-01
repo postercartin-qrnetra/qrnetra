@@ -16,7 +16,6 @@ const links = [
   { href: "/dashboard/tags", label: "My QR tags", icon: QrCode },
   { href: "/dashboard/scan-activity", label: "Scan Activity", icon: ScanLine },
   { href: "/dashboard/orders", label: "Orders", icon: Package },
-  { href: "/dashboard/profile", label: "Profile", icon: User },
   { href: "/dashboard/settings", label: "Settings", icon: Settings },
 ];
 
